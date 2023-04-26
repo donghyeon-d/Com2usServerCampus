@@ -1,5 +1,6 @@
 # Com2us ServerCampus
 
+## 소개
 > Com2us ServerCampus 1기 본과제 입니다.
 > 서머너즈워 게임의 컨텐츠의 일부를 모작하며, WebAPI 서버로 구현할 수 있는 내용으로 구성되어있습니다. 게임의 근간은 스테이지 클리어 형식이고, 스테이지를 클리어하면 보상을 받는 구조입니다.
 
@@ -7,7 +8,7 @@
 
 [https://dong-d.gitbook.io/main-subject/](https://dong-d.gitbook.io/main-subject/)
 
-
+<br><br>
 ## Coding conventions
 > 이 코드는 Com2us에서 사용하는 코딩 컨벤션을 따릅니다. 내용은 아래와 같습니다.
 - [dotnet/runtime 코딩 스타일](https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/coding-style.md)을 따라간다
