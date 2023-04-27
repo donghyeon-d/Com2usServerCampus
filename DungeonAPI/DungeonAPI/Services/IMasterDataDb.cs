@@ -1,10 +1,12 @@
-﻿using System;
+﻿using DungeonAPI.Models;
+using System;
 namespace DungeonAPI.Services
 {
 	public interface IMasterDataDb
 	{
-		public Task<ErrorCode> Load();
-	}
+        public Task<Tuple<ErrorCode, IEnumerable<MasterData.Item>>> Load();
+
+    }
 }
 
 

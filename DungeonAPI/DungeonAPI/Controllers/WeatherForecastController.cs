@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DungeonAPI.Services;
+using DungeonAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DungeonAPI.Controllers;
 
@@ -11,14 +13,16 @@ public class WeatherForecastController : ControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-    private readonly ILogger<WeatherForecastController> _logger;
+    readonly ILogger<WeatherForecastController> _logger;
+    readonly IMasterDataDb _masterDataDb;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, IMasterDataDb masterDataDb)
     {
         _logger = logger;
+        _masterDataDb = masterDataDb;
     }
 
-    [HttpGet]
+    [HttpPost]
     public IEnumerable<WeatherForecast> Get()
     {
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -28,6 +32,12 @@ public class WeatherForecastController : ControllerBase
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
         })
         .ToArray();
+    }
+
+    [HttpGet]
+    public async Task<Tuple<ErrorCode, IEnumerable<MasterData.Item>>> Post()
+    {
+        return await _masterDataDb.Load();
     }
 }
 

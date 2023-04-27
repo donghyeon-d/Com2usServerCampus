@@ -5,40 +5,51 @@ using MySqlConnector;
 using SqlKata;
 using SqlKata.Execution;
 using ZLogger;
+using DungeonAPI.Models;
+using static DungeonAPI.Models.MasterData;
 
 namespace DungeonAPI.Services;
 
-public class MasterDataDB : IMasterDataDb
+public class MasterDataDb : IMasterDataDb
 {
-    readonly ILogger<MasterDataDB> _logger;
+    readonly ILogger<MasterDataDb> _logger;
     readonly IOptions<DbConfig> _dbConfig;
 
     IDbConnection _dbConn;
     SqlKata.Compilers.MySqlCompiler _compiler;
     QueryFactory _queryFactory;
 
-    public MasterDataDB(ILogger<MasterDataDB> logger, IOptions<DbConfig> dbConfig)
+    public static MasterData s_masterData = new MasterData();
+
+    public MasterDataDb(ILogger<MasterDataDb> logger, IOptions<DbConfig> dbConfig)
     {
         _dbConfig = dbConfig;
         _logger = logger;
     }
 
-    public Task<ErrorCode> Load()
+    public async Task<Tuple<ErrorCode, IEnumerable<MasterData.Item>>> Load()
     {
-        try
-        {
-            Open();
-        }
-        catch
-        {
-            return ErrorCode.GetMasterDataDBConnectionFail;
-        }
+        Open();
 
         _compiler = new SqlKata.Compilers.MySqlCompiler();
         _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
 
+        try
+        {
+            var item = _queryFactory.Query("Item").Get<MasterData.Item>();
+            s_masterData._item = item;
+            await Console.Out.WriteLineAsync(item.ToString());
+            return new Tuple<ErrorCode, IEnumerable<MasterData.Item>>(ErrorCode.None, item);
+        }
+        catch
+        {
+            return new Tuple<ErrorCode, IEnumerable<MasterData.Item>>(ErrorCode.GetMasterDataDBConnectionFail, null);
+        }
+        finally
+        {
+            Close();
+        }
 
-        return ErrorCode.None;
     }
 
     private void Open()

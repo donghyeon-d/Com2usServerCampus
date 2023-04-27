@@ -1,6 +1,12 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using DungeonAPI.Services;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+IConfiguration configuration = builder.Configuration;
+builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
+
+builder.Services.AddTransient<IMasterDataDb, MasterDataDb>();
 
 builder.Services.AddControllers();
 
