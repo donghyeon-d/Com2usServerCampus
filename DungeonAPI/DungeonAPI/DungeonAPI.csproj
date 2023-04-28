@@ -9,9 +9,11 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
     <None Remove="Services\" />
+    <None Remove="ModelReqRes\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
+    <Folder Include="ModelReqRes\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SqlKata" Version="2.4.0" />
