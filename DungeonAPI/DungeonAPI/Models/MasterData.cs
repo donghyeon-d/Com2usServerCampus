@@ -4,12 +4,12 @@ namespace DungeonAPI.Models;
 
 public class MasterData
 {
-    public static IEnumerable<Item> _item { get; set; }
-    public static ItemAttribute _itemAttribute { get; set; }
-    public static AttendanceReward _attendanceReward { get; set; }
-    public static InAppProduct _inAppProduct { get; set; }
-    public static StageItem _stageItem { get; set; }
-    public static StageAttackNPC _stageAttackNPC { get; set; }
+    public IEnumerable<Item> _item { get; set; }
+    public IEnumerable<ItemAttribute> _itemAttribute { get; set; }
+    public IEnumerable<AttendanceReward> _attendanceReward { get; set; }
+    public IEnumerable<InAppProduct> _inAppProduct { get; set; }
+    public IEnumerable<StageItem> _stageItem { get; set; }
+    public IEnumerable<StageAttackNPC> _stageAttackNPC { get; set; }
 
     public class Item
     {

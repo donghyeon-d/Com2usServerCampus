@@ -35,9 +35,9 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<Tuple<ErrorCode, IEnumerable<MasterData.Item>>> Post()
+    public async Task<Tuple<ErrorCode, MasterData>> Post()
     {
-        return await _masterDataDb.Load();
+        return await _masterDataDb.Get();
     }
 }
 
