@@ -1,0 +1,122 @@
+﻿# DB 스키마
+
+## MasterData
+> MasterData를 업데이트 할 때는 모든 내용을 다 덮어씀. 그렇기 때문에 database 전체를 지웠다가 다시 생성함
+    ``` sql
+    DROP DATABASE IF EXISTS MasterDataDB;
+    CREATE DATABASE IF NOT EXISTS MasterDataDB;
+    ```
+
+### MasterData.Meta
+    ``` sql
+    DROP TABLE IF EXISTS MasterDataDB.Meta;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.Meta
+    (
+        Version INT NOT NULL PRIMARY KEY COMMENT '버전'
+    ) COMMENT '버전 정보 테이블';
+    ```
+
+### MasterData.Item
+    ``` sql
+    DROP TABLE IF EXISTS MasterDataDB.Item;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.Item
+    (
+        Code INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 번호',
+        Name VARCHAR(50) NOT NULL UNIQUE COMMENT '아이템 이름',
+        Attribute INT NOT NULL COMMENT '특성',
+        Sell BIGINT NOT NULL COMMENT '판매 금액',
+        Buy BIGINT NOT NULL COMMENT '구입 금액',
+        UseLv INT NOT NULL COMMENT '사용 가능 레벨',
+        Attack BIGINT NOT NULL COMMENT '공격력',
+        Defence BIGINT NOT NULL COMMENT '방어력',
+        Magic BIGINT NOT NULL COMMENT '마법력',
+        EnhanceMaxCount TINYINT NOT NULL COMMENT '최대 강화 가능 횟수',
+        MaxStack INT NOT NULL DEFAULT 1 COMMENT '겹침 가능 개수'
+    ) COMMENT '아이템 정보 테이블';
+    ```
+
+### MasterDataDB.ItemAttribute
+    ``` sql
+    USE MasterDataDB;
+
+    DROP TABLE IF EXISTS MasterDataDB.item_attribute;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.item_attribute
+    (
+        Name VARCHAR(50) NOT NULL UNIQUE COMMENT '특성 이름',
+        Code INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 번호'
+    ) COMMENT '아이템 속성 정보 테이블';
+    ```
+
+### MasterDataDB.attendance_reward
+    ``` sql
+    USE `MasterDataDB`;
+
+    DROP TABLE IF EXISTS MasterDataDB.attendance_reward;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.attendance_reward
+    (
+        Code INT AUTO_INCREMENT PRIMARY KEY COMMENT '보상 번호',
+        Day TINYINT NOT NULL COMMENT '날짜',
+        ItemCode INT NOT NULL COMMENT '아이템 번호',
+        Count INT NOT NULL COMMENT '아이템 개수'
+    ) COMMENT '출석부 보상 정보 테이블';
+    ```
+
+### MasterDataDB.in_app_product
+    **InAppProduct**
+    ``` sql
+    USE `MasterDataDB`;
+
+    DROP TABLE IF EXISTS MasterDataDB.in_app_product;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.in_app_product
+    (
+        Code INT NOT NULL COMMENT '상품 번호',
+        ItemCode INT NOT NULL COMMENT '아이템 번호',
+        ItemName VARCHAR(50) NOT NULL COMMENT '아이템 이름',
+        ItemCount INT NOT NULL COMMENT '아이템 개수'
+    ) COMMENT '인생 삼풍 정보 테이블 묶음상품';
+    ```
+
+### MasterDataDB.stage_item
+    ``` sql
+    USE `MasterDataDB`;
+
+    DROP TABLE IF EXISTS MasterDataDB.stage_item;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.stage_item
+    (
+        Code INT NOT NULL COMMENT '스테이지 단계',
+        ItemCode INT NOT NULL COMMENT '파밍 가능 아이템'
+    )
+    ```
+
+### MasterDataDB.stage_attack_npc
+    ``` sql
+    USE `MasterDataDB`;
+
+    DROP TABLE IF EXISTS MasterDataDB.stage_attack_npc;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.stage_attack_npc
+    (
+        Code INT NOT NULL COMMENT '스테이지 단계',
+        NPCCode INT NOT NULL COMMENT '공격 NPC',
+        ItemCount INT NOT NULL COMMENT '공격 NPC 개수',
+        Exp INT NOT NULL COMMENT '1개당 보상 경험치'
+    )
+    ```
+
+
+## AccountDB
+> 계정 관리를 위한 Database
+    ``` sql
+    CREATE DATABASE IF NOT EXISTS AccountDB;
+    ```
+
+### AccountDB.account
+    ``` sql
+    CREATE TABLE IF NOT EXISTS MasterDataDB.account
+    (
+        AccountID INT AUTO_INCREMENT PRIMARY KEY COMMENT '계정 고유번호',
+        Email VARCHAR(50) COMMENT '계정 이름',
+        HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
+        SaltValue VARCHAR(100) NOT NULL COMMENT '솔트값',
+        IsDeleted TINYINT DEFAULT 0 NOT NULL COMMENT '삭제 요청 유무'
+    )
+    ```

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DungeonAPI.Services;
-using DungeonAPI.ModelReqRes;
+using DungeonAPI.MessageBody;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -12,11 +12,13 @@ public class CreateAccountController : ControllerBase
 {
     readonly ILogger<CreateAccountController> _logger;
     readonly IAccountDb _accountDb;
+    readonly IMasterDataDb _masterData;
 
-    public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDb accountDb)
+    public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDb accountDb, IMasterDataDb masterData)
     {
         _logger = logger;
         _accountDb = accountDb;
+        _masterData = masterData;
     }
 
     [HttpPost]

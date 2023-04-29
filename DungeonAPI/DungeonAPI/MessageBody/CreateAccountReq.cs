@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DungeonAPI.ModelReqRes;
+namespace DungeonAPI.MessageBody;
 
 public class CreateAccountReq
 {
@@ -16,10 +16,4 @@ public class CreateAccountReq
     [StringLength(20, ErrorMessage = "PASSWORD IS TOO LONG")]
     [DataType(DataType.Password)]
     public String Password { get; set; }
-}
-
-
-public class CreateAccountRes
-{
-    public ErrorCode Result { get; set; } = ErrorCode.None;
 }

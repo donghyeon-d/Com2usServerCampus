@@ -65,5 +65,6 @@ public enum ErrorCode : UInt16
     GetGameDbConnectionFail = 4002,
 
     // MasterDataDB 5000~
-    GetMasterDataDBConnectionFail = 5001
+    MasterDataConnectionFail = 5001,
+    MasterDataFailException = 5002
 }
