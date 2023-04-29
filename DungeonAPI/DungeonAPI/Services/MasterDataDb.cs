@@ -7,6 +7,8 @@ using SqlKata.Execution;
 using ZLogger;
 using DungeonAPI.Models;
 using static DungeonAPI.Models.MasterData;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DungeonAPI.Services;
 
@@ -19,44 +21,27 @@ public class MasterDataDb : IMasterDataDb
     SqlKata.Compilers.MySqlCompiler _compiler;
     QueryFactory _queryFactory;
 
-    public static MasterData? s_Data = null; // readonly 로 하고싶
+    //public static MasterData? s_Data = null;
+    public static List<Meta>? s_meta { get; set; } = null;
+    public static List<Item> s_item { get; set; }
+    public static List<ItemAttribute> s_itemAttribute { get; set; }
+    public static List<AttendanceReward> s_attendanceReward { get; set; }
+    public static List<InAppProduct> s_inAppProduct { get; set; }
+    public static List<StageItem> s_stageItem { get; set; }
+    public static List<StageAttackNPC> s_stageAttackNPC { get; set; }
 
     public MasterDataDb(ILogger<MasterDataDb> logger, IOptions<DbConfig> dbConfig)
     {
         _dbConfig = dbConfig;
         _logger = logger;
-        if (s_Data == null)
+
+        if (s_meta == null)
         {
-            s_Data = new MasterData();
             LoadFromDb();
         }
     }
 
-    //public async Task<Tuple<ErrorCode, IEnumerable<MasterData.Item>>> Load()
-    //{
-    //    Open();
-
-    //    _compiler = new SqlKata.Compilers.MySqlCompiler();
-    //    _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
-
-    //    try
-    //    {
-    //        var item = _queryFactory.Query("Item").Get<MasterData.Item>();
-    //        s_Data._item = item;
-    //        await Console.Out.WriteLineAsync(item.ToString());
-    //        return new Tuple<ErrorCode, IEnumerable<MasterData.Item>>(ErrorCode.None, item);
-    //    }
-    //    catch
-    //    {
-    //        return new Tuple<ErrorCode, IEnumerable<MasterData.Item>>(ErrorCode.GetMasterDataDBConnectionFail, null);
-    //    }
-    //    finally
-    //    {
-    //        Close();
-    //    }
-    //}
-
-    public async Task<Tuple<ErrorCode, MasterData>> Get()
+    private async void LoadFromDb()
     {
         Open();
 
@@ -65,46 +50,38 @@ public class MasterDataDb : IMasterDataDb
 
         try
         {
-            if (s_Data == null)
-            {
-                LoadFromDb();
-            }
-            return new Tuple<ErrorCode, MasterData>(ErrorCode.None, s_Data);
-        }
-        catch
-        {
-            _logger.LogDebug("Masterdata Load Fail");
-            return new Tuple<ErrorCode, MasterData>(ErrorCode.GetMasterDataDBConnectionFail, null);
-        }
-        finally
-        {
-            Close();
-        }
-    }
+            //var item = await _queryFactory.Query("Item").GetAsync<MasterData.Item>();
+            //s_Data._item = item.ToList();
+            //var itemAttribute = await _queryFactory.Query("ItemAttribute").GetAsync<MasterData.ItemAttribute>();
+            //s_Data._itemAttribute = itemAttribute.ToList();
+            //var attendanceReward = await _queryFactory.Query("AttendanceReward").GetAsync<MasterData.AttendanceReward>();
+            //s_Data._attendanceReward = attendanceReward.ToList();
+            //var inAppProduct = await _queryFactory.Query("InAppProduct").GetAsync<MasterData.InAppProduct>();
+            //s_Data._inAppProduct = inAppProduct.ToList();
+            //var stageItem = await _queryFactory.Query("StageItem").GetAsync<MasterData.StageItem>();
+            //s_Data._stageItem = stageItem.ToList();
+            //var stageAttackNPC = await _queryFactory.Query("StageAttackNPC").GetAsync<MasterData.StageAttackNPC>();
+            //s_Data._stageAttackNPC = stageAttackNPC.ToList();
 
-
-    private void LoadFromDb()
-    {
-        Open();
-
-        _compiler = new SqlKata.Compilers.MySqlCompiler();
-        _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
-
-        try
-        {
-            if (s_Data != null)
-            {
-                s_Data._item = _queryFactory.Query("Item").Get<MasterData.Item>();
-                s_Data._itemAttribute = _queryFactory.Query("ItemAttribute").Get<MasterData.ItemAttribute>();
-                s_Data._attendanceReward = _queryFactory.Query("AttendanceReward").Get<MasterData.AttendanceReward>();
-                s_Data._inAppProduct = _queryFactory.Query("InAppProduct").Get<MasterData.InAppProduct>();
-                s_Data._stageItem = _queryFactory.Query("StageItem").Get<MasterData.StageItem>();
-                s_Data._stageAttackNPC = _queryFactory.Query("StageAttackNPC").Get<MasterData.StageAttackNPC>();
-            }
+            var meta = await _queryFactory.Query("Meta").GetAsync<MasterData.Meta>();
+            s_meta = meta.ToList();
+            var item = await _queryFactory.Query("Item").GetAsync<MasterData.Item>();
+            s_item = item.ToList();
+            var itemAttribute = await _queryFactory.Query("ItemAttribute").GetAsync<MasterData.ItemAttribute>();
+            s_itemAttribute = itemAttribute.ToList();
+            var attendanceReward = await _queryFactory.Query("AttendanceReward").GetAsync<MasterData.AttendanceReward>();
+            s_attendanceReward = attendanceReward.ToList();
+            var inAppProduct = await _queryFactory.Query("InAppProduct").GetAsync<MasterData.InAppProduct>();
+            s_inAppProduct = inAppProduct.ToList();
+            var stageItem = await _queryFactory.Query("StageItem").GetAsync<MasterData.StageItem>();
+            s_stageItem = stageItem.ToList();
+            var stageAttackNPC = await _queryFactory.Query("StageAttackNPC").GetAsync<MasterData.StageAttackNPC>();
+            s_stageAttackNPC = stageAttackNPC.ToList();
         }
-        catch
+        catch (Exception e)
         {
-            _logger.LogDebug("Masterdata Load Fail");
+            _logger.LogError(e,
+                $"Where: MasterDataDb.LoadFromDb, Status: Error, ErrorCode: { ErrorCode.MasterDataFailException}");
         }
         finally
         {
@@ -115,7 +92,7 @@ public class MasterDataDb : IMasterDataDb
     private void Open()
     {
         _dbConn = new MySqlConnection(_dbConfig.Value.MasterDataDb);
-
+     
         _dbConn.Open();
     }
 

@@ -1,20 +1,26 @@
 ﻿using System.Net.NetworkInformation;
+using MySqlConnector;
 
 namespace DungeonAPI.Models;
 
 public class MasterData
 {
-    public IEnumerable<Item> _item { get; set; }
-    public IEnumerable<ItemAttribute> _itemAttribute { get; set; }
-    public IEnumerable<AttendanceReward> _attendanceReward { get; set; }
-    public IEnumerable<InAppProduct> _inAppProduct { get; set; }
-    public IEnumerable<StageItem> _stageItem { get; set; }
-    public IEnumerable<StageAttackNPC> _stageAttackNPC { get; set; }
+    //public List<Item> _item { get; set; }
+    //public List<ItemAttribute> _itemAttribute { get; set; }
+    //public List<AttendanceReward> _attendanceReward { get; set; }
+    //public List<InAppProduct> _inAppProduct { get; set; }
+    //public List<StageItem> _stageItem { get; set; }
+    //public List<StageAttackNPC> _stageAttackNPC { get; set; }
+
+    public class Meta
+    {
+        public Int32 Version { get; set; }
+    }
 
     public class Item
     {
         public Int32 Code { get; set; }
-        public string Name { get; set; }
+        public String Name { get; set; }
         public Int32 Attribute { get; set; }
         public Int64 Sell { get; set; }
         public Int64 Buy { get; set; }

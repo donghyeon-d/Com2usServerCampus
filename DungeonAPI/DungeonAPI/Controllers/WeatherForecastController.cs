@@ -34,10 +34,10 @@ public class WeatherForecastController : ControllerBase
         .ToArray();
     }
 
-    [HttpGet]
-    public async Task<Tuple<ErrorCode, MasterData>> Post()
-    {
-        return await _masterDataDb.Get();
-    }
+    //[HttpGet]
+    //public async Task<Tuple<ErrorCode, MasterData>> Post()
+    //{
+    //    //return await _masterDataDb.Get();
+    //}
 }
 
