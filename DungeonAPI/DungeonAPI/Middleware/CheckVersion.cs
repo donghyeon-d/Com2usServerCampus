@@ -58,13 +58,9 @@ public class CheckVersion
                 context.Request.Body.Position = 0;
             }
         }
-
     }
 
-    //    bool IsValidVersion(HttpContext context)
-    //    {
-    //        context.Request.Body.
-    //    }
+
     async Task<bool> IsValidAppVersion(HttpContext context, JsonDocument document)
     {
         try

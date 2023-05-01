@@ -24,6 +24,7 @@ var app = builder.Build();
 //app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
 app.UseRouting();
 
+
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 
