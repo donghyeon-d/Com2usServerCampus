@@ -120,3 +120,33 @@
         IsDeleted TINYINT DEFAULT 0 NOT NULL COMMENT '삭제 요청 유무'
     )
     ```
+
+## GameDB
+### GameDB.User
+CREATE TABLE IF NOT EXISTS GameDB.user
+(
+    AccountId INT NOT NULL COMMENT '계정DB 번호',
+    UserId INT AUTO_INCREMENT PRIMARY KEY COMMENT '유저 고유번호',
+    Exp INT NOT NULL COMMENT  '경험치',
+    Level INT NOT NULL COMMENT  '레벨',
+    Hp INT NOT NULL COMMENT '현재 체력',
+    Mp INT NOT NULL COMMENT '현재 마력',
+    Attack INT NOT NULL DEFALUT 10 COMMENT '공격력',
+    Defence INT NOT NULL DEFALUT 10 COMMENT '방어력',
+    Magic INT NOT NULL DEFALUT 10 COMMENT '마법력'
+) COMMENT '유저 게임 데이터';
+
+### GameDB.Invectory
+CREATE TABLE IF NOT EXISTS MasterDataDB.invectory
+{
+    UserId INT NOT NULL COMMENT '계정 고유번호',
+    ItemId INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 고유번호',
+    ItemCode INT NOT NULL COMMENT '아이템 번호',
+    ItemCount INT NOT NULL COMMENT '아이템 개수',
+    Attack BIGINT NOT NULL COMMENT '공격력',
+    Defence BIGINT NOT NULL COMMENT '방어력',
+    Magic BIGINT NOT NULL COMMENT '마법력',
+    EnhanceLevel TINYINT NOT NULL COMMENT '강화 레벨',
+    RemainingEnhanceCount TINYINT NOT NULL COMMENT '남은 강화 횟수',
+    Destructed BOOLEAN DEFAULT FALSE COMMENT '파괴 유무'
+} COMMENT '아이템 데이터';

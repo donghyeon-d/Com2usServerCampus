@@ -33,6 +33,7 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
+        // TODO : 게임 데이터 생성
         //_logger.ZLogInformationWithPayload(EventIdDic[EventType.CreateAccount], new { Email = request.Email }, $"CreateAccount Success");
         return response;
     }

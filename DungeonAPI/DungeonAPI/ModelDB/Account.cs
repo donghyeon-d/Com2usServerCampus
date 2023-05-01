@@ -1,9 +1,8 @@
-﻿using System;
-namespace DungeonAPI.ModelsDB;
+﻿namespace DungeonAPI.ModelsDB;
 
 public class Account
 {
-    public Int64 AccountId { get; set; }
+    public Int32 AccountId { get; set; }
     public String Email { get; set; }
     public String HashedPassword { get; set; }
     public String SaltValue { get; set; }

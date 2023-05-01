@@ -1,7 +1,4 @@
-﻿using System.Net.NetworkInformation;
-using MySqlConnector;
-
-namespace DungeonAPI.Models;
+﻿namespace DungeonAPI.Models;
 
 public class MasterData
 {

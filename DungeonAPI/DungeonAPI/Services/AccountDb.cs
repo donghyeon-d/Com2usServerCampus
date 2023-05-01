@@ -31,7 +31,7 @@ public class AccountDb : IAccountDb
     }
 
 
-    public async Task<ErrorCode> CreateAccountAsync(String email, String pw)
+    public async Task<Tuple<ErrorCode, Int32>> CreateAccountAsync(String email, String pw)
 	{
         _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: Try, Email: {email}");
 
@@ -42,7 +42,7 @@ public class AccountDb : IAccountDb
             if (accountInfo != null && accountInfo.Email == email)
             {
                 _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: {ErrorCode.CreateAccountFailDuplicatedEmail}, Email: {email}");
-                return ErrorCode.CreateAccountFailDuplicatedEmail;
+                return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailDuplicatedEmail, -1);
             }
             
 		    // 솔트값, 해시pw값 설정
@@ -50,7 +50,7 @@ public class AccountDb : IAccountDb
 		    String hashedPassword = Security.MakeHashingPassWord(saltValue, pw);
 
             // id, 솔티값, 해시pw값 db에 저장
-            var count = await _queryFactory.Query("account").InsertAsync(new {
+            var account = await _queryFactory.Query("account").InsertGetIdAsync<Account>(new {
                                                             Email = email,
                                                             SaltValue = saltValue,
                                                             HashedPassword = hashedPassword
@@ -58,17 +58,17 @@ public class AccountDb : IAccountDb
             _logger.LogDebug(
                 $"Where: AccountDb.CreateAccount, Status: InsertToDb, Email: {email}, SaltValue: {saltValue}, hashedPassword:{hashedPassword}");
 
-            if (count != 1)
+            if (account is null)
             {
-                return ErrorCode.CreateAccountFailInsert;
+                return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailInsert, -1);
             }
-		    return ErrorCode.None;
+		    return new Tuple<ErrorCode, Int32>(ErrorCode.None, account.AccountId);
         }
 		catch (Exception e)
 		{
             _logger.LogError(e,
                 $"Where: AccountDb.CreateAccount, Status: Error, ErrorCode: {ErrorCode.CreateAccountFailException}, Email: {email}");
-            return ErrorCode.CreateAccountFailException;
+            return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailException, -1);
         }
         finally
         {

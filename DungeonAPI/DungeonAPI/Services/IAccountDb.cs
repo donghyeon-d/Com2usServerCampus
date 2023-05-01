@@ -5,7 +5,7 @@ namespace DungeonAPI.Services
 {
 	public interface IAccountDb : IDisposable
 	{
-        public Task<ErrorCode> CreateAccountAsync(String email, String pw);
+        public Task<Tuple<ErrorCode, Int32>> CreateAccountAsync(String email, String pw);
 
         public Task<ErrorCode> VerifyAccountAsync(String email, String pw);
 
