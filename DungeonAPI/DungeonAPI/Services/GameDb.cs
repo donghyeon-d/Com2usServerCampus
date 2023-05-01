@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using System.Data;
 using MySqlConnector;
+using DungeonAPI.Configs;
 
 namespace DungeonAPI.Services;
 

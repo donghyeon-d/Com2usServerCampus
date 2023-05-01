@@ -1,5 +1,5 @@
 ﻿using System;
-namespace DungeonAPI.Services;
+namespace DungeonAPI.Configs;
 
 public class DbConfig
 {

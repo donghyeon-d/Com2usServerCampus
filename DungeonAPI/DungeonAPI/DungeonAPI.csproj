@@ -10,10 +10,14 @@
   <ItemGroup>
     <None Remove="Services\" />
     <None Remove="ModelReqRes\" />
+    <None Remove="Middleware\" />
+    <None Remove="Configs\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="MessageBody\" />
+    <Folder Include="Middleware\" />
+    <Folder Include="Configs\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SqlKata" Version="2.4.0" />

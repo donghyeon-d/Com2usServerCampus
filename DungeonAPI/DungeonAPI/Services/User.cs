@@ -1,10 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
-using System.Data;
-using MySqlConnector;
-using DungeonAPI.ModelsDB;
-using Microsoft.Extensions.Logging;
+using DungeonAPI.Configs;
 
 namespace DungeonAPI.Services;
 

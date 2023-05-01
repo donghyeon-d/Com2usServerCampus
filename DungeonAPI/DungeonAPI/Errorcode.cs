@@ -8,8 +8,11 @@ public enum ErrorCode : UInt16
     // Common 1000 ~
     UnhandleException = 1001,
     RedisFailException = 1002,
-    InValidRequestHttpBody = 1003,
-    AuthTokenFailWrongAuthToken = 1006,
+    InValidRequesBody = 1003,
+    EmptyRequestBody = 1004,
+    InValidRequestAppVersion = 1005,
+    InValidRequestMasterDataVersion = 1006,
+    AuthTokenFailWrongAuthToken = 1007,
 
     // Account 2000 ~
     CreateAccountFailException = 2001,

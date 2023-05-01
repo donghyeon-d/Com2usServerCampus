@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using DungeonAPI;
-using DungeonAPI.Models;
+using DungeonAPI.Configs;
 using DungeonAPI.ModelsDB;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
