@@ -18,8 +18,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 app.UseAuthorization();
-
 app.MapControllers();
+app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
 
 app.Run();
 

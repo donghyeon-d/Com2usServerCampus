@@ -9,6 +9,8 @@ public enum ErrorCode : UInt16
     UnhandleException = 1001,
     RedisFailException = 1002,
     InValidRequestHttpBody = 1003,
+    InValidRequestAppVersion = 1004,
+    InValidRequestMasterDataVersion = 1005,
     AuthTokenFailWrongAuthToken = 1006,
 
     // Account 2000 ~
