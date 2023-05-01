@@ -68,10 +68,15 @@ public enum ErrorCode : UInt16
     UserUpdateFailException = 3003,
     UserDeleteFailException = 3004,
 
+
     //GameDb 4000~ 
     GetGameDbConnectionFail = 4002,
 
     // MasterDataDB 5000~
     MasterDataConnectionFail = 5001,
-    MasterDataFailException = 5002
+    MasterDataFailException = 5002,
+
+    // Item 6000~
+    DefaultItemCreateFailException = 6000,
+    DefaultItemCreateFail = 6001,
 }

@@ -22,7 +22,7 @@ public class GameDb
 
         Open();
 
-    _compiler = new SqlKata.Compilers.MySqlCompiler();
+        _compiler = new SqlKata.Compilers.MySqlCompiler();
         _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
     }
 

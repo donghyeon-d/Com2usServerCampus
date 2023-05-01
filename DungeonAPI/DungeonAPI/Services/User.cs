@@ -11,15 +11,11 @@ namespace DungeonAPI.Services;
 public class User : GameDb, IUser
 {
     readonly ILogger<User> _logger;
-    readonly IOptions<DbConfig> _dbConfig;
 
-    IDbConnection _dbConn;
-    SqlKata.Compilers.MySqlCompiler _compiler;
-    QueryFactory _queryFactory;
-
-    public User(ILogger<User> logger, IOptions<DbConfig> dbConfig) : base(logger, dbConfig)
+    public User(ILogger<User> logger, IOptions<DbConfig> dbConfig)
+        : base(logger, dbConfig)
     {
-
+        _logger = logger;
     }
 
     public async Task<Tuple<ErrorCode, Int32>> CreateUserAsync(Int32 accountId)

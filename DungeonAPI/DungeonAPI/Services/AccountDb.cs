@@ -50,7 +50,7 @@ public class AccountDb : IAccountDb
 		    String hashedPassword = Security.MakeHashingPassWord(saltValue, pw);
 
             // id, 솔티값, 해시pw값 db에 저장
-            var account = await _queryFactory.Query("account").InsertGetIdAsync<Account>(new {
+            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<Int32>(new {
                                                             Email = email,
                                                             SaltValue = saltValue,
                                                             HashedPassword = hashedPassword
@@ -58,11 +58,11 @@ public class AccountDb : IAccountDb
             _logger.LogDebug(
                 $"Where: AccountDb.CreateAccount, Status: InsertToDb, Email: {email}, SaltValue: {saltValue}, hashedPassword:{hashedPassword}");
 
-            if (account is null)
+            if (accountId == -1)
             {
                 return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailInsert, -1);
             }
-		    return new Tuple<ErrorCode, Int32>(ErrorCode.None, account.AccountId);
+		    return new Tuple<ErrorCode, Int32>(ErrorCode.None, accountId);
         }
 		catch (Exception e)
 		{

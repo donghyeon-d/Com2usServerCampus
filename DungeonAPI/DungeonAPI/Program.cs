@@ -8,6 +8,8 @@ builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)))
 
 builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
 builder.Services.AddTransient<IAccountDb, AccountDb>();
+builder.Services.AddTransient<IUser, User>();
+builder.Services.AddTransient<IInventory, Inventory>();
 
 builder.Services.AddControllers();
 
