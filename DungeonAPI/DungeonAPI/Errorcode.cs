@@ -84,5 +84,10 @@ public enum ErrorCode : UInt16
     // Item 6000~
     DefaultItemCreateFailException = 6000,
     DefaultItemCreateFail = 6001,
-    LoadAllItemsFailException = 6002
+    LoadAllItemsFailException = 6002,
+
+    // Notice 7000~
+    NoticeFailException = 7000,
+    NoticeAuthFail = 7001,
+    NoticeDuplicatedTitile = 7002
 }

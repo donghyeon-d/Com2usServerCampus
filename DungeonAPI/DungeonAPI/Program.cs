@@ -7,11 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 IConfiguration configuration = builder.Configuration;
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
 builder.Services.Configure<AppConfig>(configuration.GetSection(nameof(AppConfig)));
+builder.Services.Configure<AdminConfig>(configuration.GetSection(nameof(AdminConfig)));
 
 builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
 builder.Services.AddTransient<IAccountDb, AccountDb>();
 builder.Services.AddTransient<IUser, User>();
 builder.Services.AddTransient<IInventory, Inventory>();
+builder.Services.AddSingleton<INotice, Notice>();
 builder.Services.AddSingleton<IAuthLogin, AuthLogin>();
 
 builder.Services.AddControllers();

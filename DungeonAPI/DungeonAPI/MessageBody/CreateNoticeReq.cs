@@ -22,7 +22,7 @@ public class CreateNoticeReq
     [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]
     public String Content { get; set; }
 
-    public String Date { get; set; } = DateTime.Now.ToString();
+    public DateTime Date { get; set; } = DateTime.Now;
 
     [Required]
     public String AppVersion { get; set; }

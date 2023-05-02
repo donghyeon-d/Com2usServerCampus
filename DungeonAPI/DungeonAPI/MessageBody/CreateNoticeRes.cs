@@ -1,10 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace DungeonAPI.MessageBody;
 
 public class CreateNoticeRes
 {
-	public CreateNoticeRes()
-	{
-	}
+    [Required]
+    public ErrorCode ErrorCode { get; set; } = ErrorCode.None;
 }
 

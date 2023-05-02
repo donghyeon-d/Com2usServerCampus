@@ -10,7 +10,7 @@ namespace DungeonAPI.Services;
 
 public class Notice : INotice
 {
-    static string s_notificationKey { get; set; } = "key";
+    static string s_notificationKey { get; set; } = "noticekey";
     DateTime today = DateTime.Now;
     readonly RedisConnection _redisConn;
     readonly ILogger<Notice> _logger;
