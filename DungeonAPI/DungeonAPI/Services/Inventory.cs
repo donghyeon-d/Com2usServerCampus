@@ -35,6 +35,7 @@ public class Inventory : GameDb, IInventory
         catch (Exception e)
         {
             // 로그
+            _logger.LogError(e.Message);
             return ErrorCode.DefaultItemCreateFailException;
         }
         finally
@@ -84,6 +85,7 @@ public class Inventory : GameDb, IInventory
         catch (Exception e)
         {
             // TODO : log
+            _logger.LogError(e.Message);
             return new Tuple<ErrorCode, List<Item>>(ErrorCode.LoadAllItemsFailException, null);
         }
     }

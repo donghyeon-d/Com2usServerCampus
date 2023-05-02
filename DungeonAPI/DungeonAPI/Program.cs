@@ -12,7 +12,7 @@ builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
 builder.Services.AddTransient<IAccountDb, AccountDb>();
 builder.Services.AddTransient<IUser, User>();
 builder.Services.AddTransient<IInventory, Inventory>();
-builder.Services.AddSingleton<ImemoryDb, RedisDb>();
+builder.Services.AddSingleton<IAuthLogin, AuthLogin>();
 
 builder.Services.AddControllers();
 

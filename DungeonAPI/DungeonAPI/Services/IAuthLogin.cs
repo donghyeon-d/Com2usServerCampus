@@ -1,7 +1,7 @@
 ﻿using DungeonAPI.ModelDB;
 namespace DungeonAPI.Services;
 
-public interface ImemoryDb
+public interface IAuthLogin
 {
     public Task<ErrorCode> CreateAuthUserAsync(string email, string authToken);
 

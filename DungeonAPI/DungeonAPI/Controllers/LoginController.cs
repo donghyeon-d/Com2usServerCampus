@@ -11,18 +11,18 @@ public class LoginController : ControllerBase
 {
     readonly ILogger<LoginController> _logger;
     readonly IAccountDb _accountDb;
-    readonly ImemoryDb _memoryDb;
+    readonly IAuthLogin _authLogin;
     readonly IUser _user;
     readonly IInventory _inventory;
 
     public LoginController(ILogger<LoginController> logger, IAccountDb accountDb,
-        IUser user, IInventory inventory, ImemoryDb memoryDb) 
+        IUser user, IInventory inventory, IAuthLogin authLogin) 
 	{
         _logger = logger;
         _accountDb = accountDb;
         _user = user;
         _inventory = inventory;
-        _memoryDb = memoryDb;
+        _authLogin = authLogin;
 	}
 
     [HttpPost]
@@ -41,12 +41,11 @@ public class LoginController : ControllerBase
         var authToken = Security.CreateAuthToken();
 
         // token redis에 저장하기
-        var authCheckErrorCode = await _memoryDb.CreateAuthUserAsync(request.Email, authToken);
+        var authCheckErrorCode = await _authLogin.CreateAuthUserAsync(request.Email, authToken);
         if (authCheckErrorCode != ErrorCode.None)
         {
             response.ResetThenSetErrorCode(authCheckErrorCode);
             return response;
-            
         }
         response.AuthToken = authToken;
 

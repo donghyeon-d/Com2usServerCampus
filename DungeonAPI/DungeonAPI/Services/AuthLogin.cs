@@ -9,13 +9,13 @@ using Microsoft.Extensions.Options;
 
 namespace DungeonAPI.Services;
 
-public class RedisDb : ImemoryDb
+public class AuthLogin : IAuthLogin
 {
     readonly RedisConnection _redisConn;
-    readonly ILogger<RedisDb> _logger;
+    readonly ILogger<AuthLogin> _logger;
     readonly IOptions<DbConfig> _dbConfig;
 
-    public RedisDb(ILogger<RedisDb> logger, IOptions<DbConfig> dbConfig)
+    public AuthLogin(ILogger<AuthLogin> logger, IOptions<DbConfig> dbConfig)
 	{
         _logger = logger;
         _dbConfig = dbConfig;
@@ -31,7 +31,7 @@ public class RedisDb : ImemoryDb
     public async Task<ErrorCode> CreateAuthUserAsync(string email, string authToken)
     {
         var key = email;
-        var defaultExpiry = TimeSpan.FromDays(1);
+        var defaultExpiry = TimeSpan.FromDays(1); // TODO: Expiry setting
         try
         {
             var redis = new RedisString<AuthUser>(_redisConn, key, defaultExpiry);
