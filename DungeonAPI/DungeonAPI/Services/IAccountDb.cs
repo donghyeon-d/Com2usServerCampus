@@ -7,7 +7,7 @@ namespace DungeonAPI.Services
 	{
         public Task<Tuple<ErrorCode, Int32>> CreateAccountAsync(String email, String pw);
 
-        public Task<ErrorCode> VerifyAccountAsync(String email, String pw);
+        public Task<Tuple<ErrorCode, Int32>> VerifyAccountAsync(String email, String pw);
 
         // public Task<ErrorCOde> DeleteAccountAsync(String id, String pw);
     }

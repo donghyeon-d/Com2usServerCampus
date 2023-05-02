@@ -122,7 +122,7 @@
     ```
 
 ## GameDB
-### GameDB.User
+### GameDB.UserSpec
 CREATE TABLE IF NOT EXISTS GameDB.user
 (
     AccountId INT NOT NULL COMMENT '계정DB 번호',

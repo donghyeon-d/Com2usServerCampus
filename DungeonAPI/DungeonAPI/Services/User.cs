@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using DungeonAPI.Configs;
+using DungeonAPI.ModelDB;
 
 namespace DungeonAPI.Services;
 
@@ -47,27 +48,27 @@ public class User : GameDb, IUser
         }
     }
 
-    public async Task<Tuple<ErrorCode, ModelDB.User>> LoadUserAsync(Int32 userId)
+    public async Task<Tuple<ErrorCode, UserSpec>> LoadUserAsync(Int32 userId)
     {
         _logger.LogDebug($"Where: User.LoadUserAsync, Status: Try");
         try
         {
             var UserInfo = await _queryFactory.Query("User")
                 .Where("UserId", userId)
-                .FirstOrDefaultAsync<ModelDB.User>();
+                .FirstOrDefaultAsync<UserSpec>();
             if (UserInfo is null)
             {
                 _logger.LogError($"Where: User.LoadUserAsync, Status: {ErrorCode.UserNotExist}");
-                return new Tuple<ErrorCode, ModelDB.User>(ErrorCode.UserNotExist, null);
+                return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserNotExist, null);
             }
             _logger.LogDebug($"Where: User.LoadUserAsync, Status: Complete");
-            return new Tuple<ErrorCode, ModelDB.User>(ErrorCode.UserNotExist, UserInfo);
+            return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserNotExist, UserInfo);
         }
         catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: User.LoadUserAsync, Status: {ErrorCode.UserLoadFailException}");
-            return new Tuple<ErrorCode, ModelDB.User>(ErrorCode.UserCreateFailException, null);
+            return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserCreateFailException, null);
         }
         finally
         {
@@ -75,7 +76,35 @@ public class User : GameDb, IUser
         }
     }
 
-    public async Task<ErrorCode> UpdateUserAsync(ModelDB.User user)
+    public async Task<Tuple<ErrorCode, UserSpec>> LoadUserByAccountAsync(Int32 accountId)
+    {
+        _logger.LogDebug($"Where: User.LoadUserAsync, Status: Try");
+        try
+        {
+            var UserInfo = await _queryFactory.Query("User")
+                .Where("AccountId", accountId)
+                .FirstOrDefaultAsync<UserSpec>();
+            if (UserInfo is null)
+            {
+                _logger.LogError($"Where: User.LoadUserAsync, Status: {ErrorCode.UserNotExist}");
+                return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserNotExist, null);
+            }
+            _logger.LogDebug($"Where: User.LoadUserAsync, Status: Complete");
+            return new Tuple<ErrorCode, UserSpec>(ErrorCode.None, UserInfo);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e,
+                $"Where: User.LoadUserAsync, Status: {ErrorCode.UserLoadFailException}");
+            return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserLoadFailException, null);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    public async Task<ErrorCode> UpdateUserAsync(UserSpec user)
     {
         _logger.LogDebug($"Where: User.UpdateUserAsync, Status: Try");
         try

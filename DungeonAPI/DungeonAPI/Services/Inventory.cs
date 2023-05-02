@@ -1,6 +1,8 @@
 ﻿using DungeonAPI.Configs;
+using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
+
 
 namespace DungeonAPI.Services;
 
@@ -12,7 +14,7 @@ public class Inventory : GameDb, IInventory
         : base(logger, dbConfig)
     {
         _logger = logger;
-	}
+    }
 
     public async Task<ErrorCode> CreateDefaltItemsAsync(Int32 userId)
     {
@@ -30,7 +32,7 @@ public class Inventory : GameDb, IInventory
             }
             return ErrorCode.None;
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             // 로그
             return ErrorCode.DefaultItemCreateFailException;
@@ -69,5 +71,23 @@ public class Inventory : GameDb, IInventory
         }
         return items;
     }
+
+
+    public async Task<Tuple<ErrorCode, List<Item>>> LoadAllItemsAsync(Int32 userId)
+    {
+        try
+        {
+            var result = await _queryFactory.Query("Inventory").Where("UserId", userId).GetAsync<Item>();
+            List<Item> items = result.ToList();
+            return new Tuple<ErrorCode, List<Item>>(ErrorCode.None, items);
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return new Tuple<ErrorCode, List<Item>>(ErrorCode.LoadAllItemsFailException, null);
+        }
+    }
+
+
 }
 

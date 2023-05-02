@@ -32,6 +32,8 @@ public enum ErrorCode : UInt16
     CheckAuthFailNotExist = 2015,
     CheckAuthFailNotMatch = 2016,
     CheckAuthFailException = 2017,
+    AuthTockenFailException = 2018,
+    AuthTockenCreateFailException = 2019,
 
     // Character 3000 ~
     //CreateCharacterRollbackFail = 3001,
@@ -82,4 +84,5 @@ public enum ErrorCode : UInt16
     // Item 6000~
     DefaultItemCreateFailException = 6000,
     DefaultItemCreateFail = 6001,
+    LoadAllItemsFailException = 6002
 }

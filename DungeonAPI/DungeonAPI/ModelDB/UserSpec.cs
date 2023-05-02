@@ -1,7 +1,7 @@
 ﻿namespace DungeonAPI.ModelDB;
 
 // GameDB.User
-public class User
+public class UserSpec
 {
     public Int32 AccountId { get; set; }
     public Int32 UserId { get; set; }
