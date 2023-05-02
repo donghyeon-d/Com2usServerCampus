@@ -77,6 +77,27 @@ public enum ErrorCode : UInt16
     //GameDb 4000~ 
     GetGameDbConnectionFail = 4002,
 
+    // Mail Table 4100~
+    MailCreateFailException = 4100,
+    MailLoadFailException = 4101,
+    MailDeleteFailNotExist = 4102,
+    MailDeleteFailException = 4103,
+    MailReceivedFailNotExist = 4104,
+    MailReceivedFailException = 4105,
+    MailContentCreateFail = 4106,
+    MailContentCreateFailException = 4107,
+    MailContentLoadFail = 4108,
+    MailContentLoadFailException = 4109,
+    MailContentDeleteFail = 4110,
+    MailContentDeleteFailException = 4111,
+    MailRewardCreateFail = 4112,
+    MailRewardCreateFailException = 4113,
+    MailRewardLoadFail = 4114,
+    MailRewardLoadFailException = 4115,
+    MailRewardDeleteFail = 4116,
+    MailRewardDeleteFailException = 4117,
+
+
     // MasterDataDB 5000~
     MasterDataConnectionFail = 5001,
     MasterDataFailException = 5002,

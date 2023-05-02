@@ -136,12 +136,12 @@ CREATE TABLE IF NOT EXISTS GameDB.user
     Magic INT NOT NULL COMMENT '마법력'
 ) COMMENT '유저 게임 데이터';
 
-### GameDB.Invectory
+### GameDB.Invectory TODO: ItemId, ItemCode 느낌이 겹칩. BaseItemCode는 어떨
 CREATE TABLE IF NOT EXISTS GameDB.inventory
 (
-    UserId INT NOT NULL COMMENT '계정 고유번호',
+    UserId INT NOT NULL COMMENT '유저 고유번호',
     ItemId INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 고유번호',
-    ItemCode INT NOT NULL COMMENT '아이템 번호',
+    ItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
     ItemCount INT NOT NULL COMMENT '아이템 개수',
     Attack BIGINT NOT NULL COMMENT '공격력',
     Defence BIGINT NOT NULL COMMENT '방어력',
@@ -151,3 +151,32 @@ CREATE TABLE IF NOT EXISTS GameDB.inventory
     Destructed TINYINT COMMENT '파괴 유무'
 ) COMMENT '인벤토리 데이터';
 
+### GameDB.Mail
+CREATE TABLE IF NOT EXISTS GameDB.Mail
+{
+    UserId INT NOT NULL COMMENT '유저 고유번호',
+    MailId INT AUTO_INCREMENT PRIMARY KEY COMMENT '메일 고유번호',
+    Title VARCHAR(100) NOT NULL COMMENT '메일 제목',
+    PostDate DATETIME NOT NULL COMMENT '메일 받은 날짜',
+    ExpiredDate DATETIME NOT NULL COMMENT '메일 만료 날짜',
+    IsReceived TINYINT NOT NULL COMMENT '열어봤는지 여부',
+    IsDeleted TINYINT NOT NULL COMMENT '삭제 여부',
+    CanDelete TINYINT NOT NULL COMMENT '삭제 가능 여부',
+    Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람'
+} COMMENT '메일 데이터';
+
+### GameDB.MailContent
+CREATE TABLE IF NOT EXISTS GameDB.MailContent
+{
+    MailId INT PRIMARY KEY NOT NULL COMMENT '메일 컨텐츠 고유번호',
+    Content TEXT NOT NULL COMMENT '메일 컨텐츠 본문'
+} COMMENT '메일 컨텐츠'
+
+### GameDB.MailReward
+// TODO: RewardId 증가시키는거 어떻게 할지 
+CREATE TABLE IF NOT EXISTS GameDB.MailReward
+{
+    MailId INT NOT NULL COMMENT '메일 보상 고유번호',
+    BaseItemCode는 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount INT NOT NULL COMMENT '아이템 개수'
+}

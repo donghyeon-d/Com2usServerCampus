@@ -1,4 +1,7 @@
-﻿using System;
+﻿// 실제 서버 구현할때는 관리 툴에서 작업해줘야 함
+// 클라이언트가 접근할 수 있는 서버이기 때문에 보안상 매우 좋지 않음
+
+using System;
 using DungeonAPI.Configs;
 using DungeonAPI.MessageBody;
 using DungeonAPI.Services;
