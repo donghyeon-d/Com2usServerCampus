@@ -34,6 +34,10 @@ public enum ErrorCode : UInt16
     CheckAuthFailException = 2017,
     AuthTockenFailException = 2018,
     AuthTockenCreateFailException = 2019,
+    AuthTockenDeleteFail = 2020,
+    AuthTockenDeleteFailException = 2021,
+    DeleteAccountFail = 2022,
+    DeleteAccountFailException = 2023,
 
     // Character 3000 ~
     //CreateCharacterRollbackFail = 3001,
@@ -68,10 +72,14 @@ public enum ErrorCode : UInt16
 
     // User 3000~
     UserNotExist = 3000,
-    UserCreateFailException = 3001,
-    UserLoadFailException = 3002,
-    UserUpdateFailException = 3003,
-    UserDeleteFailException = 3004,
+    CreateUserFail = 3001,
+    CreateUserFailException = 3002,
+    LoadUserFail = 3003,
+    LoadUserFailException = 3004,
+    UpdateUserFail = 3005,
+    UpdateUserFailException = 3006,
+    DeleteUserFail = 3007,
+    DeleteUserFailException = 3008,
 
 
     //GameDb 4000~ 
@@ -106,6 +114,8 @@ public enum ErrorCode : UInt16
     DefaultItemCreateFailException = 6000,
     DefaultItemCreateFail = 6001,
     LoadAllItemsFailException = 6002,
+    DeleteUserAllItemsFail = 6003,
+    DeleteUserAllItemsFailException = 6004,
 
     // Notice 7000~
     NoticeFailException = 7000,

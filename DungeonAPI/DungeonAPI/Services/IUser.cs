@@ -13,6 +13,6 @@ public interface IUser
 
     public Task<ErrorCode> UpdateUserAsync(UserSpec user);
 
-    //public Task<ErrorCode> DeleteUserAsync(String email, String pw);
+    public Task<ErrorCode> DeleteUserAsync(Int32 accountId);
 }
 

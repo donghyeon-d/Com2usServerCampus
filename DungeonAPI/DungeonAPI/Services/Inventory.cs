@@ -1,5 +1,6 @@
 ﻿using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
+using DungeonAPI.ModelsDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 
@@ -18,16 +19,18 @@ public class Inventory : GameDb, IInventory
 
     public async Task<ErrorCode> CreateDefaltItemsAsync(Int32 userId)
     {
+        Open();
         // 아이템 인스턴스 만들기
         var cols = new[] { "UserId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",
                 "EnhanceLevel", "RemainingEnhanceCount", "Destructed"};
         List<object[]> defaltItems = MakeDefalutItems(userId);
         try
         {
-            var count = await _queryFactory.Query("inventory").InsertAsync(cols, defaltItems);
+            var count = await _queryFactory.Query("inventoryy").InsertAsync(cols, defaltItems);
             if (defaltItems.Count != count)
             {
                 // 롤백
+                await DeleteUserAllItemsAsync(userId);
                 return ErrorCode.DefaultItemCreateFail;
             }
             return ErrorCode.None;
@@ -36,6 +39,7 @@ public class Inventory : GameDb, IInventory
         {
             // 로그
             _logger.LogError(e.Message);
+            await DeleteUserAllItemsAsync(userId);
             return ErrorCode.DefaultItemCreateFailException;
         }
         finally
@@ -90,6 +94,29 @@ public class Inventory : GameDb, IInventory
         }
     }
 
-
+    public async Task<ErrorCode> DeleteUserAllItemsAsync(Int32 userId)
+    {
+        Open();
+        try
+        {
+            int count = await _queryFactory.Query("Inventory")
+                                            .Where("UserId", userId)
+                                            .DeleteAsync();
+            if (count != 1)
+            {
+                return ErrorCode.DeleteUserAllItemsFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return ErrorCode.DeleteUserAllItemsFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
 }
 

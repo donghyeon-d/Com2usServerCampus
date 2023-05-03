@@ -39,8 +39,8 @@ public class User : GameDb, IUser
         catch(Exception e)
         {
             _logger.LogError(e,
-                $"Where: User.LoadUserAsync, Status: {ErrorCode.UserCreateFailException}");
-            return new Tuple<ErrorCode, Int32>(ErrorCode.UserCreateFailException, -1);
+                $"Where: User.LoadUserAsync, Status: {ErrorCode.CreateUserFailException}");
+            return new Tuple<ErrorCode, Int32>(ErrorCode.CreateUserFailException, -1);
         }
         finally
         {
@@ -67,8 +67,8 @@ public class User : GameDb, IUser
         catch (Exception e)
         {
             _logger.LogError(e,
-                $"Where: User.LoadUserAsync, Status: {ErrorCode.UserLoadFailException}");
-            return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserCreateFailException, null);
+                $"Where: User.LoadUserAsync, Status: {ErrorCode.LoadUserFailException}");
+            return new Tuple<ErrorCode, UserSpec>(ErrorCode.CreateUserFailException, null);
         }
         finally
         {
@@ -95,8 +95,8 @@ public class User : GameDb, IUser
         catch (Exception e)
         {
             _logger.LogError(e,
-                $"Where: User.LoadUserAsync, Status: {ErrorCode.UserLoadFailException}");
-            return new Tuple<ErrorCode, UserSpec>(ErrorCode.UserLoadFailException, null);
+                $"Where: User.LoadUserAsync, Status: {ErrorCode.LoadUserFailException}");
+            return new Tuple<ErrorCode, UserSpec>(ErrorCode.LoadUserFailException, null);
         }
         finally
         {
@@ -118,8 +118,33 @@ public class User : GameDb, IUser
         catch ( Exception e )
         {
             _logger.LogError(e,
-                $"Where: User.LoadUserAsync, Status: {ErrorCode.UserUpdateFailException}");
-            return ErrorCode.UserUpdateFailException;
+                $"Where: User.LoadUserAsync, Status: {ErrorCode.UpdateUserFailException}");
+            return ErrorCode.UpdateUserFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    public async Task<ErrorCode> DeleteUserAsync(Int32 accountId)
+    {
+        Open();
+        try
+        {
+            int count = await _queryFactory.Query("User")
+                                            .Where("AccountId", accountId)
+                                            .DeleteAsync();
+            if (count != 1)
+            {
+                return ErrorCode.DeleteUserFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return ErrorCode.DeleteUserFailException;
         }
         finally
         {

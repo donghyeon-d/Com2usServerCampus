@@ -111,7 +111,7 @@
 
 ### AccountDB.account
     ``` sql
-    CREATE TABLE IF NOT EXISTS MasterDataDB.account
+    CREATE TABLE IF NOT EXISTS AccountDB.account
     (
         AccountID INT AUTO_INCREMENT PRIMARY KEY COMMENT '계정 고유번호',
         Email VARCHAR(50) COMMENT '계정 이름',

@@ -7,7 +7,7 @@ public interface IAuthLogin
 
     public Task<ErrorCode> CheckUserAuthAsync(string email, string authToken);
 
-    //public Task<ErrorCode> DeleteUserAuthAsync(string email, string authToken);
+    public Task<ErrorCode> DeleteUserAuthAsync(string email);
 
     //public Task<(bool, AuthUser)> GetUserAsync(string id);
 }

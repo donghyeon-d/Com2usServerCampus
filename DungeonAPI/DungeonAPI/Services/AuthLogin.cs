@@ -83,6 +83,17 @@ public class AuthLogin : IAuthLogin
         }
     }
 
-    //public Task<ErrorCode> DeleteUserAuthAsync(string email, string authToken);
+    public async Task<ErrorCode> DeleteUserAuthAsync(string email)
+    {
+        var key = email;
+        var defaultExpiry = TimeSpan.FromDays(1);
+        var redis = new RedisString<AuthUser>(_redisConn, key, defaultExpiry);
+
+        if (await redis.DeleteAsync() == false)
+        {
+            return ErrorCode.DeleteAccountFail;
+        }
+        return ErrorCode.None;
+    }
 }
 

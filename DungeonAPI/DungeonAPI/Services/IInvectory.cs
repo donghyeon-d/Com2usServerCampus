@@ -12,6 +12,6 @@ public interface IInventory
 
     //public Task<ErrorCode> UpdateItemAsync(Item item);
 
-    //public Task<ErrorCode> DeleteItemAsync(Int32 userId, Int32 ItemId);
+    public Task<ErrorCode> DeleteUserAllItemsAsync(Int32 userId);
 }
 

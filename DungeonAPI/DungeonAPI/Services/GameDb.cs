@@ -20,6 +20,7 @@ public class GameDb
     {
         _dbConfig = dbConfig;
         _logger = logger;
+        _dbConn = new MySqlConnection(_dbConfig.Value.GameDb);
 
         Open();
 
@@ -27,14 +28,15 @@ public class GameDb
         _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
     }
 
-    private void Open()
+    protected void Open()
     {
-        _dbConn = new MySqlConnection(_dbConfig.Value.GameDb);
-
-        _dbConn.Open();
+        if (_dbConn.State == System.Data.ConnectionState.Closed)
+        {
+            _dbConn.Open();
+        }
     }
 
-    private void Close()
+    void Close()
     {
         _dbConn.Close();
     }

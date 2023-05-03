@@ -53,7 +53,7 @@ public class LoginController : ControllerBase
         var (loadUserErrorCode, user) = await _user.LoadUserByAccountAsync(accountId);
         if (loadUserErrorCode != ErrorCode.None)
         {
-            // TODO : 롤백
+            await _authLogin.DeleteUserAuthAsync(request.Email);
             response.ResetThenSetErrorCode(loadUserErrorCode);
             return response;
         }
@@ -63,7 +63,7 @@ public class LoginController : ControllerBase
         var (loadItemErrorcode, items) = await _inventory.LoadAllItemsAsync(user.UserId);
         if (loadItemErrorcode != ErrorCode.None)
         {
-            // TODO : 롤백
+            await _authLogin.DeleteUserAuthAsync(request.Email);
             response.ResetThenSetErrorCode(loadItemErrorcode);
             return response;
         }

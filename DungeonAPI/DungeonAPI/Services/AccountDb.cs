@@ -2,6 +2,7 @@
 using System.Data;
 using DungeonAPI;
 using DungeonAPI.Configs;
+using DungeonAPI.ModelDB;
 using DungeonAPI.ModelsDB;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
@@ -23,6 +24,7 @@ public class AccountDb : IAccountDb
     {
         _dbConfig = dbConfig;
         _logger = logger;
+        _dbConn = new MySqlConnection(_dbConfig.Value.AccountDb);
 
         Open();
 
@@ -32,11 +34,11 @@ public class AccountDb : IAccountDb
 
 
     public async Task<Tuple<ErrorCode, Int32>> CreateAccountAsync(String email, String pw)
-	{
+    {
         _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: Try, Email: {email}");
 
         try
-		{
+        {
             // 계정 중복 확인
             var accountInfo = await _queryFactory.Query("account").Where("Email", email).FirstOrDefaultAsync<Account>();
             if (accountInfo != null && accountInfo.Email == email)
@@ -44,17 +46,18 @@ public class AccountDb : IAccountDb
                 _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: {ErrorCode.CreateAccountFailDuplicatedEmail}, Email: {email}");
                 return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailDuplicatedEmail, -1);
             }
-            
-		    // 솔트값, 해시pw값 설정
-		    String saltValue = Security.MakeSaltString();
-		    String hashedPassword = Security.MakeHashingPassWord(saltValue, pw);
+
+            // 솔트값, 해시pw값 설정
+            String saltValue = Security.MakeSaltString();
+            String hashedPassword = Security.MakeHashingPassWord(saltValue, pw);
 
             // id, 솔티값, 해시pw값 db에 저장
             var accountId = await _queryFactory.Query("account").InsertGetIdAsync<Int32>(new {
-                                                            Email = email,
-                                                            SaltValue = saltValue,
-                                                            HashedPassword = hashedPassword
-                                                            });
+                Email = email,
+                SaltValue = saltValue,
+                HashedPassword = hashedPassword,
+                IsDeleted = 0
+            });
             _logger.LogDebug(
                 $"Where: AccountDb.CreateAccount, Status: InsertToDb, Email: {email}, SaltValue: {saltValue}, hashedPassword:{hashedPassword}");
 
@@ -62,10 +65,10 @@ public class AccountDb : IAccountDb
             {
                 return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailInsert, -1);
             }
-		    return new Tuple<ErrorCode, Int32>(ErrorCode.None, accountId);
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, accountId);
         }
-		catch (Exception e)
-		{
+        catch (Exception e)
+        {
             _logger.LogError(e,
                 $"Where: AccountDb.CreateAccount, Status: Error, ErrorCode: {ErrorCode.CreateAccountFailException}, Email: {email}");
             return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailException, -1);
@@ -74,7 +77,7 @@ public class AccountDb : IAccountDb
         {
             Dispose();
         }
-	}
+    }
 
     public async Task<Tuple<ErrorCode, Int32>> VerifyAccountAsync(String email, String pw)
     {
@@ -86,7 +89,7 @@ public class AccountDb : IAccountDb
             if (accountInfo == null)
             {
                 _logger.LogDebug($"Where: AccountDb.VerifyAccountAsync, Status: {ErrorCode.LoginFailUserNotExist}, Email: {email}");
-                return new Tuple<ErrorCode,Int32>(ErrorCode.LoginFailUserNotExist, 0);
+                return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailUserNotExist, 0);
             }
 
             //hashing한 pw랑 일치하는지 비교하기
@@ -112,22 +115,46 @@ public class AccountDb : IAccountDb
         }
     }
 
+    public async Task<ErrorCode> DeleteAccountAsync(String email)
+    {
+        Open();
+        try
+        {
+            int count = await _queryFactory.Query("account")
+                                            .Where("Email", email)
+                                            .DeleteAsync();
+            if (count != 1)
+            {
+                return ErrorCode.DeleteAccountFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return ErrorCode.DeleteAccountFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
     public void Dispose()
-	{
+    {
         _dbConn.Close();
     }
 
-
-    private void Open()
+    void Open()
     {
-        _dbConn = new MySqlConnection(_dbConfig.Value.AccountDb);
-
-        _dbConn.Open();
+        if (_dbConn.State == System.Data.ConnectionState.Closed)
+        {
+            _dbConn.Open();
+        }
     }
 
-    private void Close()
+    void Close()
     {
         _dbConn.Close();
     }
 }
-

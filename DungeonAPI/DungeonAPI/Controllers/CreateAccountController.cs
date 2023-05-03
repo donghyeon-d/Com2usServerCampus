@@ -27,31 +27,38 @@ public class CreateAccountController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<CreateAccountRes> Post(CreateAccountReq request)
+    public async Task<CreateAccountRes> CreateAccountThenDefaultData(CreateAccountReq request)
     {
         var response = new CreateAccountRes();
 
         // 계정 생성
-        var (accountErrorCode, AccountId) = await _accountDb.CreateAccountAsync(request.Email, request.Password);
+        var (accountErrorCode, accountId) = await _accountDb.CreateAccountAsync(request.Email, request.Password);
         if (accountErrorCode != ErrorCode.None)
         {
             response.Result = accountErrorCode;
+            await _accountDb.DeleteAccountAsync(request.Email);
             return response;
         }
 
         // 게임 데이터 User 생성
-        var (userErrorCode, UserId) = await _user.CreateUserAsync(AccountId);
+        var (userErrorCode, userId) = await _user.CreateUserAsync(accountId);
         if (userErrorCode != ErrorCode.None)
         {
+            await _accountDb.DeleteAccountAsync(request.Email);
+            await _user.DeleteUserAsync(accountId);
             response.Result = userErrorCode;
             return response;
         }
 
         // 게임 기본 아이템 생성
-        var inventoryErrorCode = await _inventory.CreateDefaltItemsAsync(UserId);
+        var inventoryErrorCode = await _inventory.CreateDefaltItemsAsync(userId);
         if (inventoryErrorCode != ErrorCode.None)
         {
-            // TODO : 롤백 
+            await _accountDb.DeleteAccountAsync(request.Email);
+            await _user.DeleteUserAsync(accountId);
+            await _inventory.DeleteUserAllItemsAsync(userId);
+            response.Result = inventoryErrorCode;
+            return response;
         }
 
         //_logger.ZLogInformationWithPayload(EventIdDic[EventType.CreateAccount], new { Email = request.Email }, $"CreateAccount Success");
