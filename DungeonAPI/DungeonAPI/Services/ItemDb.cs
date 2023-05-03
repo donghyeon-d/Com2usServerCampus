@@ -20,7 +20,7 @@ public class ItemDb : GameDb, IItemDb
     {
         Open();
         // 아이템 인스턴스 만들기
-        var cols = new[] { "PlayerId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",
+        var cols = new[] { "PlayerId", "ItemMasterCode", "ItemCount", "Attack", "Defence", "Magic",
                 "EnhanceLevel", "RemainingEnhanceCount", "Destructed"};
         List<object[]> defaltItems = MakeDefalutItems(playerId);
         try

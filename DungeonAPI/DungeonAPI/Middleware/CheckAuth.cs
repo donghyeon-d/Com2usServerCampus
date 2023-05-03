@@ -1,11 +1,96 @@
 ﻿using System;
-namespace DungeonAPI.Middleware
-{
-	public class CheckAuth
-	{
-		public CheckAuth()
-		{
-		}
-	}
-}
+using System.Text;
+using System.Text.Json;
+using DungeonAPI.Configs;
+using DungeonAPI.MessageBody;
+using DungeonAPI.Services;
+using Microsoft.Extensions.Options;
 
+namespace DungeonAPI.Middleware;
+
+public class CheckAuth
+{
+    readonly RequestDelegate _next;
+    readonly ILogger<CheckAuth> _logger;
+    readonly IAuthUserDb _authUserDb;
+
+    public CheckAuth(RequestDelegate next, ILogger<CheckAuth> logger,
+        IAuthUserDb authUserDb)
+    {
+        _next = next;
+        _logger = logger;
+        _authUserDb = authUserDb;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        var formString = context.Request.Path.Value;
+        if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0
+            || string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            await _next(context);
+
+            return;
+        }
+
+        context.Request.EnableBuffering();
+
+        using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
+        {
+            var bodyStr = await reader.ReadToEndAsync();
+
+            var document = JsonDocument.Parse(bodyStr);
+
+            try
+            {
+                if (await IsValidPlayer(context, document))
+                {
+                    context.Request.Body.Position = 0;
+                    await _next(context);
+                }
+                return;
+            }
+            catch (Exception e)
+            {
+                await SetResponseAuthFail(context, ErrorCode.AuthTokenFailException);
+            }
+            finally
+            {
+                context.Request.Body.Position = 0;
+            }
+        }
+    }
+
+    async Task<bool> IsValidPlayer(HttpContext context, JsonDocument document)
+    {
+        try
+        {
+            var email = document.RootElement.GetProperty("Email").GetString();
+            var authToken = document.RootElement.GetProperty("AuthToken").GetString();
+            ErrorCode checkAuthErrorCode = await _authUserDb.CheckAuthUserAsync(email, authToken);
+            if (checkAuthErrorCode != ErrorCode.None)
+            {
+                await SetResponseAuthFail(context, checkAuthErrorCode);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
+            return false;
+        }
+
+    }
+
+    async Task SetResponseAuthFail(HttpContext context, ErrorCode errorCode)
+    {
+        var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareRes
+        {
+            result = errorCode
+        });
+        var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+    }
+}

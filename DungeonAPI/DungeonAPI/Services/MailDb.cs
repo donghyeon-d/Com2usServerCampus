@@ -68,19 +68,23 @@ public class MailDb : GameDb, IMailDb
     }
 
     // 몇번째 리스트(페이지)의 몇번째 꺼 
-    public async Task<Tuple<ErrorCode, List<Mail>>> LoadMailAt(Int32 playerId, Int32 listIndex)
+    public async Task<Tuple<ErrorCode, List<Mail>>> LoadMailAt(Int32 playerId, Int32 listNumber)
     {
-        // listIndex--; 페이지가 1페이지부터 시작이니까
         try
         {
+            listNumber--; //페이지가 1페이지부터 시작이니까
+            Int32 start = (listNumber * _listCount);
             var result = await _queryFactory.Query("Mail")
                                            .Where("PlayerId", playerId)
                                            .WhereDate("ExpiredDate", "<", DateTime.Now)
                                            .Where("IsReceived", 0)
                                            .Where("IsDeleted", 0)
+                                           .OrderByDesc("PostDate")
+                                           .Limit(_listCount)
+                                           .Offset(start)
                                            .GetAsync<Mail>();
 
-            List<Mail> mails = result.OrderBy(x => x).Skip(_listCount * listIndex).Take(_listCount).ToList(); // 비어있을리는 없나?
+            List<Mail> mails = result.ToList(); // 비어있을리는 없나?
             return new Tuple<ErrorCode, List<Mail>>(ErrorCode.None, mails);
         }
         catch (Exception e)

@@ -5,7 +5,7 @@ namespace DungeonAPI.MessageBody;
 
 public class LoadNoticeRes
 {
-    public List<Notification> notices { get; set; }
+    public List<Notification> Notices { get; set; }
     public ErrorCode ErrorCode { get; set; }
 }
 

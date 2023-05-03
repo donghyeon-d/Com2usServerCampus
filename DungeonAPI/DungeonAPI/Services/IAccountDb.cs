@@ -9,7 +9,9 @@ namespace DungeonAPI.Services
 
         public Task<Tuple<ErrorCode, Int32>> VerifyAccountAsync(String email, String pw);
 
-         public Task<ErrorCode> DeleteAccountAsync(String email);
+        public Task<ErrorCode> DeleteAccountAsync(String email);
+
+        public Task<Tuple<ErrorCode, Int32>> LoadAccountIdByEmail(String email);
     }
 }
 

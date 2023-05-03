@@ -24,7 +24,7 @@ public enum ErrorCode : UInt16
     AuthTokenMismatch = 2007,
     AuthTokenNotFound = 2008,
     AuthTokenFailWrongKeyword = 2009,
-    AuthTokenFailSetNx = 2010,
+    AuthTokenFailException = 2010,
     AccountIdMismatch = 2011,
     DuplicatedLogin = 2012,
     CreateAccountFailInsert = 2013,
@@ -38,6 +38,8 @@ public enum ErrorCode : UInt16
     AuthTockenDeleteFailException = 2021,
     DeleteAccountFail = 2022,
     DeleteAccountFailException = 2023,
+    LoadAccountEmailNotMatch = 2034,
+    LoadAccountFailException = 2025,
 
     // Character 3000 ~
     //CreateCharacterRollbackFail = 3001,

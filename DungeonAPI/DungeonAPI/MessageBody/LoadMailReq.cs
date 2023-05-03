@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.MessageBody;
 
-public class LoginReq
+public class LoadMailReq
 {
     [Required]
     [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]
@@ -12,10 +12,7 @@ public class LoginReq
     public String Email { get; set; }
 
     [Required]
-    [MinLength(8, ErrorMessage = "PASSWORD IS TOO SHORT")]
-    [StringLength(20, ErrorMessage = "PASSWORD IS TOO LONG")]
-    [DataType(DataType.Password)]
-    public String Password { get; set; }
+    public String AuthToken { get; set; }
 
     [Required]
     public String AppVersion { get; set; }
@@ -23,6 +20,7 @@ public class LoginReq
     [Required]
     public String MasterDataVersion { get; set; }
 
-
+    [Required]
+    public Int32 ListNumber { get; set; }
 }
 

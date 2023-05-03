@@ -48,7 +48,7 @@ public class PlayerDb : GameDb, IPlayerDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, Player>> LoadPlayerAsync(Int32 playerId)
+    public async Task<Tuple<ErrorCode, Player>> LoadPlayerByPlayerIdAsync(Int32 playerId)
     {
         _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Try");
         try
@@ -145,6 +145,32 @@ public class PlayerDb : GameDb, IPlayerDb
         {
             // TODO : log
             return ErrorCode.DeletePlayerFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    public async Task<Tuple<ErrorCode, Int32>> LoadPlayerIdByAccountId(Int32 accountId)
+    {
+
+        try
+        {
+            Open();
+            var playerInfo = await _queryFactory.Query("Player")
+                    .Where("AccountId", accountId)
+                    .FirstOrDefaultAsync<Player>();
+            if (playerInfo is null)
+            {
+                // TODO : log
+                return new Tuple<ErrorCode, Int32>(ErrorCode.PlayerNotExist, -1);
+            }
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, playerInfo.PlayerId);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<ErrorCode, Int32>(ErrorCode.LoadPlayerFailException, -1);
         }
         finally
         {

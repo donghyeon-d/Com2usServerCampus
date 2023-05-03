@@ -29,7 +29,7 @@ public class LoadNoticeController
             respones.ErrorCode = LoadNoticeErrorCode;
             return respones;
         }
-        respones.notices = notices;
+        respones.Notices = notices;
         return respones;
     }
 }

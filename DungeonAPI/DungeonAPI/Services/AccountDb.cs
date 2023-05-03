@@ -140,6 +140,31 @@ public class AccountDb : IAccountDb
         }
     }
 
+    public async Task<Tuple<ErrorCode, Int32>> LoadAccountIdByEmail(String email)
+    {
+        Open();
+        try
+        {
+            var account = await _queryFactory.Query("account")
+                                            .Where("Email", email)
+                                            .FirstOrDefaultAsync<Account>();
+            if (account is null)
+            {
+                return new Tuple<ErrorCode, Int32>(ErrorCode.LoadAccountEmailNotMatch, -1);
+            }
+            return new Tuple <ErrorCode, Int32>(ErrorCode.None, account.AccountId);
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return new Tuple<ErrorCode, Int32>(ErrorCode.LoadAccountFailException, -1);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
     public void Dispose()
     {
         _dbConn.Close();

@@ -114,7 +114,7 @@
     CREATE TABLE IF NOT EXISTS AccountDB.account
     (
         AccountID INT AUTO_INCREMENT PRIMARY KEY COMMENT '계정 고유번호',
-        Email VARCHAR(50) COMMENT '계정 이름',
+        Email VARCHAR(50) UNIQUE COMMENT '계정 이름',
         HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
         SaltValue VARCHAR(100) NOT NULL COMMENT '솔트값',
         IsDeleted TINYINT DEFAULT 0 NOT NULL COMMENT '삭제 요청 유무'
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS GameDB.player
     Magic INT NOT NULL COMMENT '마법력'
 ) COMMENT '유저 게임 데이터';
 
-### GameDB.Invectory TODO: ItemId, ItemCode 느낌이 겹칩. BaseItemCode는 어떨
+### GameDB.item TODO: ItemId, ItemCode 느낌이 겹칩. BaseItemCode는 어떨
 CREATE TABLE IF NOT EXISTS GameDB.item
 (
     PlayerId INT NOT NULL COMMENT '유저 고유번호',
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS GameDB.item
     EnhanceLevel TINYINT NOT NULL COMMENT '강화 레벨',
     RemainingEnhanceCount TINYINT NOT NULL COMMENT '남은 강화 횟수',
     Destructed TINYINT COMMENT '파괴 유무'
-) COMMENT '인벤토리 데이터';
+) COMMENT '아이템 데이터';
 
 ### GameDB.Mail
 CREATE TABLE IF NOT EXISTS GameDB.Mail

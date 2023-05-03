@@ -15,7 +15,7 @@ builder.Services.AddTransient<IAccountDb, AccountDb>();
 builder.Services.AddTransient<IPlayerDb, PlayerDb>();
 builder.Services.AddTransient<IItemDb, ItemDb>();
 builder.Services.AddSingleton<INoticeDb, NoticeDb>();
-builder.Services.AddSingleton<IAuthLoginDb, AuthLoginDb>();
+builder.Services.AddSingleton<IAuthUserDb, AuthUserDb>();
 
 builder.Services.AddControllers();
 
@@ -26,6 +26,7 @@ var app = builder.Build();
 //app.UseAuthorization();
 //app.MapControllers();
 app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
+app.UseMiddleware<DungeonAPI.Middleware.CheckAuth>();
 app.UseRouting();
 
 

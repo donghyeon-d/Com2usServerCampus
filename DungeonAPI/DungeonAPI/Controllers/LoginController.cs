@@ -11,18 +11,18 @@ public class LoginController : ControllerBase
 {
     readonly ILogger<LoginController> _logger;
     readonly IAccountDb _accountDb;
-    readonly IAuthLoginDb _authLogin;
+    readonly IAuthUserDb _authUser;
     readonly IPlayerDb _player;
     readonly IItemDb _item;
 
     public LoginController(ILogger<LoginController> logger, IAccountDb accountDb,
-        IPlayerDb player, IItemDb item, IAuthLoginDb authLogin) 
+        IPlayerDb player, IItemDb item, IAuthUserDb authUser) 
 	{
         _logger = logger;
         _accountDb = accountDb;
         _player = player;
         _item = item;
-        _authLogin = authLogin;
+        _authUser = authUser;
 	}
 
     [HttpPost]
@@ -37,23 +37,10 @@ public class LoginController : ControllerBase
             return response;
         }
 
-        // token 만들기
-        var authToken = Security.CreateAuthToken();
-
-        // token redis에 저장하기
-        var authCheckErrorCode = await _authLogin.CreateAuthPlayerAsync(request.Email, authToken);
-        if (authCheckErrorCode != ErrorCode.None)
-        {
-            response.ResetThenSetErrorCode(authCheckErrorCode);
-            return response;
-        }
-        response.AuthToken = authToken;
-
         // Load player data
         var (loadPlayerErrorCode, player) = await _player.LoadPlayerByAccountAsync(accountId);
         if (loadPlayerErrorCode != ErrorCode.None)
         {
-            await _authLogin.DeletePlayerAuthAsync(request.Email);
             response.ResetThenSetErrorCode(loadPlayerErrorCode);
             return response;
         }
@@ -63,11 +50,22 @@ public class LoginController : ControllerBase
         var (loadItemErrorcode, items) = await _item.LoadAllItemsAsync(player.PlayerId);
         if (loadItemErrorcode != ErrorCode.None)
         {
-            await _authLogin.DeletePlayerAuthAsync(request.Email);
             response.ResetThenSetErrorCode(loadItemErrorcode);
             return response;
         }
         response.Item = items;
+
+        // token 만들기
+        var authToken = Security.CreateAuthToken();
+
+        // token redis에 저장하기
+        var authCheckErrorCode = await _authUser.CreateAuthUserAsync(request.Email, authToken, player.PlayerId);
+        if (authCheckErrorCode != ErrorCode.None)
+        {
+            response.ResetThenSetErrorCode(authCheckErrorCode);
+            return response;
+        }
+        response.AuthToken = authToken;
 
         return response;
     }
