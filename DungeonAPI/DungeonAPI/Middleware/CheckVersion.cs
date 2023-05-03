@@ -26,6 +26,15 @@ public class CheckVersion
 
     public async Task Invoke(HttpContext context)
     {
+        var formString = context.Request.Path.Value;
+        if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            // Call the next delegate/middleware in the pipeline
+            await _next(context);
+
+            return;
+        }
+
         context.Request.EnableBuffering();
 
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
@@ -44,7 +53,10 @@ public class CheckVersion
                 if (await IsValidAppVersion(context, document))
                 {
                     if (await IsValidMasterDataVersion(context, document))
+                    {
+                        context.Request.Body.Position = 0;
                         await _next(context);
+                    }    
                 }
             }
             catch (Exception e)

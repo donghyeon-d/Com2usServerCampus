@@ -3,7 +3,7 @@ using DungeonAPI.ModelDB;
 
 namespace DungeonAPI.Services;
 
-public interface IMailRewardService
+public interface IMailRewardDb
 {
     public Task<ErrorCode> CreateMailRewards(Int32 mailId, IEnumerable<MailReward> rewards);
 

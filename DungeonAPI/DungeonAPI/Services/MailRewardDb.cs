@@ -7,11 +7,11 @@ using SqlKata.Execution;
 
 namespace DungeonAPI.Services;
 
-public class MailRewardService : GameDb, IMailRewardService
+public class MailRewardDb : GameDb, IMailRewardDb
 {
-    readonly ILogger<MailRewardService> _logger;
+    readonly ILogger<MailRewardDb> _logger;
 
-	public MailRewardService(ILogger<MailRewardService> logger, IOptions<DbConfig> dbConfig)
+	public MailRewardDb(ILogger<MailRewardDb> logger, IOptions<DbConfig> dbConfig)
         : base(logger, dbConfig)
     {
         _logger = logger;

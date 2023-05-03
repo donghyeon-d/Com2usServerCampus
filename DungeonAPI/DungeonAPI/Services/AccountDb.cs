@@ -88,8 +88,8 @@ public class AccountDb : IAccountDb
             var accountInfo = await _queryFactory.Query("Account").Where("Email", email).FirstOrDefaultAsync<Account>();
             if (accountInfo == null)
             {
-                _logger.LogDebug($"Where: AccountDb.VerifyAccountAsync, Status: {ErrorCode.LoginFailUserNotExist}, Email: {email}");
-                return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailUserNotExist, 0);
+                _logger.LogDebug($"Where: AccountDb.VerifyAccountAsync, Status: {ErrorCode.LoginFailPlayerNotExist}, Email: {email}");
+                return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailPlayerNotExist, 0);
             }
 
             //hashing한 pw랑 일치하는지 비교하기

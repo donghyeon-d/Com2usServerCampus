@@ -7,17 +7,17 @@ using DungeonAPI.ModelDB;
 
 namespace DungeonAPI.Services;
 
-public class MailService : GameDb, IMailService
+public class MailDb : GameDb, IMailDb
 {
     // mail 유효기간, 리스트(페이지)당 메일 개수 정해야 
-    readonly ILogger<MailService> _logger;
-    readonly IMailContentService _mailContent;
-    readonly IMailRewardService _mailReward;
+    readonly ILogger<MailDb> _logger;
+    readonly IMailContentDb _mailContent;
+    readonly IMailRewardDb _mailReward;
     int _expireDay = 30;
     int _listCount = 20;
 
-    public MailService(ILogger<MailService> logger, IOptions<DbConfig> dbConfig,
-        IMailContentService mailContent, IMailRewardService mailReward)
+    public MailDb(ILogger<MailDb> logger, IOptions<DbConfig> dbConfig,
+        IMailContentDb mailContent, IMailRewardDb mailReward)
         : base(logger, dbConfig)
     {
         _logger = logger;
@@ -32,7 +32,7 @@ public class MailService : GameDb, IMailService
         {
             int mailId = await _queryFactory.Query("Mail").InsertGetIdAsync<Int32>(new
                                                         {
-                                                            UserId = mail.UserId,
+                                                            PlayerId = mail.PlayerId,
                                                             Title = mail.Title,
                                                             PostDate = mail.PostDate,
                                                             ExpiredDate = mail.ExpiredDate,
@@ -68,13 +68,13 @@ public class MailService : GameDb, IMailService
     }
 
     // 몇번째 리스트(페이지)의 몇번째 꺼 
-    public async Task<Tuple<ErrorCode, List<Mail>>> LoadMailAt(Int32 userId, Int32 listIndex)
+    public async Task<Tuple<ErrorCode, List<Mail>>> LoadMailAt(Int32 playerId, Int32 listIndex)
     {
         // listIndex--; 페이지가 1페이지부터 시작이니까
         try
         {
             var result = await _queryFactory.Query("Mail")
-                                           .Where("UserId", userId)
+                                           .Where("PlayerId", playerId)
                                            .WhereDate("ExpiredDate", "<", DateTime.Now)
                                            .Where("IsReceived", 0)
                                            .Where("IsDeleted", 0)

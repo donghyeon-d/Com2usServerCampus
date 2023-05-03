@@ -13,17 +13,17 @@ public class CreateAccountController : ControllerBase
     readonly ILogger<CreateAccountController> _logger;
     readonly IAccountDb _accountDb;
     readonly IMasterDataDb _masterData;
-    readonly IUser _user;
-    readonly IInventory _inventory;
+    readonly IPlayerDb _player;
+    readonly IItemDb _item;
 
     public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDb accountDb,
-        IMasterDataDb masterData, IUser user, IInventory inventory)
+        IMasterDataDb masterData, IPlayerDb player, IItemDb item)
     {
         _logger = logger;
         _accountDb = accountDb;
         _masterData = masterData;
-        _user = user;
-        _inventory = inventory;
+        _player = player;
+        _item = item;
     }
 
     [HttpPost]
@@ -40,24 +40,24 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
-        // 게임 데이터 User 생성
-        var (userErrorCode, userId) = await _user.CreateUserAsync(accountId);
-        if (userErrorCode != ErrorCode.None)
+        // 게임 데이터 Player 생성
+        var (playerErrorCode, playerId) = await _player.CreatePlayerAsync(accountId);
+        if (playerErrorCode != ErrorCode.None)
         {
             await _accountDb.DeleteAccountAsync(request.Email);
-            await _user.DeleteUserAsync(accountId);
-            response.Result = userErrorCode;
+            await _player.DeletePlayerAsync(accountId);
+            response.Result = playerErrorCode;
             return response;
         }
 
         // 게임 기본 아이템 생성
-        var inventoryErrorCode = await _inventory.CreateDefaltItemsAsync(userId);
-        if (inventoryErrorCode != ErrorCode.None)
+        var itemErrorCode = await _item.CreateDefaltItemsAsync(playerId);
+        if (itemErrorCode != ErrorCode.None)
         {
             await _accountDb.DeleteAccountAsync(request.Email);
-            await _user.DeleteUserAsync(accountId);
-            await _inventory.DeleteUserAllItemsAsync(userId);
-            response.Result = inventoryErrorCode;
+            await _player.DeletePlayerAsync(accountId);
+            await _item.DeletePlayerAllItemsAsync(playerId);
+            response.Result = itemErrorCode;
             return response;
         }
 

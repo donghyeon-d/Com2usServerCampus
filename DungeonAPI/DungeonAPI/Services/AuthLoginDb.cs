@@ -9,13 +9,13 @@ using Microsoft.Extensions.Options;
 
 namespace DungeonAPI.Services;
 
-public class AuthLogin : IAuthLogin
+public class AuthLoginDb : IAuthLoginDb
 {
     readonly RedisConnection _redisConn;
-    readonly ILogger<AuthLogin> _logger;
+    readonly ILogger<AuthLoginDb> _logger;
     readonly IOptions<DbConfig> _dbConfig;
 
-    public AuthLogin(ILogger<AuthLogin> logger, IOptions<DbConfig> dbConfig)
+    public AuthLoginDb(ILogger<AuthLoginDb> logger, IOptions<DbConfig> dbConfig)
 	{
         _logger = logger;
         _dbConfig = dbConfig;
@@ -28,14 +28,14 @@ public class AuthLogin : IAuthLogin
 
     
 
-    public async Task<ErrorCode> CreateAuthUserAsync(string email, string authToken)
+    public async Task<ErrorCode> CreateAuthPlayerAsync(string email, string authToken)
     {
         var key = email;
         var defaultExpiry = TimeSpan.FromDays(1); // TODO: Expiry setting
         try
         {
-            var redis = new RedisString<AuthUser>(_redisConn, key, defaultExpiry);
-            AuthUser value = new AuthUser { AuthToken = authToken };
+            var redis = new RedisString<AuthPlayer>(_redisConn, key, defaultExpiry);
+            AuthPlayer value = new AuthPlayer { AuthToken = authToken };
             try
             {
                 await redis.SetAsync(value);
@@ -52,14 +52,14 @@ public class AuthLogin : IAuthLogin
         }
     }
 
-    public async Task<ErrorCode> CheckUserAuthAsync(string email, string authToken)
+    public async Task<ErrorCode> CheckPlayerAuthAsync(string email, string authToken)
     {
         var key = email;
         var defaultExpiry = TimeSpan.FromDays(1);
 
         try
         {
-            var redis = new RedisString<AuthUser>(_redisConn, key, defaultExpiry);
+            var redis = new RedisString<AuthPlayer>(_redisConn, key, defaultExpiry);
             try
             {
                 var value = await redis.GetAsync();
@@ -83,11 +83,11 @@ public class AuthLogin : IAuthLogin
         }
     }
 
-    public async Task<ErrorCode> DeleteUserAuthAsync(string email)
+    public async Task<ErrorCode> DeletePlayerAuthAsync(string email)
     {
         var key = email;
         var defaultExpiry = TimeSpan.FromDays(1);
-        var redis = new RedisString<AuthUser>(_redisConn, key, defaultExpiry);
+        var redis = new RedisString<AuthPlayer>(_redisConn, key, defaultExpiry);
 
         if (await redis.DeleteAsync() == false)
         {

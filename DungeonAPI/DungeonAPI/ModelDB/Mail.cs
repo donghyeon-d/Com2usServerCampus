@@ -3,7 +3,7 @@ namespace DungeonAPI.ModelDB;
 
 public class Mail
 {
-	public Int32 UserId { get; set; }
+	public Int32 PlayerId { get; set; }
 	public Int32 MailId { get; set; }
 	public String Title { get; set; }
 	public Int32 ContentId { get; set; }

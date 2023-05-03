@@ -5,19 +5,20 @@ using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using CloudStructures.Structures;
+using DungeonAPI.Services;
 
 namespace DungeonAPI.Services;
 
-public class Notice : INotice
+public class NoticeDb : INoticeDb
 {
     static string s_notificationKey { get; set; } = "noticekey";
     DateTime today = DateTime.Now;
     readonly RedisConnection _redisConn;
-    readonly ILogger<Notice> _logger;
+    readonly ILogger<NoticeDb> _logger;
     readonly IOptions<DbConfig> _dbConfig;
     TimeSpan defaultExpiry = TimeSpan.FromDays(1); // TODO: Expiry setting
 
-    public Notice(ILogger<Notice> logger, IOptions<DbConfig> dbConfig)
+    public NoticeDb(ILogger<NoticeDb> logger, IOptions<DbConfig> dbConfig)
 	{
         _logger = logger;
         _dbConfig = dbConfig;

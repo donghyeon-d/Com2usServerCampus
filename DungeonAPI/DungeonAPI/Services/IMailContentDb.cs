@@ -3,7 +3,7 @@ using DungeonAPI.ModelDB;
 
 namespace DungeonAPI.Services;
 
-public interface IMailContentService
+public interface IMailContentDb
 {
     public Task<ErrorCode> CreateMailContent(Int32 mailId, String content);
 

@@ -18,7 +18,7 @@ public enum ErrorCode : UInt16
     CreateAccountFailException = 2001,
     CreateAccountFailDuplicatedEmail = 2002,
     LoginFailException = 2003,
-    LoginFailUserNotExist = 2004,
+    LoginFailPlayerNotExist = 2004,
     LoginFailPwNotMatch = 2005,
     LoginFailSetAuthToken = 2006,
     AuthTokenMismatch = 2007,
@@ -70,16 +70,16 @@ public enum ErrorCode : UInt16
     //CharacterIsExistGame = 3013,
     //GetCharacterListFail = 3014,
 
-    // User 3000~
-    UserNotExist = 3000,
-    CreateUserFail = 3001,
-    CreateUserFailException = 3002,
-    LoadUserFail = 3003,
-    LoadUserFailException = 3004,
-    UpdateUserFail = 3005,
-    UpdateUserFailException = 3006,
-    DeleteUserFail = 3007,
-    DeleteUserFailException = 3008,
+    // Player 3000~
+    PlayerNotExist = 3000,
+    CreatePlayerFail = 3001,
+    CreatePlayerFailException = 3002,
+    LoadPlayerFail = 3003,
+    LoadPlayerFailException = 3004,
+    UpdatePlayerFail = 3005,
+    UpdatePlayerFailException = 3006,
+    DeletePlayerFail = 3007,
+    DeletePlayerFailException = 3008,
 
 
     //GameDb 4000~ 
@@ -114,8 +114,8 @@ public enum ErrorCode : UInt16
     DefaultItemCreateFailException = 6000,
     DefaultItemCreateFail = 6001,
     LoadAllItemsFailException = 6002,
-    DeleteUserAllItemsFail = 6003,
-    DeleteUserAllItemsFailException = 6004,
+    DeletePlayerAllItemsFail = 6003,
+    DeletePlayerAllItemsFailException = 6004,
 
     // Notice 7000~
     NoticeFailException = 7000,

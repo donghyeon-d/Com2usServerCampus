@@ -122,11 +122,11 @@
     ```
 
 ## GameDB
-### GameDB.UserSpec
-CREATE TABLE IF NOT EXISTS GameDB.user
+### GameDB.Player
+CREATE TABLE IF NOT EXISTS GameDB.player
 (
     AccountId INT NOT NULL COMMENT '계정DB 번호',
-    UserId INT AUTO_INCREMENT PRIMARY KEY COMMENT '유저 고유번호',
+    PlayerId INT AUTO_INCREMENT PRIMARY KEY COMMENT '유저 고유번호',
     Exp INT NOT NULL COMMENT  '경험치',
     Level INT NOT NULL COMMENT  '레벨',
     Hp INT NOT NULL COMMENT '현재 체력',
@@ -137,11 +137,11 @@ CREATE TABLE IF NOT EXISTS GameDB.user
 ) COMMENT '유저 게임 데이터';
 
 ### GameDB.Invectory TODO: ItemId, ItemCode 느낌이 겹칩. BaseItemCode는 어떨
-CREATE TABLE IF NOT EXISTS GameDB.inventory
+CREATE TABLE IF NOT EXISTS GameDB.item
 (
-    UserId INT NOT NULL COMMENT '유저 고유번호',
+    PlayerId INT NOT NULL COMMENT '유저 고유번호',
     ItemId INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 고유번호',
-    ItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemMasterCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
     ItemCount INT NOT NULL COMMENT '아이템 개수',
     Attack BIGINT NOT NULL COMMENT '공격력',
     Defence BIGINT NOT NULL COMMENT '방어력',
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS GameDB.inventory
 ### GameDB.Mail
 CREATE TABLE IF NOT EXISTS GameDB.Mail
 {
-    UserId INT NOT NULL COMMENT '유저 고유번호',
+    PlayerId INT NOT NULL COMMENT '유저 고유번호',
     MailId INT AUTO_INCREMENT PRIMARY KEY COMMENT '메일 고유번호',
     Title VARCHAR(100) NOT NULL COMMENT '메일 제목',
     PostDate DATETIME NOT NULL COMMENT '메일 받은 날짜',

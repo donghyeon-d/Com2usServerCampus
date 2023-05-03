@@ -10,9 +10,9 @@ namespace DungeonAPI.Controllers;
 public class LoadNoticeController
 {
     readonly ILogger<LoadNoticeController> _logger;
-    readonly INotice _notice;
+    readonly INoticeDb _notice;
 
-    public LoadNoticeController(ILogger<LoadNoticeController> logger, INotice notice)
+    public LoadNoticeController(ILogger<LoadNoticeController> logger, INoticeDb notice)
     {
         _logger = logger;
         _notice = notice;

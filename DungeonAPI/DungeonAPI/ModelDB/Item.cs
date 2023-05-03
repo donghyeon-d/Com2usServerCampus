@@ -3,9 +3,9 @@ namespace DungeonAPI.ModelDB;
 
 public class Item
 {
-	public Int32 UserId { get; set; }
+	public Int32 PlayerId { get; set; }
 	public Int32 ItemId { get; set; }
-	public Int32 ItemCode { get; set; }
+	public Int32 ItemMasterCode { get; set; }
 	public Int32 ItemCount { get; set; }
 	public Int64 Attack { get; set; }
 	public Int64 Defence { get; set; }

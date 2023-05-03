@@ -11,17 +11,17 @@ public class LoginController : ControllerBase
 {
     readonly ILogger<LoginController> _logger;
     readonly IAccountDb _accountDb;
-    readonly IAuthLogin _authLogin;
-    readonly IUser _user;
-    readonly IInventory _inventory;
+    readonly IAuthLoginDb _authLogin;
+    readonly IPlayerDb _player;
+    readonly IItemDb _item;
 
     public LoginController(ILogger<LoginController> logger, IAccountDb accountDb,
-        IUser user, IInventory inventory, IAuthLogin authLogin) 
+        IPlayerDb player, IItemDb item, IAuthLoginDb authLogin) 
 	{
         _logger = logger;
         _accountDb = accountDb;
-        _user = user;
-        _inventory = inventory;
+        _player = player;
+        _item = item;
         _authLogin = authLogin;
 	}
 
@@ -41,7 +41,7 @@ public class LoginController : ControllerBase
         var authToken = Security.CreateAuthToken();
 
         // token redis에 저장하기
-        var authCheckErrorCode = await _authLogin.CreateAuthUserAsync(request.Email, authToken);
+        var authCheckErrorCode = await _authLogin.CreateAuthPlayerAsync(request.Email, authToken);
         if (authCheckErrorCode != ErrorCode.None)
         {
             response.ResetThenSetErrorCode(authCheckErrorCode);
@@ -49,21 +49,21 @@ public class LoginController : ControllerBase
         }
         response.AuthToken = authToken;
 
-        // Load user data
-        var (loadUserErrorCode, user) = await _user.LoadUserByAccountAsync(accountId);
-        if (loadUserErrorCode != ErrorCode.None)
+        // Load player data
+        var (loadPlayerErrorCode, player) = await _player.LoadPlayerByAccountAsync(accountId);
+        if (loadPlayerErrorCode != ErrorCode.None)
         {
-            await _authLogin.DeleteUserAuthAsync(request.Email);
-            response.ResetThenSetErrorCode(loadUserErrorCode);
+            await _authLogin.DeletePlayerAuthAsync(request.Email);
+            response.ResetThenSetErrorCode(loadPlayerErrorCode);
             return response;
         }
-        response.User = user;
+        response.Player = player;
 
         // Load item data
-        var (loadItemErrorcode, items) = await _inventory.LoadAllItemsAsync(user.UserId);
+        var (loadItemErrorcode, items) = await _item.LoadAllItemsAsync(player.PlayerId);
         if (loadItemErrorcode != ErrorCode.None)
         {
-            await _authLogin.DeleteUserAuthAsync(request.Email);
+            await _authLogin.DeletePlayerAuthAsync(request.Email);
             response.ResetThenSetErrorCode(loadItemErrorcode);
             return response;
         }

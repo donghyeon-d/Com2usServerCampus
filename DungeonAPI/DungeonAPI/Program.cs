@@ -1,5 +1,6 @@
 ﻿using DungeonAPI.Services;
 using DungeonAPI.Configs;
+using DungeonAPI.ModelDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +12,10 @@ builder.Services.Configure<AdminConfig>(configuration.GetSection(nameof(AdminCon
 
 builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
 builder.Services.AddTransient<IAccountDb, AccountDb>();
-builder.Services.AddTransient<IUser, User>();
-builder.Services.AddTransient<IInventory, Inventory>();
-builder.Services.AddSingleton<INotice, Notice>();
-builder.Services.AddSingleton<IAuthLogin, AuthLogin>();
+builder.Services.AddTransient<IPlayerDb, PlayerDb>();
+builder.Services.AddTransient<IItemDb, ItemDb>();
+builder.Services.AddSingleton<INoticeDb, NoticeDb>();
+builder.Services.AddSingleton<IAuthLoginDb, AuthLoginDb>();
 
 builder.Services.AddControllers();
 
@@ -24,7 +25,7 @@ var app = builder.Build();
 
 //app.UseAuthorization();
 //app.MapControllers();
-//app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
+app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
 app.UseRouting();
 
 

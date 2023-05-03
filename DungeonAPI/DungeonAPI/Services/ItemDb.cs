@@ -4,33 +4,32 @@ using DungeonAPI.ModelsDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 
-
 namespace DungeonAPI.Services;
 
-public class Inventory : GameDb, IInventory
+public class ItemDb : GameDb, IItemDb
 {
-    readonly ILogger<User> _logger;
+    readonly ILogger<ItemDb> _logger;
 
-    public Inventory(ILogger<User> logger, IOptions<DbConfig> dbConfig)
+    public ItemDb(ILogger<ItemDb> logger, IOptions<DbConfig> dbConfig)
         : base(logger, dbConfig)
     {
         _logger = logger;
     }
 
-    public async Task<ErrorCode> CreateDefaltItemsAsync(Int32 userId)
+    public async Task<ErrorCode> CreateDefaltItemsAsync(Int32 playerId)
     {
         Open();
         // 아이템 인스턴스 만들기
-        var cols = new[] { "UserId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",
+        var cols = new[] { "PlayerId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",
                 "EnhanceLevel", "RemainingEnhanceCount", "Destructed"};
-        List<object[]> defaltItems = MakeDefalutItems(userId);
+        List<object[]> defaltItems = MakeDefalutItems(playerId);
         try
         {
-            var count = await _queryFactory.Query("inventoryy").InsertAsync(cols, defaltItems);
+            var count = await _queryFactory.Query("item").InsertAsync(cols, defaltItems);
             if (defaltItems.Count != count)
             {
                 // 롤백
-                await DeleteUserAllItemsAsync(userId);
+                await DeletePlayerAllItemsAsync(playerId);
                 return ErrorCode.DefaultItemCreateFail;
             }
             return ErrorCode.None;
@@ -39,7 +38,7 @@ public class Inventory : GameDb, IInventory
         {
             // 로그
             _logger.LogError(e.Message);
-            await DeleteUserAllItemsAsync(userId);
+            await DeletePlayerAllItemsAsync(playerId);
             return ErrorCode.DefaultItemCreateFailException;
         }
         finally
@@ -48,7 +47,7 @@ public class Inventory : GameDb, IInventory
         }
     }
 
-    List<object[]> MakeDefalutItems(Int32 userId)
+    List<object[]> MakeDefalutItems(Int32 playerId)
     {
         List<object[]> items = new List<object[]>();
         var list = MasterDataDb.s_item;
@@ -61,7 +60,7 @@ public class Inventory : GameDb, IInventory
             {
                 items.Add(new object[]
                 {
-                    userId,
+                    playerId,
                     item.Code,
                     1,
                     item.Attack,
@@ -78,11 +77,11 @@ public class Inventory : GameDb, IInventory
     }
 
 
-    public async Task<Tuple<ErrorCode, List<Item>>> LoadAllItemsAsync(Int32 userId)
+    public async Task<Tuple<ErrorCode, List<Item>>> LoadAllItemsAsync(Int32 playerId)
     {
         try
         {
-            var result = await _queryFactory.Query("Inventory").Where("UserId", userId).GetAsync<Item>();
+            var result = await _queryFactory.Query("item").Where("PlayerId", playerId).GetAsync<Item>();
             List<Item> items = result.ToList();
             return new Tuple<ErrorCode, List<Item>>(ErrorCode.None, items);
         }
@@ -94,24 +93,24 @@ public class Inventory : GameDb, IInventory
         }
     }
 
-    public async Task<ErrorCode> DeleteUserAllItemsAsync(Int32 userId)
+    public async Task<ErrorCode> DeletePlayerAllItemsAsync(Int32 playerId)
     {
         Open();
         try
         {
-            int count = await _queryFactory.Query("Inventory")
-                                            .Where("UserId", userId)
+            int count = await _queryFactory.Query("item")
+                                            .Where("PlayerId", playerId)
                                             .DeleteAsync();
             if (count != 1)
             {
-                return ErrorCode.DeleteUserAllItemsFail;
+                return ErrorCode.DeletePlayerAllItemsFail;
             }
             return ErrorCode.None;
         }
         catch (Exception e)
         {
             // TODO : log
-            return ErrorCode.DeleteUserAllItemsFailException;
+            return ErrorCode.DeletePlayerAllItemsFailException;
         }
         finally
         {

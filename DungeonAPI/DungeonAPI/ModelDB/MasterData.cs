@@ -2,13 +2,6 @@
 
 public class MasterData
 {
-    //public List<Item> _item { get; set; }
-    //public List<ItemAttribute> _itemAttribute { get; set; }
-    //public List<AttendanceReward> _attendanceReward { get; set; }
-    //public List<InAppProduct> _inAppProduct { get; set; }
-    //public List<StageItem> _stageItem { get; set; }
-    //public List<StageAttackNPC> _stageAttackNPC { get; set; }
-
     public class Meta
     {
         public Int32 Version { get; set; }
