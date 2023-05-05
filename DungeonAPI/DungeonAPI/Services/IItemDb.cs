@@ -10,8 +10,10 @@ public interface IItemDb
 
     public Task<Tuple<ErrorCode, List<Item>>> LoadAllItemsAsync(Int32 playerId);
 
-    //public Task<ErrorCode> UpdateItemAsync(Item item);
+    public Task<ErrorCode> UpdateItemAsync(Item item);
 
     public Task<ErrorCode> DeletePlayerAllItemsAsync(Int32 playerId);
+
+    public Task<Tuple<ErrorCode, Item>> LoadItemByItemId(Int32 itemId);
 }
 

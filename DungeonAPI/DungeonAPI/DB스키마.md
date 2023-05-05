@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS GameDB.item
     Attack BIGINT NOT NULL COMMENT '공격력',
     Defence BIGINT NOT NULL COMMENT '방어력',
     Magic BIGINT NOT NULL COMMENT '마법력',
-    EnhanceLevel TINYINT NOT NULL COMMENT '강화 레벨',
+    EnhanceLevel INT NOT NULL COMMENT '강화 레벨',
     RemainingEnhanceCount TINYINT NOT NULL COMMENT '남은 강화 횟수',
     IsDestructed TINYINT COMMENT '파괴 유무'
 ) COMMENT '아이템 데이터';

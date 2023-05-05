@@ -4,6 +4,5 @@ namespace DungeonAPI.Services;
 
 public interface IItemEnhanceDb
 {
-    Task<ErrorCode> EnhancePlayerItem(Int32 itemId);
+    public Task<Tuple<ErrorCode, Item>> EnhancePlayerItem(Int32 itemId);
 }
-

@@ -117,5 +117,55 @@ public class ItemDb : GameDb, IItemDb
             Dispose();
         }
     }
+
+    public async Task<Tuple<ErrorCode, Item>> LoadItemByItemId(Int32 itemId)
+    {
+        Open();
+        try
+        {
+            var item = await _queryFactory.Query("item")
+                                            .Where("ItemId", itemId)
+                                            .FirstOrDefaultAsync<Item>();
+            if (item is null)
+            {
+                return new Tuple<ErrorCode, Item>(ErrorCode.LoadItemNotFound, null);
+            }
+            return new Tuple<ErrorCode, Item>(ErrorCode.None, item);
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return new Tuple<ErrorCode, Item>(ErrorCode.LoadItemFailException, null);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    public async Task<ErrorCode> UpdateItemAsync(Item item)
+    {
+        Open();
+        try
+        {
+            int count = await _queryFactory.Query("item")
+                                            .Where("itemId", item.ItemId)
+                                            .UpdateAsync(item);
+            if (count != 1)
+            {
+                return ErrorCode.UpdateItemFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return ErrorCode.UpdateItemFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
 }
 

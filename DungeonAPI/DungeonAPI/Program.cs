@@ -19,6 +19,7 @@ builder.Services.AddTransient<IMailDb, MailDb>();
 builder.Services.AddTransient<IMailContentDb, MailContentDb>();
 builder.Services.AddTransient<IMailRewardDb, MailRewardDb>();
 builder.Services.AddTransient<IAttendanceBookDb, AttendanceBookDb>();
+builder.Services.AddTransient<IItemEnhanceDb, ItemEnhanceDb>();
 builder.Services.AddSingleton<INoticeDb, NoticeDb>();
 builder.Services.AddSingleton<IAuthUserDb, AuthUserDb>();
 

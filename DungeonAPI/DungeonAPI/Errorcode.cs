@@ -141,6 +141,14 @@ public enum ErrorCode : UInt16
     LoadAllItemsFailException = 6002,
     DeletePlayerAllItemsFail = 6003,
     DeletePlayerAllItemsFailException = 6004,
+    LoadItemNotFound = 6005,
+    LoadItemFailException = 6006,
+    UpdateItemFail = 6007,
+    UpdateItemFailException = 6008,
+
+
+    // Item Enhance 6100~
+    UnenhanceableItem = 6100,
 
     // Notice 7000~
     NoticeFailException = 7000,
