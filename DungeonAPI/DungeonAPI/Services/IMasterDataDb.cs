@@ -1,5 +1,5 @@
-﻿using DungeonAPI.Models;
-using System;
+﻿using System;
+
 namespace DungeonAPI.Services
 {
 	public interface IMasterDataDb

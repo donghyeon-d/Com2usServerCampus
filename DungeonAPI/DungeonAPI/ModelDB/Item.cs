@@ -12,6 +12,6 @@ public class Item
 	public Int64 Magic { get; set; }
 	public Byte EnhanceLevel { get; set; }
 	public Byte RemainingEnhanceCount { get; set; }
-	public Byte Destructed { get; set; }
+	public Byte IsDestructed { get; set; }
 }
 

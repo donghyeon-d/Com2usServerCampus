@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using System.Data;
 using DungeonAPI.ModelDB;
+using Microsoft.AspNetCore.Http;
 
 namespace DungeonAPI.Services;
 
@@ -26,7 +27,7 @@ public class MailDb : GameDb, IMailDb
     }
 
     // insert하기. content, reward 두 서비스 먼저 만들고 내부에서 그거 호출
-    public async Task<ErrorCode> CreateMail(Mail mail, MailContent content, List<MailReward> rewards)
+    public async Task<Tuple<ErrorCode, Int32>> CreateMail(Mail mail, MailContent content, List<MailReward> rewards)
     {
         try
         {
@@ -36,8 +37,9 @@ public class MailDb : GameDb, IMailDb
                                                             Title = mail.Title,
                                                             PostDate = mail.PostDate,
                                                             ExpiredDate = mail.ExpiredDate,
-                                                            IsReceived = mail.IsReceived,
-                                                            IsDelted = mail.IsDeleted,
+                                                            IsOpened = mail.IsOpened,
+                                                            IsReceivedReward = mail.IsReceivedReward,
+                                                            IsDeleted = mail.IsDeleted,
                                                             CanDelete = mail.CanDelete,
                                                             Sender = mail.Sender
                                                         }) ;
@@ -46,20 +48,20 @@ public class MailDb : GameDb, IMailDb
             if (mailContentErrorCode != ErrorCode.None)
             {
                 await Rollback(mailId);
-                return mailContentErrorCode;
+                return new Tuple<ErrorCode, Int32>(mailContentErrorCode, mailId);
             }
 
             ErrorCode mailRewardErrorCode = await _mailReward.CreateMailRewards(mailId, rewards);
             if (mailRewardErrorCode != ErrorCode.None)
             {
                 await Rollback(mailId);
-                return mailRewardErrorCode;
+                return new Tuple<ErrorCode, Int32>(mailRewardErrorCode, mailId);
             }
-            return ErrorCode.None;
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, mailId);
         }
         catch (Exception e)
         {
-            return ErrorCode.MailCreateFailException;
+            return new Tuple<ErrorCode, Int32>(ErrorCode.MailCreateFailException, -1);
         }
         finally
         {
@@ -68,15 +70,15 @@ public class MailDb : GameDb, IMailDb
     }
 
     // 몇번째 리스트(페이지)의 몇번째 꺼 
-    public async Task<Tuple<ErrorCode, List<Mail>>> LoadMailAt(Int32 playerId, Int32 listNumber)
+    public async Task<Tuple<ErrorCode, List<Mail>>> LoadMailListAtPage(Int32 playerId, Int32 pageNumber)
     {
         try
         {
-            listNumber--; //페이지가 1페이지부터 시작이니까
-            Int32 start = (listNumber * _listCount);
+                pageNumber--; //페이지가 1페이지부터 시작이니까
+            Int32 start = (pageNumber * _listCount);
             var result = await _queryFactory.Query("Mail")
                                            .Where("PlayerId", playerId)
-                                           .WhereDate("ExpiredDate", "<", DateTime.Now)
+                                           .WhereDate("ExpiredDate", ">", DateTime.Now)
                                            .Where("IsReceived", 0)
                                            .Where("IsDeleted", 0)
                                            .OrderByDesc("PostDate")
@@ -99,11 +101,14 @@ public class MailDb : GameDb, IMailDb
     }
 
     // Delete
-    public async Task<ErrorCode> DeleteMail(Int32 MailId)
+    public async Task<ErrorCode> MarkAsDeleteMail(Int32 mailId)
     {
         try
         {
-            int count = await _queryFactory.Query("Mail").Where("MailId", MailId).UpdateAsync(new { IsDeleted = 1 });
+            int count = await _queryFactory.Query("Mail")
+                                            .Where("MailId", mailId)
+                                            .Where("CanDelete", 1)
+                                            .UpdateAsync(new { IsDeleted = 1 });
             if (count != 1)
             {
                 return ErrorCode.MailDeleteFailNotExist;
@@ -121,12 +126,16 @@ public class MailDb : GameDb, IMailDb
         }
     }
 
-    // 수령 완료
-    public async Task<ErrorCode> ReceivedMail(Int32 MailId)
+    // 열기 (content 받아 가)
+    public async Task<ErrorCode> OpenMail(Int32 MailId)
     {
         try
         {
-            int count = await _queryFactory.Query("Mail").Where("MailId", MailId).UpdateAsync(new { IsReceived = 1 });
+            int count = await _queryFactory.Query("Mail")
+                                            .Where("MailId", MailId)
+                                            .WhereDate("ExpiredDate", ">", DateTime.Now)
+                                            .Where("IsDeleted", 0)
+                                            .UpdateAsync(new { IsOpend = 1 });
             if (count != 1)
             {
                 return ErrorCode.MailReceivedFailNotExist;
@@ -137,6 +146,59 @@ public class MailDb : GameDb, IMailDb
         {
             // TODO : log
             return ErrorCode.MailReceivedFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    // 수령 완료
+    public async Task<ErrorCode> MarkAsReceivedReward(Int32 MailId)
+    {
+        try
+        {
+            int count = await _queryFactory.Query("Mail")
+                                            .Where("MailId", MailId)
+                                            .WhereDate("ExpiredDate", ">", DateTime.Now)
+                                            .Where("IsReceivedReward", 0)
+                                            .Where("IsDeleted", 0)
+                                            .UpdateAsync(new { IsReceivedReward = 1 });
+            if (count != 1)
+            {
+                return ErrorCode.MailReceivedFailNotExist;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return ErrorCode.MailReceivedFailException;
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    async Task<ErrorCode> DeleteMail(Int32 mailId)
+    {
+        Open();
+        try
+        {
+            int count = await _queryFactory.Query("Mail")
+                                            .Where("MailId", mailId)
+                                            .DeleteAsync();
+            if (count != 1)
+            {
+                return ErrorCode.MailDeleteFailNotExist;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            return ErrorCode.MailDeleteFailException;
         }
         finally
         {

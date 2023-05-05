@@ -7,7 +7,7 @@ public interface IMailRewardDb
 {
     public Task<ErrorCode> CreateMailRewards(Int32 mailId, IEnumerable<MailReward> rewards);
 
-    public Task<Tuple<ErrorCode, List<MailReward>>> LoadMailReward(Int32 mailId);
+    public Task<Tuple<ErrorCode, List<MailReward>>> LoadMailRewards(Int32 mailId);
 
     public Task<ErrorCode> DeleteMailReward(Int32 mailId);
 }

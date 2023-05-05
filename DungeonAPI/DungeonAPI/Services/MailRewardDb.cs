@@ -39,7 +39,7 @@ public class MailRewardDb : GameDb, IMailRewardDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, List<MailReward>>> LoadMailReward(Int32 mailId)
+    public async Task<Tuple<ErrorCode, List<MailReward>>> LoadMailRewards(Int32 mailId)
     {
         try
         {

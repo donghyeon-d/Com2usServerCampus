@@ -12,18 +12,18 @@ public class CreateAccountController : ControllerBase
 {
     readonly ILogger<CreateAccountController> _logger;
     readonly IAccountDb _accountDb;
-    readonly IMasterDataDb _masterData;
     readonly IPlayerDb _player;
     readonly IItemDb _item;
+    readonly IAttendanceBookDb _attendanceBook;
 
     public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDb accountDb,
-        IMasterDataDb masterData, IPlayerDb player, IItemDb item)
+        IMasterDataDb masterData, IPlayerDb player, IItemDb item, IAttendanceBookDb attendanceBook)
     {
         _logger = logger;
         _accountDb = accountDb;
-        _masterData = masterData;
         _player = player;
         _item = item;
+        _attendanceBook = attendanceBook;
     }
 
     [HttpPost]
@@ -61,8 +61,20 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
-        //_logger.ZLogInformationWithPayload(EventIdDic[EventType.CreateAccount], new { Email = request.Email }, $"CreateAccount Success");
-        return response;
+        // player의 출석부 생성
+        var createPlayerAttendanceBookErrorCode = await _attendanceBook.CreatePlayerAttendanceBook(playerId);
+        if (createPlayerAttendanceBookErrorCode != ErrorCode.None)
+        {
+            await _accountDb.DeleteAccountAsync(request.Email);
+            await _player.DeletePlayerAsync(accountId);
+            await _item.DeletePlayerAllItemsAsync(playerId);
+            await _attendanceBook.DeletePlayerAttendanceBook(playerId);
+            response.Result = createPlayerAttendanceBookErrorCode;
+            return response;
+        }
+
+         //_logger.ZLogInformationWithPayload(EventIdDic[EventType.CreateAccount], new { Email = request.Email }, $"CreateAccount Success");
+         return response;
     }
 }
 

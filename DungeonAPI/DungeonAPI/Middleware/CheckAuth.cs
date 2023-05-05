@@ -4,6 +4,7 @@ using System.Text.Json;
 using DungeonAPI.Configs;
 using DungeonAPI.MessageBody;
 using DungeonAPI.Services;
+using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 
 namespace DungeonAPI.Middleware;
@@ -26,7 +27,8 @@ public class CheckAuth
     {
         var formString = context.Request.Path.Value;
         if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0
-            || string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0)
+            || string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0
+            || string.Compare(formString, "/CreateNotice", StringComparison.OrdinalIgnoreCase) == 0)
         {
             await _next(context);
 
@@ -43,8 +45,10 @@ public class CheckAuth
 
             try
             {
-                if (await IsValidPlayer(context, document))
+                var (isValid, authUser) = await IsValidPlayerThenLoadAuthPlayer(context, document);
+                if (isValid)
                 {
+                    PushAuthUserToContextItem(context, authUser);
                     context.Request.Body.Position = 0;
                     await _next(context);
                 }
@@ -61,25 +65,26 @@ public class CheckAuth
         }
     }
 
-    async Task<bool> IsValidPlayer(HttpContext context, JsonDocument document)
+    async Task<Tuple <bool, AuthUser>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
     {
         try
         {
             var email = document.RootElement.GetProperty("Email").GetString();
             var authToken = document.RootElement.GetProperty("AuthToken").GetString();
-            ErrorCode checkAuthErrorCode = await _authUserDb.CheckAuthUserAsync(email, authToken);
-            if (checkAuthErrorCode != ErrorCode.None)
+            var (LoadAuthUserErrorCode, authUser) = await _authUserDb.LoadAuthUserByEmail(email);
+
+            if (LoadAuthUserErrorCode != ErrorCode.None)
             {
-                await SetResponseAuthFail(context, checkAuthErrorCode);
-                return false;
+                await SetResponseAuthFail(context, LoadAuthUserErrorCode);
+                return new Tuple<bool, AuthUser>(false, null);
             }
-            return true;
+            return new Tuple<bool, AuthUser>(true, authUser);
         }
         catch (Exception e)
         {
             // TODO : log
             await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
-            return false;
+            return new Tuple<bool, AuthUser>(false, null);
         }
 
     }
@@ -92,5 +97,10 @@ public class CheckAuth
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+    }
+
+    void PushAuthUserToContextItem(HttpContext context, AuthUser authUser)
+    {
+        context.Items["PlayerId"] = authUser.PlayerId.ToString();
     }
 }

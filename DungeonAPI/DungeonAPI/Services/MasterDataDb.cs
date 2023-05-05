@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SqlKata.Execution;
-using DungeonAPI.Models;
-using static DungeonAPI.Models.MasterData;
+using DungeonAPI.ModelDB;
+using static DungeonAPI.ModelDB.MasterData;
 using DungeonAPI.Configs;
 
 namespace DungeonAPI.Services;
@@ -19,7 +19,7 @@ public class MasterDataDb : IMasterDataDb
 
     //public static MasterData? s_Data = null;
     public static List<Meta>? s_meta { get; set; } = null;
-    public static List<Item> s_item { get; set; }
+    public static List<MasterData.Item> s_item { get; set; }
     public static List<ItemAttribute> s_itemAttribute { get; set; }
     public static List<AttendanceReward> s_attendanceReward { get; set; }
     public static List<InAppProduct> s_inAppProduct { get; set; }
@@ -46,19 +46,6 @@ public class MasterDataDb : IMasterDataDb
 
         try
         {
-            //var item = await _queryFactory.Query("Item").GetAsync<MasterData.Item>();
-            //s_Data._item = item.ToList();
-            //var itemAttribute = await _queryFactory.Query("ItemAttribute").GetAsync<MasterData.ItemAttribute>();
-            //s_Data._itemAttribute = itemAttribute.ToList();
-            //var attendanceReward = await _queryFactory.Query("AttendanceReward").GetAsync<MasterData.AttendanceReward>();
-            //s_Data._attendanceReward = attendanceReward.ToList();
-            //var inAppProduct = await _queryFactory.Query("InAppProduct").GetAsync<MasterData.InAppProduct>();
-            //s_Data._inAppProduct = inAppProduct.ToList();
-            //var stageItem = await _queryFactory.Query("StageItem").GetAsync<MasterData.StageItem>();
-            //s_Data._stageItem = stageItem.ToList();
-            //var stageAttackNPC = await _queryFactory.Query("StageAttackNPC").GetAsync<MasterData.StageAttackNPC>();
-            //s_Data._stageAttackNPC = stageAttackNPC.ToList();
-
             var meta = await _queryFactory.Query("Meta").GetAsync<MasterData.Meta>();
             s_meta = meta.ToList();
             var item = await _queryFactory.Query("Item").GetAsync<MasterData.Item>();

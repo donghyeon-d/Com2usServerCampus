@@ -107,6 +107,29 @@ public enum ErrorCode : UInt16
     MailRewardDeleteFail = 4116,
     MailRewardDeleteFailException = 4117,
 
+    // AttendanceBook 4200~
+    LoadPlayerAttendanceBookNotExist = 4200,
+    LoadPlayerAttendanceBookFailException = 4201,
+    CreatePlayerAttendanceBookFail = 4202,
+    CreatePlayerAttendanceBookFailException = 4203,
+    DeletePlayerAttendanceBookFail = 4202,
+    DeletePlayerAttendanceBookFailException = 4203,
+    AlreadyReceiveAttendanceReward = 4204,
+    SendToMailExceptionAtReceiveAttendanceReward = 4205,
+    UpdateAttendanceBookTupleFail = 4206,
+    UpdateAttendanceBookTupleFailException = 4207,
+    ReceiveRewardToMailFailException = 4208,
+
+
+    // InAppPurchase 4300~
+    WrongReceipt = 4300,
+    DuplicatedReceipt = 4301,
+    CheckDuplicatedReceiptFailException = 4302,
+    InsertInAppPurchaseFail = 4304,
+    InsertInAppPurchaseFailException = 4305,
+    SendToMailExceptionAtProvidePurchasedProduct = 4306,
+    DeletePurchaseInfoFail = 4307,
+    DeletePurchaseInfoFailException = 4308,
 
     // MasterDataDB 5000~
     MasterDataConnectionFail = 5001,

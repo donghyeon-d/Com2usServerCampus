@@ -1,4 +1,7 @@
-﻿namespace DungeonAPI.Models;
+﻿using Humanizer;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+
+namespace DungeonAPI.ModelDB;
 
 public class MasterData
 {
@@ -31,6 +34,7 @@ public class MasterData
     public class AttendanceReward
     {
         public Int32 Code { get; set; }
+        public Int32 Day { get; set; }
         public Int32 ItemCode { get; set; }
         public Int32 Count { get; set; }
     }
