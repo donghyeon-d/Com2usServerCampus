@@ -48,7 +48,7 @@ public class ItemEnhanceDb : GameDb, IItemEnhanceDb
 			return false;
 		}
 
-		var baseItem = MasterDataDb.s_item.Find(masterDataItem => masterDataItem.Code == item.ItemMasterCode);
+		var baseItem = MasterDataDb.s_item.Find(masterDataItem => masterDataItem.Code == item.ItemMasterDataCode);
 		if (baseItem is null ||
 			baseItem.Attribute != 1 || baseItem.Attribute != 2)
 		{

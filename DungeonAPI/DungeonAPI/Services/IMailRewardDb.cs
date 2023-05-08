@@ -5,7 +5,7 @@ namespace DungeonAPI.Services;
 
 public interface IMailRewardDb
 {
-    public Task<ErrorCode> CreateMailRewards(Int32 mailId, IEnumerable<MailReward> rewards);
+    public Task<ErrorCode> CreateMailRewards(Int32 mailId, List<MailReward> rewards);
 
     public Task<Tuple<ErrorCode, List<MailReward>>> LoadMailRewards(Int32 mailId);
 

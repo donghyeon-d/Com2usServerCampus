@@ -13,8 +13,7 @@ public class LoadMailListController : ControllerBase
     readonly IMailDb _mailDb;
 
     public LoadMailListController(ILogger<LoadMailListController> logger,
-    IMailDb mail, IMailRewardDb mailReward, IAuthUserDb authUser,
-    IHttpContextAccessor httpContextAccessor)
+    IMailDb mail)
 	{
         _logger = logger;
         _mailDb = mail;

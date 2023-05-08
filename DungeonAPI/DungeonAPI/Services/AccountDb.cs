@@ -40,7 +40,7 @@ public class AccountDb : IAccountDb
         try
         {
             // 계정 중복 확인
-            var accountInfo = await _queryFactory.Query("account").Where("Email", email).FirstOrDefaultAsync<Account>();
+            var accountInfo = await _queryFactory.Query("Account").Where("Email", email).FirstOrDefaultAsync<Account>();
             if (accountInfo != null && accountInfo.Email == email)
             {
                 _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: {ErrorCode.CreateAccountFailDuplicatedEmail}, Email: {email}");
@@ -52,7 +52,7 @@ public class AccountDb : IAccountDb
             String hashedPassword = Security.MakeHashingPassWord(saltValue, pw);
 
             // id, 솔티값, 해시pw값 db에 저장
-            var accountId = await _queryFactory.Query("account").InsertGetIdAsync<Int32>(new {
+            var accountId = await _queryFactory.Query("Account").InsertGetIdAsync<Int32>(new {
                 Email = email,
                 SaltValue = saltValue,
                 HashedPassword = hashedPassword,
@@ -120,7 +120,7 @@ public class AccountDb : IAccountDb
         Open();
         try
         {
-            int count = await _queryFactory.Query("account")
+            int count = await _queryFactory.Query("Account")
                                             .Where("Email", email)
                                             .DeleteAsync();
             if (count != 1)
@@ -145,7 +145,7 @@ public class AccountDb : IAccountDb
         Open();
         try
         {
-            var account = await _queryFactory.Query("account")
+            var account = await _queryFactory.Query("Account")
                                             .Where("Email", email)
                                             .FirstOrDefaultAsync<Account>();
             if (account is null)

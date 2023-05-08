@@ -66,7 +66,7 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
             AttendanceBook newAttendanceBook = new AttendanceBook { PlayerId = playerAttendanceBook.PlayerId };
 
             // 이미 받았을 때
-            if (CanReceiveAttendanceReward(playerAttendanceBook))
+            if (CanReceiveAttendanceReward(playerAttendanceBook) == false)
             {
                 return ErrorCode.AlreadyReceiveAttendanceReward;
             }

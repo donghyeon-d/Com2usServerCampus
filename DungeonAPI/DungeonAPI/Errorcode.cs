@@ -92,7 +92,7 @@ public enum ErrorCode : UInt16
     MailLoadFailException = 4101,
     MailDeleteFailNotExist = 4102,
     MailDeleteFailException = 4103,
-    MailReceivedFailNotExist = 4104,
+    MailReceivedFailNotExistOrAlreadyRecieve = 4104,
     MailReceivedFailException = 4105,
     MailContentCreateFail = 4106,
     MailContentCreateFailException = 4107,
@@ -106,6 +106,8 @@ public enum ErrorCode : UInt16
     MailRewardLoadFailException = 4115,
     MailRewardDeleteFail = 4116,
     MailRewardDeleteFailException = 4117,
+    MailReceivedFailNotExistOrAlreadyOpen = 4118,
+    MailDeleteFailNotExistOrCannotDelete = 4119,
 
     // AttendanceBook 4200~
     LoadPlayerAttendanceBookNotExist = 4200,
@@ -145,6 +147,15 @@ public enum ErrorCode : UInt16
     LoadItemFailException = 6006,
     UpdateItemFail = 6007,
     UpdateItemFailException = 6008,
+    AddOneItemFail = 6009,
+    AddOntItemFailException = 6010,
+    AddStackItemFail = 6011,
+    AddStackItemFailException = 6012,
+    AddStackItemGetFail = 6013,
+    NotFoundMasterDataItemAtAddStackItem = 6014,
+    DeleteItemFail = 6015,
+    DeleteItemFailException = 6016,
+    AcquiredItemFailException = 6017,
 
 
     // Item Enhance 6100~

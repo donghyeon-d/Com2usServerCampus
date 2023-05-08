@@ -31,7 +31,7 @@ public class LoadAttendanceBookController : ControllerBase
 
 
         var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfoByPlayerId(playerId);
-		if (loadAttandanceBookErrorCode == ErrorCode.None)
+		if (loadAttandanceBookErrorCode != ErrorCode.None)
 		{
 			respons.Result = loadAttandanceBookErrorCode;
 			return respons;

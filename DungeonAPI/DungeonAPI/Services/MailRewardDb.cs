@@ -17,13 +17,15 @@ public class MailRewardDb : GameDb, IMailRewardDb
         _logger = logger;
     }
 
-    public async Task<ErrorCode> CreateMailRewards(Int32 mailId, IEnumerable<MailReward> rewards)
+    public async Task<ErrorCode> CreateMailRewards(Int32 mailId, List<MailReward> rewards)
     {
         // TODO : log
         try
         {
-            var count = await _queryFactory.Query("MailReward").InsertAsync(rewards);
-            if (count != 1)
+            var cols = new[] { "MailId", "BaseItemCode", "ItemCount" };
+            List<object[]> rewardItems = MakeReward(mailId, rewards);
+            var count = await _queryFactory.Query("MailReward").InsertAsync(cols, rewardItems);
+            if (count != rewardItems.Count)
             {
                 return ErrorCode.MailRewardCreateFail;
             }
@@ -37,6 +39,22 @@ public class MailRewardDb : GameDb, IMailRewardDb
         {
             Dispose();
         }
+    }
+
+    List<object[]> MakeReward(Int32 mailId, List<MailReward> rewards)
+    {
+        List<object[]> result = new List<object[]>();
+        
+        foreach (var reward in rewards)
+        {
+            result.Add(new object[]
+            {
+                mailId,
+                reward.BaseItemCode,
+                reward.ItemCount
+            });
+        }
+        return result;
     }
 
     public async Task<Tuple<ErrorCode, List<MailReward>>> LoadMailRewards(Int32 mailId)

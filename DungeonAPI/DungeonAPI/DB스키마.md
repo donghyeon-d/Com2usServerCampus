@@ -16,10 +16,10 @@
     ) COMMENT '버전 정보 테이블';
     ```
 
-### MasterData.Item
+### MasterData.BaseItem
     ``` sql
-    DROP TABLE IF EXISTS MasterDataDB.Item;
-    CREATE TABLE IF NOT EXISTS MasterDataDB.Item
+    DROP TABLE IF EXISTS MasterDataDB.BaseItem;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.BaseItem
     (
         Code INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 번호',
         Name VARCHAR(50) NOT NULL UNIQUE COMMENT '아이템 이름',
@@ -39,20 +39,20 @@
     ``` sql
     USE MasterDataDB;
 
-    DROP TABLE IF EXISTS MasterDataDB.item_attribute;
-    CREATE TABLE IF NOT EXISTS MasterDataDB.item_attribute
+    DROP TABLE IF EXISTS MasterDataDB.ItemAttribute;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.ItemAttribute
     (
         Name VARCHAR(50) NOT NULL UNIQUE COMMENT '특성 이름',
         Code INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 번호'
     ) COMMENT '아이템 속성 정보 테이블';
     ```
 
-### MasterDataDB.attendance_reward
+### MasterDataDB.AttendanceReward
     ``` sql
     USE `MasterDataDB`;
 
-    DROP TABLE IF EXISTS MasterDataDB.attendance_reward;
-    CREATE TABLE IF NOT EXISTS MasterDataDB.attendance_reward
+    DROP TABLE IF EXISTS MasterDataDB.AttendanceReward;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.AttendanceReward
     (
         Code INT AUTO_INCREMENT PRIMARY KEY COMMENT '보상 번호',
         Day TINYINT NOT NULL COMMENT '날짜',
@@ -61,13 +61,13 @@
     ) COMMENT '출석부 보상 정보 테이블';
     ```
 
-### MasterDataDB.in_app_product
+### MasterDataDB.InAppProduct
     **InAppProduct**
     ``` sql
     USE `MasterDataDB`;
 
-    DROP TABLE IF EXISTS MasterDataDB.in_app_product;
-    CREATE TABLE IF NOT EXISTS MasterDataDB.in_app_product
+    DROP TABLE IF EXISTS MasterDataDB.InAppProduct;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.InAppProduct
     (
         Code INT NOT NULL COMMENT '상품 번호',
         ItemCode INT NOT NULL COMMENT '아이템 번호',
@@ -76,30 +76,30 @@
     ) COMMENT '인생 삼풍 정보 테이블 묶음상품';
     ```
 
-### MasterDataDB.stage_item
+### MasterDataDB.StageItem
     ``` sql
     USE `MasterDataDB`;
 
-    DROP TABLE IF EXISTS MasterDataDB.stage_item;
-    CREATE TABLE IF NOT EXISTS MasterDataDB.stage_item
+    DROP TABLE IF EXISTS MasterDataDB.StageItem;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.StageItem
     (
         Code INT NOT NULL COMMENT '스테이지 단계',
         ItemCode INT NOT NULL COMMENT '파밍 가능 아이템'
-    )
+    ) COMMENT '스테이지에서 드롭되는 아이템';
     ```
 
-### MasterDataDB.stage_attack_npc
+### MasterDataDB.StageAttackNPC
     ``` sql
     USE `MasterDataDB`;
 
-    DROP TABLE IF EXISTS MasterDataDB.stage_attack_npc;
-    CREATE TABLE IF NOT EXISTS MasterDataDB.stage_attack_npc
+    DROP TABLE IF EXISTS MasterDataDB.StageAttackNPC;
+    CREATE TABLE IF NOT EXISTS MasterDataDB.StageAttackNPC
     (
         Code INT NOT NULL COMMENT '스테이지 단계',
         NPCCode INT NOT NULL COMMENT '공격 NPC',
         ItemCount INT NOT NULL COMMENT '공격 NPC 개수',
         Exp INT NOT NULL COMMENT '1개당 보상 경험치'
-    )
+    ) COMMENT '스테이지에서 나오는 npc';
     ```
 
 
@@ -111,19 +111,22 @@
 
 ### AccountDB.account
     ``` sql
-    CREATE TABLE IF NOT EXISTS AccountDB.account
+    CREATE TABLE IF NOT EXISTS AccountDB.Account
     (
         AccountID INT AUTO_INCREMENT PRIMARY KEY COMMENT '계정 고유번호',
         Email VARCHAR(50) UNIQUE COMMENT '계정 이름',
         HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
         SaltValue VARCHAR(100) NOT NULL COMMENT '솔트값',
         IsDeleted TINYINT DEFAULT 0 NOT NULL COMMENT '삭제 요청 유무'
-    )
+    );
     ```
 
 ## GameDB
+
+CREATE DATABASE IF NOT EXISTS GameDB;
+
 ### GameDB.Player
-CREATE TABLE IF NOT EXISTS GameDB.player
+CREATE TABLE IF NOT EXISTS GameDB.Player
 (
     AccountId INT NOT NULL COMMENT '계정DB 번호',
     PlayerId INT AUTO_INCREMENT PRIMARY KEY COMMENT '유저 고유번호',
@@ -136,8 +139,8 @@ CREATE TABLE IF NOT EXISTS GameDB.player
     Magic INT NOT NULL COMMENT '마법력'
 ) COMMENT '유저 게임 데이터';
 
-### GameDB.item
-CREATE TABLE IF NOT EXISTS GameDB.item
+### GameDB.Item
+CREATE TABLE IF NOT EXISTS GameDB.Item
 (
     PlayerId INT NOT NULL COMMENT '유저 고유번호',
     ItemId INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 고유번호',
@@ -153,7 +156,7 @@ CREATE TABLE IF NOT EXISTS GameDB.item
 
 ### GameDB.Mail
 CREATE TABLE IF NOT EXISTS GameDB.Mail
-{
+(
     PlayerId INT NOT NULL COMMENT '유저 고유번호',
     MailId INT AUTO_INCREMENT PRIMARY KEY COMMENT '메일 고유번호',
     Title VARCHAR(100) NOT NULL COMMENT '메일 제목',
@@ -164,37 +167,37 @@ CREATE TABLE IF NOT EXISTS GameDB.Mail
     IsDeleted TINYINT NOT NULL COMMENT '삭제 여부',
     CanDelete TINYINT NOT NULL COMMENT '삭제 가능 여부',
     Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람'
-} COMMENT '메일 데이터';
+) COMMENT '메일 데이터';
 
 ### GameDB.MailContent
 CREATE TABLE IF NOT EXISTS GameDB.MailContent
-{
+(
     MailId INT PRIMARY KEY NOT NULL COMMENT '메일 컨텐츠 고유번호',
     Content TEXT NOT NULL COMMENT '메일 컨텐츠 본문'
-} COMMENT '메일 컨텐츠 본문'
+) COMMENT '메일 컨텐츠 본문';
 
 ### GameDB.MailReward
 CREATE TABLE IF NOT EXISTS GameDB.MailReward
-{
+(
     MailId INT NOT NULL COMMENT '메일 보상 고유번호',
-    BaseItemCode는 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    BaseItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
     ItemCount INT NOT NULL COMMENT '아이템 개수'
-} COMMENT '메일 보상'
+) COMMENT '메일 보상';
 
 ### GameDb.AttendanceBook
 CREATE TABLE IF NOT EXISTS GameDB.AttendanceBook
-{
-    PlayerId INT PRIMARY KEY COMMENT COMMENT '유저 고유번호',
+(
+    PlayerId INT PRIMARY KEY COMMENT '유저 고유번호',
     StartDate DATETIME NOT NULL COMMENT '출석 시작일',
     LastReceiveDate DATETIME NOT NULL COMMENT '최종 수령일',
     ConsecutiveDays INT NOT NULL COMMENT '연속일'
-} COMMENT '출석부'
+) COMMENT '출석부';
 
 ### GameDb.InAppPurchase
 CREATE TABLE IF NOT EXISTS GameDB.InAppPurchase
-{
-    PlayerId INT PRIMARY KEY COMMENT COMMENT '유저 고유번호',
-    ReceiptId VARCHAR(30) NOT NULL UNIQUE COMMENT '영수증 번홒',
+(
+    PlayerId INT COMMENT '유저 고유번호',
+    ReceiptId VARCHAR(30) PRIMARY KEY COMMENT '영수증 번홒',
     ReceiveDate DATETIME NOT NULL COMMENT '수령일',
     ProductCode INT NOT NULL COMMENT '상품번호'
-} COMMENT '인앱결제내역'
+) COMMENT '인앱결제내역';

@@ -15,5 +15,6 @@ public interface IItemDb
     public Task<ErrorCode> DeletePlayerAllItemsAsync(Int32 playerId);
 
     public Task<Tuple<ErrorCode, Item>> LoadItemByItemId(Int32 itemId);
+    public Task<Tuple<ErrorCode, Int32>> AcquiredItem(Int32 playerId, Item item);
 }
 

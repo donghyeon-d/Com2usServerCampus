@@ -119,7 +119,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         {
             PlayerId = playerId,
             Title = "Provide Purchased InAppProduct",
-            PostDate = DateTime.Today,
+            PostDate = DateTime.Now,
             ExpiredDate = DateTime.MaxValue,
             IsOpened = 0,
             IsReceivedReward = 0,
@@ -171,15 +171,15 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         }
         else if (char.IsDigit(receiptId[0]))
         {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.WrongReceipt, 1);
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, 1);
         }
         else if (char.IsLower(receiptId[0]))
         {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.WrongReceipt, 2);
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, 2);
         }
         else
         {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.WrongReceipt, 3);
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, 3);
         }
     }
 }

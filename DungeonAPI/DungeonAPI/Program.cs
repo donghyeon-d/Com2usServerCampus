@@ -30,12 +30,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 //app.UseAuthorization();
-//app.MapControllers();
 app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
 app.UseMiddleware<DungeonAPI.Middleware.CheckAuth>();
 app.UseRouting();
+app.MapControllers();
 
 
-app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+//app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 

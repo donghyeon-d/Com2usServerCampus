@@ -8,23 +8,20 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadMailContentControlloer : ControllerBase
+public class LoadMailContentController : ControllerBase
 {
-    readonly ILogger<LoadMailContentControlloer> _logger;
+    readonly ILogger<LoadMailContentController> _logger;
     readonly IMailDb _mail;
     readonly IMailContentDb _mailContent;
     readonly IMailRewardDb _mailReward;
-    readonly IHttpContextAccessor _httpContextAccessor;
 
-    public LoadMailContentControlloer(ILogger<LoadMailContentControlloer> logger,
-    IMailDb mail, IMailContentDb mailContent, IMailRewardDb mailReward,
-    IHttpContextAccessor httpContextAccessor)
+    public LoadMailContentController(ILogger<LoadMailContentController> logger,
+    IMailDb mail, IMailContentDb mailContent, IMailRewardDb mailReward)
 	{
         _logger = logger;
         _mail = mail;
         _mailContent = mailContent;
         _mailReward = mailReward;
-        _httpContextAccessor = httpContextAccessor;
 	}
 
     // 컨텐츠, 보상 주고 열었음으로 표. 

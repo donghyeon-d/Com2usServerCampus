@@ -15,7 +15,7 @@ public class MailDb : GameDb, IMailDb
     readonly IMailContentDb _mailContent;
     readonly IMailRewardDb _mailReward;
     int _expireDay = 30;
-    int _listCount = 20;
+    int _listCount = 2;
 
     public MailDb(ILogger<MailDb> logger, IOptions<DbConfig> dbConfig,
         IMailContentDb mailContent, IMailRewardDb mailReward)
@@ -79,7 +79,7 @@ public class MailDb : GameDb, IMailDb
             var result = await _queryFactory.Query("Mail")
                                            .Where("PlayerId", playerId)
                                            .WhereDate("ExpiredDate", ">", DateTime.Now)
-                                           .Where("IsReceived", 0)
+                                           .Where("IsReceivedReward", 0)
                                            .Where("IsDeleted", 0)
                                            .OrderByDesc("PostDate")
                                            .Limit(_listCount)
@@ -111,7 +111,7 @@ public class MailDb : GameDb, IMailDb
                                             .UpdateAsync(new { IsDeleted = 1 });
             if (count != 1)
             {
-                return ErrorCode.MailDeleteFailNotExist;
+                return ErrorCode.MailDeleteFailNotExistOrCannotDelete;
             }
             return ErrorCode.None;
         }
@@ -135,10 +135,10 @@ public class MailDb : GameDb, IMailDb
                                             .Where("MailId", MailId)
                                             .WhereDate("ExpiredDate", ">", DateTime.Now)
                                             .Where("IsDeleted", 0)
-                                            .UpdateAsync(new { IsOpend = 1 });
+                                            .UpdateAsync(new { IsOpened = 1 });
             if (count != 1)
             {
-                return ErrorCode.MailReceivedFailNotExist;
+                return ErrorCode.MailReceivedFailNotExistOrAlreadyOpen;
             }
             return ErrorCode.None;
         }
@@ -166,7 +166,7 @@ public class MailDb : GameDb, IMailDb
                                             .UpdateAsync(new { IsReceivedReward = 1 });
             if (count != 1)
             {
-                return ErrorCode.MailReceivedFailNotExist;
+                return ErrorCode.MailReceivedFailNotExistOrAlreadyRecieve;
             }
             return ErrorCode.None;
         }

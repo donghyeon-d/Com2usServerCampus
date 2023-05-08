@@ -7,12 +7,12 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ClaimPurchasedProduct : ControllerBase
+public class ClaimPurchasedProductController : ControllerBase
 {
-    readonly ILogger<ClaimPurchasedProduct> _logger;
+    readonly ILogger<ClaimPurchasedProductController> _logger;
     readonly IInAppPurchaseDb _inAppPurchaseDb;
 
-    public ClaimPurchasedProduct(ILogger<ClaimPurchasedProduct> logger, IInAppPurchaseDb inAppPurchaseDb)
+    public ClaimPurchasedProductController(ILogger<ClaimPurchasedProductController> logger, IInAppPurchaseDb inAppPurchaseDb)
 	{
         _logger = logger;
         _inAppPurchaseDb = inAppPurchaseDb;

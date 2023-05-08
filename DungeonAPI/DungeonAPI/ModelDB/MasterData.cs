@@ -10,7 +10,7 @@ public class MasterData
         public Int32 Version { get; set; }
     }
 
-    public class Item
+    public class BaseItem
     {
         public Int32 Code { get; set; }
         public String Name { get; set; }
