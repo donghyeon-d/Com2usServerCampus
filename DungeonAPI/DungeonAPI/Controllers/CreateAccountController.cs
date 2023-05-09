@@ -2,7 +2,7 @@
 using DungeonAPI.Services;
 using DungeonAPI.MessageBody;
 using Microsoft.AspNetCore.Mvc;
-
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -30,7 +30,6 @@ public class CreateAccountController : ControllerBase
     public async Task<CreateAccountRes> CreateAccountThenDefaultData(CreateAccountReq request)
     {
         var response = new CreateAccountRes();
-
         // 계정 생성
         var (accountErrorCode, accountId) = await _accountDb.CreateAccountAsync(request.Email, request.Password);
         if (accountErrorCode != ErrorCode.None)
