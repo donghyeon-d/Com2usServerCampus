@@ -24,11 +24,12 @@ public class LoadMailContentController : ControllerBase
         _mailReward = mailReward;
 	}
 
-    // 컨텐츠, 보상 주고 열었음으로 표. 
     [HttpPost]
     public async Task<LoadMailContentRes> LoadMailContent(LoadMailContentReq request)
     {
         LoadMailContentRes response = new LoadMailContentRes();
+
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         var (LoadMailContentErrorCode, mailContent) = await _mailContent.LoadMailContent(request.MailId);
         if (LoadMailContentErrorCode != ErrorCode.None)
@@ -44,7 +45,7 @@ public class LoadMailContentController : ControllerBase
             return response;
         }
 
-        var OpenMailErrorCode = await _mail.MarkAsOpenMail(request.MailId);
+        var OpenMailErrorCode = await _mail.MarkAsOpenMail(request.MailId, playerId);
         if (OpenMailErrorCode != ErrorCode.None)
         {
             response.Result = OpenMailErrorCode;

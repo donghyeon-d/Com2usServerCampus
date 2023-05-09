@@ -11,13 +11,13 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
     readonly ILogger<InAppPurchaseDb> _logger;
     readonly IMailDb _mailDb;
 
-	public InAppPurchaseDb(ILogger<InAppPurchaseDb> logger, IOptions<DbConfig> dbConfig,
+    public InAppPurchaseDb(ILogger<InAppPurchaseDb> logger, IOptions<DbConfig> dbConfig,
         IMailDb mailDb)
         : base(logger, dbConfig)
-	{
+    {
         _logger = logger;
         _mailDb = mailDb;
-	}
+    }
 
     public async Task<ErrorCode> ProvidePurchasedProductToMail(Int32 playerId, String receiptId)
     {
@@ -33,7 +33,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
             return CheckDuplicatedReceiptError;
         }
 
-        var InsertPurchaseInfoError = await InsertPurchaseInfoToList(playerId, receiptId, productId);
+        var InsertPurchaseInfoError = await InsertPurchaseInfoToManageList(playerId, receiptId, productId);
         if (InsertPurchaseInfoError != ErrorCode.None)
         {
             return InsertPurchaseInfoError;
@@ -68,7 +68,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         }
     }
 
-    async Task<ErrorCode> InsertPurchaseInfoToList(Int32 playerId, String receiptId, Int32 productId)
+    async Task<ErrorCode> InsertPurchaseInfoToManageList(Int32 playerId, String receiptId, Int32 productId)
     {
         try
         {
@@ -115,37 +115,13 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
 
     async Task<ErrorCode> SendToMail(Int32 playerId, Int32 productId)
     {
-        Mail mail = new Mail
-        {
-            PlayerId = playerId,
-            Title = "Provide Purchased InAppProduct",
-            PostDate = DateTime.Now,
-            ExpiredDate = DateTime.MaxValue,
-            IsOpened = 0,
-            IsReceivedReward = 0,
-            IsDeleted = 0,
-            CanDelete = 0,
-            Sender = "InAppPurchase"
-        };
+        Mail mail = MakeMail(playerId);
 
-        MailContent mailContent = new MailContent
-        {
-            Content = $"Thank you for Purchasing Product. " +
-            $"You can get Product in Mailbox!"
-        };
+        MailContent mailContent
+            = MakeMailContent("Thank you for Purchasing Product. " +
+                                "You can get Product in Mailbox!");
 
-        List<MailReward> mailRewards = new List<MailReward>();
-        var products = MasterDataDb.s_inAppProduct
-                    .FindAll(product => product.Code == productId);
-        foreach (MasterData.InAppProduct product in products)
-        {
-            mailRewards.Add(new MailReward
-            {
-                BaseItemCode = product.ItemCode,
-                ItemCount = product.ItemCount,
-                IsReceived = false
-            });
-        }
+        List<MailReward> mailRewards = MakeMailReward(productId);
 
         try
         {
@@ -162,10 +138,56 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         }
     }
 
-    // 임시버전. 영수증 확인해서 구매물품 코드번호 주기
+    Mail MakeMail(Int32 playerId)
+    {
+        Mail mail = new Mail
+        {
+            PlayerId = playerId,
+            Title = "Provide Purchased InAppProduct",
+            PostDate = DateTime.Now,
+            ExpiredDate = DateTime.MaxValue,
+            IsOpened = 0,
+            IsReceivedReward = 0,
+            IsDeleted = 0,
+            CanDelete = 0,
+            Sender = "InAppPurchase"
+        };
+        return mail;
+    }
+
+    MailContent MakeMailContent(string content)
+    {
+        MailContent mailContent = new MailContent
+        {
+            Content = content
+        };
+        return mailContent;
+    }
+
+    List<MailReward> MakeMailReward(Int32 productId)
+    {
+        List<MailReward> mailRewards = new List<MailReward>();
+
+        var products = MasterDataDb.s_inAppProduct
+                    .FindAll(product => product.Code == productId);
+
+        foreach (MasterData.InAppProduct product in products)
+        {
+            mailRewards.Add(new MailReward
+            {
+                BaseItemCode = product.ItemCode,
+                ItemCount = product.ItemCount,
+                IsReceived = false
+            });
+        }
+
+        return mailRewards;
+    }
+
+
     Tuple<ErrorCode, Int32> CheckReceiptThenGetProductCode(String receiptId)
     {
-        // 영수증 검사
+        // 영수증 검사 필요. (임시)영수증에 따른 물품 번호
         if (string.IsNullOrEmpty(receiptId))
         {
             return new Tuple<ErrorCode, Int32>(ErrorCode.WrongReceipt, -1);

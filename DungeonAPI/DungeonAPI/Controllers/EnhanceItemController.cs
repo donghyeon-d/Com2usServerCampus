@@ -24,8 +24,7 @@ public class EnhanceItemController : ControllerBase
     {
         EnhanceItemRes response = new EnhanceItemRes();
 
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         var (EnhancePlayerItemErrorCode, resultItem) =
             await _itemEnhanceDb.EnhancePlayerItem(request.ItemId, playerId);

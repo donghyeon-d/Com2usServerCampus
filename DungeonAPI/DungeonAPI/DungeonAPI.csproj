@@ -14,7 +14,6 @@
     <None Remove="Configs\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Middleware\" />
     <Folder Include="Configs\" />
   </ItemGroup>
   <ItemGroup>

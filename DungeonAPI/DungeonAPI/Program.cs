@@ -4,7 +4,6 @@ using DungeonAPI.ModelDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 IConfiguration configuration = builder.Configuration;
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
 builder.Services.Configure<AppConfig>(configuration.GetSection(nameof(AppConfig)));
@@ -27,15 +26,9 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-//app.UseAuthorization();
-app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
-app.UseMiddleware<DungeonAPI.Middleware.CheckAuth>();
+app.UseMiddleware<DungeonAPI.Middleware.CheckAuthAndVersion>();
 app.UseRouting();
 app.MapControllers();
 
-
-//app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 

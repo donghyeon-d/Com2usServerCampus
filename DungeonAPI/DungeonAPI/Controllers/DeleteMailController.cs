@@ -24,7 +24,9 @@ public class DeleteMailController : ControllerBase
     {
         DeleteMailRes response = new DeleteMailRes();
 
-        var MarkAsDeleteMailErrorCode = await _mailDb.MarkAsDeleteMail(request.MailId);
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+
+        var MarkAsDeleteMailErrorCode = await _mailDb.MarkAsDeleteMail(request.MailId, playerId);
         if (MarkAsDeleteMailErrorCode != ErrorCode.None)
         {
             response.Result = MarkAsDeleteMailErrorCode;

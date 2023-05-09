@@ -8,7 +8,7 @@ using DungeonAPI.ModelDB;
 
 namespace DungeonAPI.Middleware;
 
-public class CheckAuthAnVersion
+public class CheckAuthAndVersion
 {
     readonly RequestDelegate _next;
     readonly IMasterDataDb _masterData;
@@ -16,7 +16,7 @@ public class CheckAuthAnVersion
     readonly IOptions<AppConfig> _appConfig;
     readonly IAuthUserDb _authUserDb;
 
-    public CheckAuthAnVersion(RequestDelegate next, IMasterDataDb masterData,
+    public CheckAuthAndVersion(RequestDelegate next, IMasterDataDb masterData,
         ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig, IAuthUserDb authUserDb)
     {
         _next = next;
@@ -35,15 +35,14 @@ public class CheckAuthAnVersion
         if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) != 0)
         {
             await CheckVersion(context);
-            await CheckAuth(context);
         }
         if (string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) != 0
             && string.Compare(formString, "/CreateNotice", StringComparison.OrdinalIgnoreCase) != 0)
         {
-
+            await CheckAuth(context);
         }
-            await _next(context);
 
+        await _next(context);
     }
 
     async Task CheckAuth(HttpContext context)
@@ -75,7 +74,6 @@ public class CheckAuthAnVersion
             }
         }
     }
-
 
     async Task<Tuple<bool, AuthUser>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
     {

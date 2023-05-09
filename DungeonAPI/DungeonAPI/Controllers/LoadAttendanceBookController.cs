@@ -25,10 +25,9 @@ public class LoadAttendanceBookController : ControllerBase
     [HttpPost]
     public async Task<LoadAttendanceBookRes> LoadAttendanceBook(LoadAttendanceBookReq request)
 	{
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
-		LoadAttendanceBookRes respons = new LoadAttendanceBookRes();
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
+        LoadAttendanceBookRes respons = new LoadAttendanceBookRes();
 
         var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfoByPlayerId(playerId);
 		if (loadAttandanceBookErrorCode != ErrorCode.None)

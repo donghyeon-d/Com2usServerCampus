@@ -43,7 +43,6 @@ public class MailDb : GameDb, IMailDb
                                                             CanDelete = mail.CanDelete,
                                                             Sender = mail.Sender
                                                         }) ;
-            _queryFactory.Query("Mail").
 
             ErrorCode mailContentErrorCode = await _mailContent.CreateMailContent(mailId, content.Content);
             if (mailContentErrorCode != ErrorCode.None)
@@ -102,12 +101,13 @@ public class MailDb : GameDb, IMailDb
     }
 
     // Delete
-    public async Task<ErrorCode> MarkAsDeleteMail(Int32 mailId)
+    public async Task<ErrorCode> MarkAsDeleteMail(Int32 mailId, Int32 playerId)
     {
         try
         {
             int count = await _queryFactory.Query("Mail")
                                             .Where("MailId", mailId)
+                                            .Where("PlayerId", playerId)
                                             .Where("CanDelete", 1)
                                             .UpdateAsync(new { IsDeleted = 1 });
             if (count != 1)
@@ -128,12 +128,13 @@ public class MailDb : GameDb, IMailDb
     }
 
     // 열기 (content 받아 가)
-    public async Task<ErrorCode> MarkAsOpenMail(Int32 MailId)
+    public async Task<ErrorCode> MarkAsOpenMail(Int32 MailId, Int32 playerId)
     {
         try
         {
             int count = await _queryFactory.Query("Mail")
                                             .Where("MailId", MailId)
+                                            .Where("PlayerId", playerId)
                                             .WhereDate("ExpiredDate", ">", DateTime.Now)
                                             .Where("IsDeleted", 0)
                                             .UpdateAsync(new { IsOpened = 1 });
@@ -155,12 +156,13 @@ public class MailDb : GameDb, IMailDb
     }
 
     // 수령 완료
-    public async Task<ErrorCode> MarkAsReceivedReward(Int32 MailId)
+    public async Task<ErrorCode> MarkAsReceivedReward(Int32 MailId, Int32 playerId)
     {
         try
         {
             int count = await _queryFactory.Query("Mail")
                                             .Where("MailId", MailId)
+                                            .Where("PlayerId", playerId)
                                             .WhereDate("ExpiredDate", ">", DateTime.Now)
                                             .Where("IsReceivedReward", 0)
                                             .Where("IsDeleted", 0)
@@ -212,6 +214,28 @@ public class MailDb : GameDb, IMailDb
         await DeleteMail(mailId);
         await _mailContent.DeleteMailContent(mailId);
         await _mailReward.DeleteMailReward(mailId);
+    }
+    
+    public async Task<ErrorCode> CheckPlayerHasMail(Int32 playerId, Int32 mailId)
+    {
+        try
+        {
+            var result = await _queryFactory.Query("Mail")
+                                .Where("PlayerId", playerId)
+                                .Where("MailId", mailId)
+                                .FirstOrDefaultAsync<Mail>();
+
+            if (result is null)
+            {
+                return ErrorCode.NotFoundPlayerMail;
+            }
+
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.PlayerMailCheckException;
+        }
     }
 }
 

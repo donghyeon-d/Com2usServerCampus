@@ -23,8 +23,7 @@ public class PlayerItemListController : ControllerBase
     {
         PlayerItemListRes response = new PlayerItemListRes();
 
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         var (loadAllItemsErrorCode, itemList) = await _itemDb.LoadAllItemsAsync(playerId);
         if (loadAllItemsErrorCode != ErrorCode.None)

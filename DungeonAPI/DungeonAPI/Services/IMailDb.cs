@@ -12,11 +12,13 @@ public interface IMailDb
     public Task<Tuple<ErrorCode, List<Mail>>> LoadMailListAtPage(Int32 playerId, Int32 pageIndex);
 
     // Delete
-    public Task<ErrorCode> MarkAsDeleteMail(Int32 MailId);
+    public Task<ErrorCode> MarkAsDeleteMail(Int32 MailId, Int32 playerId);
 
-    public Task<ErrorCode> MarkAsOpenMail(Int32 MailId);
+    public Task<ErrorCode> MarkAsOpenMail(Int32 MailId, Int32 playerId);
 
     // 수령 완료
-    public Task<ErrorCode> MarkAsReceivedReward(Int32 MailId);
+    public Task<ErrorCode> MarkAsReceivedReward(Int32 MailId, Int32 playerId);
+
+    public Task<ErrorCode> CheckPlayerHasMail(Int32 playerId, Int32 mailId);
 }
 

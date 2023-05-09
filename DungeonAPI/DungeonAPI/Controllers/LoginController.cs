@@ -37,7 +37,6 @@ public class LoginController : ControllerBase
             return response;
         }
 
-        // Load player data
         var (loadPlayerErrorCode, player) = await _player.LoadPlayerByAccountAsync(accountId);
         if (loadPlayerErrorCode != ErrorCode.None)
         {
@@ -46,7 +45,6 @@ public class LoginController : ControllerBase
         }
         response.Player = player;
 
-        // Load item data
         var (loadItemErrorcode, items) = await _item.LoadAllItemsAsync(player.PlayerId);
         if (loadItemErrorcode != ErrorCode.None)
         {
@@ -55,10 +53,8 @@ public class LoginController : ControllerBase
         }
         response.Item = items;
 
-        // token 만들기
         var authToken = Security.CreateAuthToken();
 
-        // token redis에 저장하기
         var authCheckErrorCode = await _authUser.CreateAuthUserAsync(request.Email, authToken, player.PlayerId);
         if (authCheckErrorCode != ErrorCode.None)
         {

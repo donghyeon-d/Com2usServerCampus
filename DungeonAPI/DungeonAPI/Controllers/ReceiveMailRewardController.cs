@@ -26,12 +26,11 @@ public class ReceiveMailRewardController : ControllerBase
     [HttpPost]
     public async Task<ReceiveMailRewardRes> ReceiveMailReward(ReceiveMailRewardReq request)
     {
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         ReceiveMailRewardRes response = new ReceiveMailRewardRes();
 
-        var MarkAsReceivedErrorCode = await _mailDb.MarkAsReceivedReward(request.MailId);
+        var MarkAsReceivedErrorCode = await _mailDb.MarkAsReceivedReward(request.MailId, playerId);
         if (MarkAsReceivedErrorCode != ErrorCode.None)
         {
             response.Result = MarkAsReceivedErrorCode;

@@ -23,8 +23,7 @@ public class ClaimPurchasedProductController : ControllerBase
     {
         ClaimPurchasedProductRes response = new ClaimPurchasedProductRes();
 
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         response.Result = 
             await _inAppPurchaseDb.ProvidePurchasedProductToMail(playerId, request.ReceiptId);

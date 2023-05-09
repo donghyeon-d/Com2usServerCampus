@@ -24,8 +24,7 @@ public class LoadMailListController : ControllerBase
     {
         LoadMailListRes response = new LoadMailListRes();
 
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         // mail table에서 받아오기
         var (LoadMailErrorCode, mails) = await _mailDb.LoadMailListAtPage(playerId, request.ListNumber);

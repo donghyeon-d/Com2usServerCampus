@@ -11,12 +11,15 @@ public class MailRewardDb : GameDb, IMailRewardDb
 {
     readonly ILogger<MailRewardDb> _logger;
     readonly IItemDb _itemDb;
+    readonly IMailDb _mailDb;
 
-	public MailRewardDb(ILogger<MailRewardDb> logger, IOptions<DbConfig> dbConfig, IItemDb itemDb)
+	public MailRewardDb(ILogger<MailRewardDb> logger, IOptions<DbConfig> dbConfig,
+        IItemDb itemDb, IMailDb mailDb)
         : base(logger, dbConfig)
     {
         _logger = logger;
         _itemDb = itemDb;
+        _mailDb = mailDb;
     }
 
     public async Task<ErrorCode> CreateMailRewards(Int32 mailId, List<MailReward> rewards)
@@ -85,24 +88,26 @@ public class MailRewardDb : GameDb, IMailRewardDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, List<MailReward>?>> ReceiveMailRewards(Int32 playerId, Int32 mailId)
+
+
+    public async Task<Tuple<ErrorCode, List<MailReward>>> ReceiveMailRewards(Int32 playerId, Int32 mailId)
     {
-        List<MailReward>? mailRewardresult = new List<MailReward>();
+        List<MailReward> mailRewardresult = new List<MailReward>();
 
         var (loadMailRewardErrorCode, mailsRewards) = await LoadMailRewards(mailId);
         if (loadMailRewardErrorCode != ErrorCode.None)
         {
-            return new Tuple<ErrorCode, List<MailReward>?>(loadMailRewardErrorCode, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>>(loadMailRewardErrorCode, mailRewardresult);
         }
         else if (mailsRewards == null) 
         {
-            return new Tuple<ErrorCode, List<MailReward>?>(ErrorCode.MailRewardNotFound, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>>(ErrorCode.MailRewardNotFound, mailRewardresult);
         }
 
         var canReceiveRewards = mailsRewards.FindAll(reward => reward.IsReceived == false);
         if (canReceiveRewards == null)
         {
-            return new Tuple<ErrorCode, List<MailReward>?>(ErrorCode.MailRewardAlreadyReceived, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>>(ErrorCode.MailRewardAlreadyReceived, mailRewardresult);
         }
 
         foreach (var mailReward in canReceiveRewards)
@@ -122,10 +127,10 @@ public class MailRewardDb : GameDb, IMailRewardDb
 
         if (canReceiveRewards.Count != mailRewardresult.Count)
         {
-            return new Tuple<ErrorCode, List<MailReward>?>(ErrorCode.ReceiveRewardButSomeLoss, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>>(ErrorCode.ReceiveRewardButSomeLoss, mailRewardresult);
         }
 
-        return new Tuple<ErrorCode, List<MailReward>?>(ErrorCode.None, mailRewardresult);
+        return new Tuple<ErrorCode, List<MailReward>>(ErrorCode.None, mailRewardresult);
     }
 
     async Task<ErrorCode> MarkAsReceivedReward(Int32 rewardId)

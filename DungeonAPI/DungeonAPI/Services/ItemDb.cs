@@ -208,6 +208,11 @@ public class ItemDb : GameDb, IItemDb
 bool IsEquipment(Item item)
     {
         var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
+        if (itemKind == null)
+        {
+            return false;
+        }
+
         if (itemKind.Attribute == 1 || itemKind.Attribute == 2 || itemKind.Attribute == 3)
         {
             return true;

@@ -24,8 +24,7 @@ public class ReceiveAttendanceRewardController : ControllerBase
 	{
 		ReceiveAttendanceRewardRes response = new ReceiveAttendanceRewardRes();
 
-        var playerIdValue = HttpContext.Items["PlayerId"];
-        Int32 playerId = int.Parse(playerIdValue.ToString());
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         response.Result = await _attendanceBookDb.ReceiveRewardToMail(playerId);
         return response;
