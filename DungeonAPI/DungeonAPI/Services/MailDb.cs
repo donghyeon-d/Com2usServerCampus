@@ -43,6 +43,7 @@ public class MailDb : GameDb, IMailDb
                                                             CanDelete = mail.CanDelete,
                                                             Sender = mail.Sender
                                                         }) ;
+            _queryFactory.Query("Mail").
 
             ErrorCode mailContentErrorCode = await _mailContent.CreateMailContent(mailId, content.Content);
             if (mailContentErrorCode != ErrorCode.None)

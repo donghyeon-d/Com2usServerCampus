@@ -1,41 +1,124 @@
-﻿using System;
-using DungeonAPI.Services;
-using DungeonAPI.Configs;
+﻿using DungeonAPI.Configs;
 using DungeonAPI.RequestResponse;
+using DungeonAPI.Services;
 using Microsoft.Extensions.Options;
-using System.Text;
 using System.Text.Json;
+using System.Text;
+using DungeonAPI.ModelDB;
 
 namespace DungeonAPI.Middleware;
 
-public class CheckVersion
+public class CheckAuthAnVersion
 {
     readonly RequestDelegate _next;
     readonly IMasterDataDb _masterData;
     readonly ILogger<CheckVersion> _logger;
     readonly IOptions<AppConfig> _appConfig;
+    readonly IAuthUserDb _authUserDb;
 
-    public CheckVersion(RequestDelegate next, IMasterDataDb masterData,
-        ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig)
-	{
+    public CheckAuthAnVersion(RequestDelegate next, IMasterDataDb masterData,
+        ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig, IAuthUserDb authUserDb)
+    {
         _next = next;
         _masterData = masterData;
         _logger = logger;
         _appConfig = appConfig;
-	}
+        _authUserDb = authUserDb;
+    }
 
     public async Task Invoke(HttpContext context)
     {
         var formString = context.Request.Path.Value;
-        if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0)
-        {
-            await _next(context);
-
-            return;
-        }
 
         context.Request.EnableBuffering();
 
+        if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) != 0)
+        {
+            await CheckVersion(context);
+            await CheckAuth(context);
+        }
+        if (string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) != 0
+            && string.Compare(formString, "/CreateNotice", StringComparison.OrdinalIgnoreCase) != 0)
+        {
+
+        }
+            await _next(context);
+
+    }
+
+    async Task CheckAuth(HttpContext context)
+    {
+        using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
+        {
+            var bodyStr = await reader.ReadToEndAsync();
+
+            var document = JsonDocument.Parse(bodyStr);
+
+            try
+            {
+                var (isValid, authUser) = await IsValidPlayerThenLoadAuthPlayer(context, document);
+                if (isValid)
+                {
+                    PushAuthUserToContextItem(context, authUser);
+                    context.Request.Body.Position = 0;
+                    await _next(context);
+                }
+                return;
+            }
+            catch (Exception e)
+            {
+                await SetResponseAuthFail(context, ErrorCode.AuthTokenFailException);
+            }
+            finally
+            {
+                context.Request.Body.Position = 0;
+            }
+        }
+    }
+
+
+    async Task<Tuple<bool, AuthUser>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
+    {
+        try
+        {
+            var email = document.RootElement.GetProperty("Email").GetString();
+            var authToken = document.RootElement.GetProperty("AuthToken").GetString();
+            var (LoadAuthUserErrorCode, authUser) = await _authUserDb.LoadAuthUserByEmail(email);
+
+            if (LoadAuthUserErrorCode != ErrorCode.None)
+            {
+                await SetResponseAuthFail(context, LoadAuthUserErrorCode);
+                return new Tuple<bool, AuthUser>(false, null);
+            }
+            return new Tuple<bool, AuthUser>(true, authUser);
+        }
+        catch (Exception e)
+        {
+            // TODO : log
+            await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
+            return new Tuple<bool, AuthUser>(false, null);
+        }
+
+    }
+
+    async Task SetResponseAuthFail(HttpContext context, ErrorCode errorCode)
+    {
+        var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareRes
+        {
+            result = errorCode
+        });
+        var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+    }
+
+    void PushAuthUserToContextItem(HttpContext context, AuthUser authUser)
+    {
+        context.Items["PlayerId"] = authUser.PlayerId.ToString();
+    }
+
+
+    async Task CheckVersion(HttpContext context)
+    {
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
         {
             try
@@ -44,7 +127,7 @@ public class CheckVersion
                 if (string.IsNullOrEmpty(bodyStr) == true)
                 {
                     // TODO: check - empty body 이면 아무것도 안함. 나중에 확인하기?
-                    return ;
+                    return;
                 }
 
                 var document = JsonDocument.Parse(bodyStr);
@@ -55,7 +138,7 @@ public class CheckVersion
                     {
                         context.Request.Body.Position = 0;
                         await _next(context);
-                    }    
+                    }
                 }
             }
             catch (Exception e)
@@ -70,7 +153,6 @@ public class CheckVersion
             }
         }
     }
-
 
     async Task<bool> IsValidAppVersion(HttpContext context, JsonDocument document)
     {
@@ -141,5 +223,7 @@ public class CheckVersion
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
     }
+
+
 }
 
