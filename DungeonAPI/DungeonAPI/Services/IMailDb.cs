@@ -14,7 +14,7 @@ public interface IMailDb
     // Delete
     public Task<ErrorCode> MarkAsDeleteMail(Int32 MailId);
 
-    public Task<ErrorCode> MarkAsOpenMail(Int32 MailId);
+    public Task<ErrorCode> OpenMail(Int32 MailId);
 
     // 수령 완료
     public Task<ErrorCode> MarkAsReceivedReward(Int32 MailId);

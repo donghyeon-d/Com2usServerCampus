@@ -160,22 +160,13 @@ CREATE TABLE IF NOT EXISTS GameDB.Mail
     PlayerId INT NOT NULL COMMENT '유저 고유번호',
     MailId INT AUTO_INCREMENT PRIMARY KEY COMMENT '메일 고유번호',
     Title VARCHAR(100) NOT NULL COMMENT '메일 제목',
-    ContentId INT NOT NULL COMMENT '메일 컨텐츠 본문',
     PostDate DATETIME NOT NULL COMMENT '메일 받은 날짜',
     ExpiredDate DATETIME NOT NULL COMMENT '메일 만료 날짜',
-    IsOpened TINYINT NOT NULL COMMENT '메일 열었는지 여부',
+    IsOpened TINYINT NOT NULL COMMENT '열어봤는지 여부',
     IsReceivedReward TINYINT NOT NULL COMMENT '보상 받았는지 여부',
     IsDeleted TINYINT NOT NULL COMMENT '삭제 여부',
     CanDelete TINYINT NOT NULL COMMENT '삭제 가능 여부',
-    Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람',
-    RewardItemBaseCode1 INT COMMENT '아이템 마스터데이터 번호',
-    Item1Count INT COMMENT '아이템 개수',
-    RewardItemBaseCode2 INT COMMENT '아이템 마스터데이터 번호',
-    Item2Count INT COMMENT '아이템 개수',
-    RewardItemBaseCode3 INT COMMENT '아이템 마스터데이터 번호',
-    Item3Count INT COMMENT '아이템 개수',
-    RewardItemBaseCode4 INT COMMENT '아이템 마스터데이터 번호',
-    Item4Count INT COMMENT '아이템 개수'
+    Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람'
 ) COMMENT '메일 데이터';
 
 ### GameDB.MailContent

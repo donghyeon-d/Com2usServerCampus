@@ -112,7 +112,6 @@ public enum ErrorCode : UInt16
     MailRewardAlreadyReceived = 4121,
     MarkAsReceivedRewardUpdateFail = 4122,
     ReceiveRewardButSomeLoss = 4123,
-    MailLoadFailNotFound = 4124,
 
     // AttendanceBook 4200~
     LoadPlayerAttendanceBookNotExist = 4200,
