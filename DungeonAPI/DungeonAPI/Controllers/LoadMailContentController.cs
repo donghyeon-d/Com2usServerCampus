@@ -1,5 +1,5 @@
 ﻿using System;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.ModelDB;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +44,7 @@ public class LoadMailContentController : ControllerBase
             return response;
         }
 
-        var OpenMailErrorCode = await _mail.OpenMail(request.MailId);
+        var OpenMailErrorCode = await _mail.MarkAsOpenMail(request.MailId);
         if (OpenMailErrorCode != ErrorCode.None)
         {
             response.Result = OpenMailErrorCode;

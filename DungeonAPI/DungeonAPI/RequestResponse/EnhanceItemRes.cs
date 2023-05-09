@@ -1,6 +1,6 @@
 ﻿using System;
 using DungeonAPI.ModelDB;
-namespace DungeonAPI.MessageBody;
+namespace DungeonAPI.RequestResponse;
 
 public class EnhanceItemRes
 {

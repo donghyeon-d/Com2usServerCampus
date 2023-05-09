@@ -127,7 +127,7 @@ public class MailDb : GameDb, IMailDb
     }
 
     // 열기 (content 받아 가)
-    public async Task<ErrorCode> OpenMail(Int32 MailId)
+    public async Task<ErrorCode> MarkAsOpenMail(Int32 MailId)
     {
         try
         {

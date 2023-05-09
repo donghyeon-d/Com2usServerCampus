@@ -164,6 +164,8 @@ public enum ErrorCode : UInt16
 
     // Item Enhance 6100~
     UnenhanceableItem = 6100,
+    WrongItemOwner = 6101,
+
 
     // Notice 7000~
     NoticeFailException = 7000,

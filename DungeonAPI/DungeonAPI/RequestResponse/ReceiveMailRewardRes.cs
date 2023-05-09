@@ -2,7 +2,7 @@
 using DungeonAPI.ModelDB;
 using System.ComponentModel.DataAnnotations;
 
-namespace DungeonAPI.MessageBody;
+namespace DungeonAPI.RequestResponse;
 
 public class ReceiveMailRewardRes
 {

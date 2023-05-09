@@ -1,5 +1,5 @@
 ﻿using System;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 

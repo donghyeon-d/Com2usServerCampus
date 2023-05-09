@@ -1,6 +1,5 @@
 ﻿using System;
-using DungeonAPI.ModelDB;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +7,7 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class EnhanceItemController
+public class EnhanceItemController : ControllerBase
 {
     readonly ILogger<EnhanceItemController> _logger;
     readonly IItemEnhanceDb _itemEnhanceDb;
@@ -25,8 +24,11 @@ public class EnhanceItemController
     {
         EnhanceItemRes response = new EnhanceItemRes();
 
+        var playerIdValue = HttpContext.Items["PlayerId"];
+        Int32 playerId = int.Parse(playerIdValue.ToString());
+
         var (EnhancePlayerItemErrorCode, resultItem) =
-            await _itemEnhanceDb.EnhancePlayerItem(request.ItemId);
+            await _itemEnhanceDb.EnhancePlayerItem(request.ItemId, playerId);
         response.Result = EnhancePlayerItemErrorCode;
         response.ResultItem = resultItem;
         return response;

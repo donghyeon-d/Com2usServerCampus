@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using DungeonAPI.Services;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 
 namespace DungeonAPI.Controllers;
 

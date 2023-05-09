@@ -3,7 +3,7 @@
 
 using System;
 using DungeonAPI.Configs;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +13,7 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CreateNoticeController
+public class CreateNoticeController : ControllerBase
 {
     readonly ILogger<CreateNoticeController> _logger;
     readonly INoticeDb _notice;

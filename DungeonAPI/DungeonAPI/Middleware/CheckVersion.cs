@@ -1,7 +1,7 @@
 ﻿using System;
 using DungeonAPI.Services;
 using DungeonAPI.Configs;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using Microsoft.Extensions.Options;
 using System.Text;
 using System.Text.Json;

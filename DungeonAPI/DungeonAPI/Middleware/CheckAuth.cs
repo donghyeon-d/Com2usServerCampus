@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using DungeonAPI.Configs;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;

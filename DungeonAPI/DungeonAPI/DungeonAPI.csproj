@@ -14,8 +14,6 @@
     <None Remove="Configs\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="RequestResponse\" />
     <Folder Include="Middleware\" />
     <Folder Include="Configs\" />
   </ItemGroup>

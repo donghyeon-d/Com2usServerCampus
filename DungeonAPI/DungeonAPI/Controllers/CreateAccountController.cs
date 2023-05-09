@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DungeonAPI.Services;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using Microsoft.AspNetCore.Mvc;
 
 

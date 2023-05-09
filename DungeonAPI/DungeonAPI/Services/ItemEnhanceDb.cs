@@ -18,13 +18,18 @@ public class ItemEnhanceDb : GameDb, IItemEnhanceDb
 		_itemDb = itemDb;
 	}
 
-    public async Task<Tuple<ErrorCode, Item>> EnhancePlayerItem(Int32 itemId)
+    public async Task<Tuple<ErrorCode, Item>> EnhancePlayerItem(Int32 itemId, Int32 playerId)
 	{
 		var (LoadItemErrorCode, item) = await _itemDb.LoadItemByItemId(itemId);
 		if (LoadItemErrorCode != ErrorCode.None)
 		{
 			return new Tuple<ErrorCode, Item>(LoadItemErrorCode, null);
         }
+
+		if (playerId != item.PlayerId)
+		{
+			return new Tuple<ErrorCode, Item>(ErrorCode.WrongItemOwner, null);
+		}
 
 		if (CanEnhanceItem(item) == false)
 		{
@@ -49,8 +54,12 @@ public class ItemEnhanceDb : GameDb, IItemEnhanceDb
 		}
 
 		var baseItem = MasterDataDb.s_baseItem.Find(masterDataItem => masterDataItem.Code == item.ItemMasterDataCode);
-		if (baseItem is null ||
-			baseItem.Attribute != 1 || baseItem.Attribute != 2)
+		if (baseItem is null)
+		{
+			return false;
+		}
+
+		if (baseItem.Attribute != 1 && baseItem.Attribute != 2)
 		{
 			return false;
 		}

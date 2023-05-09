@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DungeonAPI.MessageBody;
+namespace DungeonAPI.RequestResponse;
 
 public class DeleteMailReq
 {

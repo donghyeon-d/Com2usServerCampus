@@ -1,5 +1,5 @@
 ﻿using System;
-using DungeonAPI.MessageBody;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +7,7 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadNoticeController
+public class LoadNoticeController : ControllerBase
 {
     readonly ILogger<LoadNoticeController> _logger;
     readonly INoticeDb _notice;
