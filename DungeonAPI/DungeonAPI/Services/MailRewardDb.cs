@@ -85,24 +85,24 @@ public class MailRewardDb : GameDb, IMailRewardDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, List<MailReward>>> ReceiveMailRewards(Int32 playerId, Int32 mailId)
+    public async Task<Tuple<ErrorCode, List<MailReward>?>> ReceiveMailRewards(Int32 playerId, Int32 mailId)
     {
-        List<MailReward> mailRewardresult = new List<MailReward>();
+        List<MailReward>? mailRewardresult = new List<MailReward>();
 
         var (loadMailRewardErrorCode, mailsRewards) = await LoadMailRewards(mailId);
         if (loadMailRewardErrorCode != ErrorCode.None)
         {
-            return new Tuple<ErrorCode, List<MailReward>>(loadMailRewardErrorCode, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>?>(loadMailRewardErrorCode, mailRewardresult);
         }
         else if (mailsRewards == null) 
         {
-            return new Tuple<ErrorCode, List<MailReward>>(ErrorCode.MailRewardNotFound, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>?>(ErrorCode.MailRewardNotFound, mailRewardresult);
         }
 
         var canReceiveRewards = mailsRewards.FindAll(reward => reward.IsReceived == false);
         if (canReceiveRewards == null)
         {
-            return new Tuple<ErrorCode, List<MailReward>>(ErrorCode.MailRewardAlreadyReceived, mailRewardresult);
+            return new Tuple<ErrorCode, List<MailReward>?>(ErrorCode.MailRewardAlreadyReceived, mailRewardresult);
         }
 
         foreach (var mailReward in canReceiveRewards)

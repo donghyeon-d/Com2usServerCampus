@@ -1,7 +1,6 @@
 ﻿using DungeonAPI.Services;
 using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
-using ZLogger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +25,9 @@ builder.Services.AddSingleton<IAuthUserDb, AuthUserDb>();
 
 builder.Services.AddControllers();
 
-SettingLogger();
-
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
 
 //app.UseAuthorization();
 app.UseMiddleware<DungeonAPI.Middleware.CheckVersion>();
@@ -39,36 +38,4 @@ app.MapControllers();
 
 //app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
-
-
-void SettingLogger()
-{
-    var logging = builder.Logging;
-    logging.ClearProviders();
-
-    var fileDir = configuration["logdir"];
-
-    var exists = Directory.Exists(fileDir);
-
-    if (!exists)
-    {
-        Directory.CreateDirectory(fileDir);
-    }
-
-    logging.SetMinimumLevel(LogLevel.Information);
-
-    logging.AddZLoggerConsole();
-
-    logging.AddZLoggerFile("fileName.log");
-
-    logging.AddZLoggerRollingFile(
-        (dt, x) => $"{fileDir}{dt.ToLocalTime():yyyy-MM-dd}_{x:000}.log",
-        x => x.ToLocalTime().Date,
-        1024);
-
-    logging.AddZLoggerConsole(options =>
-    {
-        options.EnableStructuredLogging = true;
-    });
-}
 
