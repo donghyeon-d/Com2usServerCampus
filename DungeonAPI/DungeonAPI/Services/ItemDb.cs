@@ -1,6 +1,7 @@
 ﻿using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
 using DungeonAPI.ModelsDB;
+using DungeonAPI.Services;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using static DungeonAPI.ModelDB.MasterData;
@@ -51,7 +52,7 @@ public class ItemDb : GameDb, IItemDb
     List<object[]> MakeDefalutItems(Int32 playerId)
     {
         List<object[]> items = new List<object[]>();
-        var list = MasterDataDb.s_item;
+        var list = MasterDataDb.s_baseItem;
 
         foreach (var item in list)
         {
@@ -92,7 +93,7 @@ public class ItemDb : GameDb, IItemDb
             }
             else
             {
-                var (AddStackedItemErrorCode, itemId) = await AddCanStackItemDividedByNumber(playerId, item);
+                var (AddStackedItemErrorCode, itemId) = await AddStackItem(playerId, item);
                 if (AddStackedItemErrorCode != ErrorCode.None)
                 {
                     return new Tuple<ErrorCode, Int32>(AddStackedItemErrorCode, -1);
@@ -123,7 +124,7 @@ public class ItemDb : GameDb, IItemDb
         }
     }
 
-    async Task<Tuple<ErrorCode, Int32>>AddCanStackItemDividedByNumber(Int32 playerId, Item item)
+    async Task<Tuple<ErrorCode, Int32>>AddStackItem(Int32 playerId, Item item)
     {
         try
         {
@@ -134,7 +135,7 @@ public class ItemDb : GameDb, IItemDb
             }
             var playerItems = result.ToList<Item>();
 
-            var masterDataItem = MasterDataDb.s_item.Find(i => i.Code == item.ItemMasterDataCode);
+            var masterDataItem = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
             if (masterDataItem == null)
             {
                 return new Tuple<ErrorCode, Int32>(ErrorCode.NotFoundMasterDataItemAtAddStackItem, -1);
@@ -142,36 +143,15 @@ public class ItemDb : GameDb, IItemDb
 
             var sameAtrributItems = playerItems.FindAll(i => i.ItemMasterDataCode == item.ItemMasterDataCode);
             var canAddedItem = sameAtrributItems.Find(i => i.ItemCount < masterDataItem.MaxStack);
+
             if (canAddedItem != null)
             {
-                int sumCount = canAddedItem.ItemCount + item.ItemCount;
-                if (sumCount > masterDataItem.MaxStack)
+                var (AddStackItemErrorCode, newItemId) = await AddStackItemWithDivision(canAddedItem, item, masterDataItem);
+                if (AddStackItemErrorCode != ErrorCode.None)
                 {
-                    canAddedItem.ItemCount = masterDataItem.MaxStack;
-                    item.ItemCount = sumCount - masterDataItem.MaxStack;
-                    var (insertItemErrorCode, itemId) = await AddOneItem(item);
-                    if (insertItemErrorCode != ErrorCode.None)
-                    {
-                        return new Tuple<ErrorCode, Int32>(insertItemErrorCode, -1);
-                    }
-                    ErrorCode UpdateErrorCode = await UpdateItemAsync(canAddedItem);
-                    if (UpdateErrorCode != ErrorCode.None)
-                    {
-                        await DeleteItemByItemId(itemId);
-                        return new Tuple<ErrorCode, Int32>(UpdateErrorCode, -1);
-                    }
-                    return new Tuple<ErrorCode, Int32>(ErrorCode.None, itemId);
+                    return new Tuple<ErrorCode, Int32>(AddStackItemErrorCode, -1);
                 }
-                else
-                {
-                    canAddedItem.ItemCount = sumCount;
-                    ErrorCode UpdateErrorCode = await UpdateItemAsync(canAddedItem);
-                    if (UpdateErrorCode != ErrorCode.None)
-                    {
-                        return new Tuple<ErrorCode, Int32>(UpdateErrorCode, -1);
-                    }
-                    return new Tuple<ErrorCode, Int32>(ErrorCode.None, canAddedItem.ItemId); // TODO: WRONG RETURN
-                }
+                return new Tuple<ErrorCode, Int32>(ErrorCode.None, newItemId);
             }
             else
             {
@@ -189,9 +169,45 @@ public class ItemDb : GameDb, IItemDb
         }
     }
 
-    bool IsEquipment(Item item)
+    async Task<Tuple<ErrorCode, Int32>> AddStackItemWithDivision(Item DbItem, Item addItem, BaseItem schemaItem)
     {
-        var itemKind = MasterDataDb.s_item.Find(i => i.Code == item.ItemMasterDataCode);
+        int sumCount = DbItem.ItemCount + addItem.ItemCount;
+        if (sumCount > schemaItem.MaxStack)
+        {
+            DbItem.ItemCount = schemaItem.MaxStack;
+            addItem.ItemCount = sumCount - schemaItem.MaxStack;
+            
+            var(insertItemErrorCode, itemId) = await AddOneItem(addItem);
+            if (insertItemErrorCode != ErrorCode.None)
+            {
+                return new Tuple<ErrorCode, Int32>(insertItemErrorCode, -1);
+            }
+
+            ErrorCode UpdateErrorCode = await UpdateItemAsync(DbItem);
+            if (UpdateErrorCode != ErrorCode.None)
+            {
+                await DeleteItemByItemId(itemId);
+                return new Tuple<ErrorCode, Int32>(UpdateErrorCode, -1);
+            }
+
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, itemId);
+        }
+        else
+        {
+            DbItem.ItemCount = sumCount;
+            ErrorCode UpdateErrorCode = await UpdateItemAsync(DbItem);
+            if (UpdateErrorCode != ErrorCode.None)
+            {
+                return new Tuple<ErrorCode, Int32>(UpdateErrorCode, -1);
+            }
+            
+            return new Tuple<ErrorCode, Int32>(ErrorCode.None, DbItem.ItemId); // TODO: WRONG RETURN
+        }
+    }
+
+bool IsEquipment(Item item)
+    {
+        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
         if (itemKind.Attribute == 1 || itemKind.Attribute == 2 || itemKind.Attribute == 3)
         {
             return true;
@@ -201,7 +217,7 @@ public class ItemDb : GameDb, IItemDb
 
     bool IsGold(Item item)
     {
-        var itemKind = MasterDataDb.s_item.Find(i => i.Code == item.ItemMasterDataCode);
+        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
         if (itemKind.Attribute == 5)
         {
             return true;
@@ -211,7 +227,7 @@ public class ItemDb : GameDb, IItemDb
 
     bool IsComsumableItem(Item item)
     {
-        var itemKind = MasterDataDb.s_item.Find(i => i.Code == item.ItemMasterDataCode);
+        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
         if (itemKind.Attribute == 4)
         {
             return true;
@@ -235,7 +251,7 @@ public class ItemDb : GameDb, IItemDb
         }
     }
 
-    async Task<ErrorCode> DeleteItemByItemId(Int32 itemId)
+    public async Task<ErrorCode> DeleteItemByItemId(Int32 itemId)
     {
         Open();
         try

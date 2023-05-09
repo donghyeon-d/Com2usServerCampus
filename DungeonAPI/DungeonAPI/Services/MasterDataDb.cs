@@ -19,7 +19,7 @@ public class MasterDataDb : IMasterDataDb
 
     //public static MasterData? s_Data = null;
     public static List<Meta>? s_meta { get; set; } = null;
-    public static List<MasterData.BaseItem> s_item { get; set; }
+    public static List<MasterData.BaseItem> s_baseItem { get; set; }
     public static List<ItemAttribute> s_itemAttribute { get; set; }
     public static List<AttendanceReward> s_attendanceReward { get; set; }
     public static List<InAppProduct> s_inAppProduct { get; set; }
@@ -49,7 +49,7 @@ public class MasterDataDb : IMasterDataDb
             var meta = await _queryFactory.Query("Meta").GetAsync<MasterData.Meta>();
             s_meta = meta.ToList();
             var item = await _queryFactory.Query("Item").GetAsync<MasterData.BaseItem>();
-            s_item = item.ToList();
+            s_baseItem = item.ToList();
             var itemAttribute = await _queryFactory.Query("ItemAttribute").GetAsync<MasterData.ItemAttribute>();
             s_itemAttribute = itemAttribute.ToList();
             var attendanceReward = await _queryFactory.Query("AttendanceReward").GetAsync<MasterData.AttendanceReward>();

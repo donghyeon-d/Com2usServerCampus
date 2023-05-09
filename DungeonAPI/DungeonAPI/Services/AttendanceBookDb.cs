@@ -161,8 +161,9 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
             mailRewards.Add(new MailReward
             {
                 BaseItemCode = reward.ItemCode,
-                ItemCount = reward.Count
-            });
+                ItemCount = reward.Count,
+                IsReceived = false
+            }) ;
         }
 
         try

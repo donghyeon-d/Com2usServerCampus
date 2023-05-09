@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
-    <Folder Include="MessageBody\" />
+    <Folder Include="RequestResponse\" />
     <Folder Include="Middleware\" />
     <Folder Include="Configs\" />
   </ItemGroup>

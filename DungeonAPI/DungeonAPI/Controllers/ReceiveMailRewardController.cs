@@ -26,6 +26,9 @@ public class ReceiveMailRewardController : ControllerBase
     [HttpPost]
     public async Task<ReceiveMailRewardRes> ReceiveMailReward(ReceiveMailRewardReq request)
     {
+        var playerIdValue = HttpContext.Items["PlayerId"];
+        Int32 playerId = int.Parse(playerIdValue.ToString());
+
         ReceiveMailRewardRes response = new ReceiveMailRewardRes();
 
         var MarkAsReceivedErrorCode = await _mailDb.MarkAsReceivedReward(request.MailId);
@@ -34,19 +37,12 @@ public class ReceiveMailRewardController : ControllerBase
             response.Result = MarkAsReceivedErrorCode;
             return response;
         }
+        
+        var (ReceiveMailRewardErrorCode, receivedRewards) = await _mailRewardDb.ReceiveMailRewards(playerId, request.MailId);
 
-        var (LoadMailRewardsErrorCode, Rewards) = await _mailRewardDb.LoadMailRewards(request.MailId);
-        if (LoadMailRewardsErrorCode != ErrorCode.None)
-        {
-            response.Result = LoadMailRewardsErrorCode;
-            return response;
-        }
-
-        // item 만들기
-        //Item item = makeItem;
-        //await _itemDb.AcquiredItem(playerId, item);
-
-        response.MailRewards = Rewards;
+        response.MailRewards = receivedRewards;
+        response.Result = ReceiveMailRewardErrorCode;
+        
         return response;
     }
 }

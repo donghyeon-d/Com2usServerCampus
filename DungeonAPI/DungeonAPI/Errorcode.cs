@@ -108,6 +108,10 @@ public enum ErrorCode : UInt16
     MailRewardDeleteFailException = 4117,
     MailReceivedFailNotExistOrAlreadyOpen = 4118,
     MailDeleteFailNotExistOrCannotDelete = 4119,
+    MailRewardNotFound = 4120,
+    MailRewardAlreadyReceived = 4121,
+    MarkAsReceivedRewardUpdateFail = 4122,
+    ReceiveRewardButSomeLoss = 4123,
 
     // AttendanceBook 4200~
     LoadPlayerAttendanceBookNotExist = 4200,

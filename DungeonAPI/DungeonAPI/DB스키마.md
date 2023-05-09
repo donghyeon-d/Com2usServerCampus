@@ -180,8 +180,10 @@ CREATE TABLE IF NOT EXISTS GameDB.MailContent
 CREATE TABLE IF NOT EXISTS GameDB.MailReward
 (
     MailId INT NOT NULL COMMENT '메일 보상 고유번호',
+    MailRewardId INT AUTO_INCREMENT PRIMARY KEY COMMENT '메일보상 고유번호',
     BaseItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount INT NOT NULL COMMENT '아이템 개수'
+    ItemCount INT NOT NULL COMMENT '아이템 개수',
+    IsReceived BOOL NOT NULL COMMENT '수령 유무'
 ) COMMENT '메일 보상';
 
 ### GameDb.AttendanceBook

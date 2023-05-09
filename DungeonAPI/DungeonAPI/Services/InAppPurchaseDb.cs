@@ -142,7 +142,8 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
             mailRewards.Add(new MailReward
             {
                 BaseItemCode = product.ItemCode,
-                ItemCount = product.ItemCount
+                ItemCount = product.ItemCount,
+                IsReceived = false
             });
         }
 
