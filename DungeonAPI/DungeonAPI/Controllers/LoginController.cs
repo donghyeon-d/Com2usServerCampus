@@ -45,7 +45,7 @@ public class LoginController : ControllerBase
         }
         response.Player = player;
 
-        var (loadItemErrorcode, items) = await _item.LoadAllItemsAsync(player.PlayerId);
+        var (loadItemErrorcode, items) = await _item.LoadPlayerItemListAsync(player.PlayerId);
         if (loadItemErrorcode != ErrorCode.None)
         {
             response.ResetThenSetErrorCode(loadItemErrorcode);

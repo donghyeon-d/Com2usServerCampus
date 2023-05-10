@@ -49,7 +49,6 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
     }
 
-    // 보상 받기 (우편함으로 보내). 이미 받았는지 확인
     public async Task<ErrorCode> ReceiveRewardToMail(Int32 playerId)
     {
         Open();
@@ -63,35 +62,33 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
                 return ErrorCode.LoadPlayerAttendanceBookNotExist;
             }
 
-            AttendanceBook newAttendanceBook = new AttendanceBook { PlayerId = playerAttendanceBook.PlayerId };
+            AttendanceBook UpdateAttendanceBook = new AttendanceBook { PlayerId = playerAttendanceBook.PlayerId };
 
-            // 이미 받았을 때
             if (CanReceiveAttendanceReward(playerAttendanceBook) == false)
             {
                 return ErrorCode.AlreadyReceiveAttendanceReward;
             }
 
-            // 연속이 아닐 때
-            if (playerAttendanceBook.LastReceiveDate.Date != playerAttendanceBook.StartDate.AddDays(-1).Date)
+            if (IsConsecute(playerAttendanceBook))
             {
-                newAttendanceBook.StartDate = DateTime.Today;
-                newAttendanceBook.LastReceiveDate = DateTime.Today;
-                newAttendanceBook.ConsecutiveDays = 1;
+                UpdateAttendanceBook.StartDate = playerAttendanceBook.StartDate;
+                UpdateAttendanceBook.LastReceiveDate = DateTime.Today;
+                UpdateAttendanceBook.ConsecutiveDays = playerAttendanceBook.ConsecutiveDays + 1;
             }
-            else // 연속일 때
+            else
             {
-                newAttendanceBook.StartDate = playerAttendanceBook.StartDate;
-                newAttendanceBook.LastReceiveDate = DateTime.Today;
-                newAttendanceBook.ConsecutiveDays = playerAttendanceBook.ConsecutiveDays + 1;
+                UpdateAttendanceBook.StartDate = DateTime.Today;
+                UpdateAttendanceBook.LastReceiveDate = DateTime.Today;
+                UpdateAttendanceBook.ConsecutiveDays = 1;
             }
 
-            ErrorCode updateAttendanceBookErrorCode = await UpdateAttendanceBookTuple(playerId, newAttendanceBook);
+            ErrorCode updateAttendanceBookErrorCode = await this.UpdateAttendanceBook(playerId, UpdateAttendanceBook);
             if (updateAttendanceBookErrorCode != ErrorCode.None)
             {
                 return updateAttendanceBookErrorCode;
             }
 
-            ErrorCode SendToMailErrorCode = await SendToMail(newAttendanceBook);
+            ErrorCode SendToMailErrorCode = await SendToMail(UpdateAttendanceBook);
             if (SendToMailErrorCode != ErrorCode.None)
             {
                 await RollbackAttendanceBook(playerId, playerAttendanceBook);
@@ -110,7 +107,16 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
     }
 
-    async Task<ErrorCode> UpdateAttendanceBookTuple(Int32 playerId, AttendanceBook attendanceBook)
+    bool IsConsecute(AttendanceBook playerAttendanceBook)
+    {
+        if (playerAttendanceBook.LastReceiveDate.Date == DateTime.Today.AddDays(-1).Date)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    async Task<ErrorCode> UpdateAttendanceBook(Int32 playerId, AttendanceBook attendanceBook)
     {
         try
         {
@@ -131,11 +137,12 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
 
     async Task<ErrorCode> RollbackAttendanceBook(Int32 playerId, AttendanceBook attendanceBook)
     {
-        return await UpdateAttendanceBookTuple(playerId, attendanceBook);
+        return await UpdateAttendanceBook(playerId, attendanceBook);
     }
 
     async Task<ErrorCode> SendToMail(AttendanceBook attendanceBook)
     {
+        // TODO : Mail() 생성자로 만들기
         Mail mail = new Mail {
             PlayerId = attendanceBook.PlayerId,
             Title = "AttendanceBook Reward",
@@ -181,7 +188,7 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
     }
 
-    // Player table에 튜플 추가하기 - 계정 생성하고 기본 데이터 생성할 때 생성하기
+    //계정 생성하고 기본 데이터 생성할 때 생성하기
     public async Task<ErrorCode> CreatePlayerAttendanceBook(Int32 playerId)
     {
         Open();
@@ -211,7 +218,6 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
     }
 
-    // Player 튜플 삭제하기 - 롤백용
     public async Task<ErrorCode> DeletePlayerAttendanceBook(Int32 playerId)
     {
         Open();

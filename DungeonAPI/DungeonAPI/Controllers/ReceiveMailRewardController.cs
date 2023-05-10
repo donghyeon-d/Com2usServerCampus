@@ -38,6 +38,11 @@ public class ReceiveMailRewardController : ControllerBase
         }
         
         var (ReceiveMailRewardErrorCode, receivedRewards) = await _mailRewardDb.ReceiveMailRewards(playerId, request.MailId);
+        if (ReceiveMailRewardErrorCode != ErrorCode.None)
+        {
+            await _mailDb.MarkAsNotReceivedReward(request.MailId, playerId);
+            return response;
+        }
 
         response.MailRewards = receivedRewards;
         response.Result = ReceiveMailRewardErrorCode;

@@ -21,7 +21,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
 
     public async Task<ErrorCode> ProvidePurchasedProductToMail(Int32 playerId, String receiptId)
     {
-        var (CheckReceiptErrorCode, productId) = CheckReceiptThenGetProductCode(receiptId);
+        var (CheckReceiptErrorCode, productId) = ValidCheckReceiptThenGetProductCode(receiptId);
         if (CheckReceiptErrorCode != ErrorCode.None)
         {
             return CheckReceiptErrorCode;
@@ -121,7 +121,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
             = MakeMailContent("Thank you for Purchasing Product. " +
                                 "You can get Product in Mailbox!");
 
-        List<MailReward> mailRewards = MakeMailReward(productId);
+        List<MailReward> mailRewards = MakeMailRewardList(productId);
 
         try
         {
@@ -164,7 +164,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         return mailContent;
     }
 
-    List<MailReward> MakeMailReward(Int32 productId)
+    List<MailReward> MakeMailRewardList(Int32 productId)
     {
         List<MailReward> mailRewards = new List<MailReward>();
 
@@ -185,7 +185,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
     }
 
 
-    Tuple<ErrorCode, Int32> CheckReceiptThenGetProductCode(String receiptId)
+    Tuple<ErrorCode, Int32> ValidCheckReceiptThenGetProductCode(String receiptId)
     {
         // 영수증 검사 필요. (임시)영수증에 따른 물품 번호
         if (string.IsNullOrEmpty(receiptId))

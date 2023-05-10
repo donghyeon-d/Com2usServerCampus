@@ -240,7 +240,7 @@ bool IsEquipment(Item item)
         return false;
     }
 
-    public async Task<Tuple<ErrorCode, List<Item>>> LoadAllItemsAsync(Int32 playerId)
+    public async Task<Tuple<ErrorCode, List<Item>>> LoadPlayerItemListAsync(Int32 playerId)
     {
         try
         {

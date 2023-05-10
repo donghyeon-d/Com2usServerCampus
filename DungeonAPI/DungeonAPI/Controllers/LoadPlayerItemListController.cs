@@ -6,12 +6,12 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class PlayerItemListController : ControllerBase
+public class LoadPlayerItemListController : ControllerBase
 {
-    readonly ILogger<PlayerItemListController> _logger;
+    readonly ILogger<LoadPlayerItemListController> _logger;
     readonly IItemDb _itemDb;
 
-    public PlayerItemListController(ILogger<PlayerItemListController> logger,
+    public LoadPlayerItemListController(ILogger<LoadPlayerItemListController> logger,
     IItemDb itemDb)
     {
         _logger = logger;
@@ -25,7 +25,7 @@ public class PlayerItemListController : ControllerBase
 
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        var (loadAllItemsErrorCode, itemList) = await _itemDb.LoadAllItemsAsync(playerId);
+        var (loadAllItemsErrorCode, itemList) = await _itemDb.LoadPlayerItemListAsync(playerId);
         if (loadAllItemsErrorCode != ErrorCode.None)
         {
             response.Result = loadAllItemsErrorCode;
