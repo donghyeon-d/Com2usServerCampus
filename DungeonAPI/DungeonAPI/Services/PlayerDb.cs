@@ -84,6 +84,7 @@ public class PlayerDb : GameDb, IPlayerDb
             var playerInfo = await _queryFactory.Query("Player")
                 .Where("AccountId", accountId)
                 .FirstOrDefaultAsync<Player>();
+
             if (playerInfo is null)
             {
                 _logger.LogError($"Where: Player.LoadPlayerAsync, Status: {ErrorCode.PlayerNotExist}");

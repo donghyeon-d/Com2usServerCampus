@@ -11,15 +11,13 @@ public class MailRewardDb : GameDb, IMailRewardDb
 {
     readonly ILogger<MailRewardDb> _logger;
     readonly IItemDb _itemDb;
-    readonly IMailDb _mailDb;
 
 	public MailRewardDb(ILogger<MailRewardDb> logger, IOptions<DbConfig> dbConfig,
-        IItemDb itemDb, IMailDb mailDb)
+        IItemDb itemDb)
         : base(logger, dbConfig)
     {
         _logger = logger;
         _itemDb = itemDb;
-        _mailDb = mailDb;
     }
 
     public async Task<ErrorCode> CreateMailRewards(Int32 mailId, List<MailReward> rewards)

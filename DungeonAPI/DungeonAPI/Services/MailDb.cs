@@ -42,7 +42,9 @@ public class MailDb : GameDb, IMailDb
                                                             IsDeleted = mail.IsDeleted,
                                                             CanDelete = mail.CanDelete,
                                                             Sender = mail.Sender
-                                                        }) ;
+                                                        });
+
+            
 
             ErrorCode mailContentErrorCode = await _mailContent.CreateMailContent(mailId, content.Content);
             if (mailContentErrorCode != ErrorCode.None)

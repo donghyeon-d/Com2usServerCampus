@@ -47,6 +47,8 @@ public class CheckAuthAndVersion
 
     async Task CheckAuth(HttpContext context)
     {
+        context.Request.EnableBuffering();
+
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
         {
             var bodyStr = await reader.ReadToEndAsync();
@@ -117,6 +119,8 @@ public class CheckAuthAndVersion
 
     async Task CheckVersion(HttpContext context)
     {
+        context.Request.EnableBuffering();
+
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))
         {
             try

@@ -13,10 +13,10 @@ builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
 builder.Services.AddTransient<IAccountDb, AccountDb>();
 builder.Services.AddTransient<IPlayerDb, PlayerDb>();
 builder.Services.AddTransient<IItemDb, ItemDb>();
-builder.Services.AddTransient<IInAppPurchaseDb, InAppPurchaseDb>();
-builder.Services.AddTransient<IMailDb, MailDb>();
 builder.Services.AddTransient<IMailContentDb, MailContentDb>();
 builder.Services.AddTransient<IMailRewardDb, MailRewardDb>();
+builder.Services.AddTransient<IMailDb, MailDb>();
+builder.Services.AddTransient<IInAppPurchaseDb, InAppPurchaseDb>();
 builder.Services.AddTransient<IAttendanceBookDb, AttendanceBookDb>();
 builder.Services.AddTransient<IItemEnhanceDb, ItemEnhanceDb>();
 builder.Services.AddSingleton<INoticeDb, NoticeDb>();
@@ -26,7 +26,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.UseMiddleware<DungeonAPI.Middleware.CheckAuthAndVersion>();
+//app.UseMiddleware<DungeonAPI.Middleware.CheckAuthAndVersion>();
 app.UseRouting();
 app.MapControllers();
 
