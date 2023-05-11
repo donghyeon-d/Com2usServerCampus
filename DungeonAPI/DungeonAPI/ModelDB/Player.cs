@@ -12,5 +12,6 @@ public class Player
     public Int32 Attack { get; set; }
     public Int32 Defence { get; set; }
     public Int32 Magic { get; set; }
+    public Int32 Money { get; set;}
 }
 

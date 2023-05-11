@@ -153,13 +153,13 @@ public class MailRewardDb : GameDb, IMailRewardDb
 
         Item item= new Item();
         item.PlayerId = playerId;
-        item.ItemMasterDataCode = mailReward.BaseItemCode;
+        item.ItemCode = mailReward.BaseItemCode;
         item.ItemCount = mailReward.ItemCount;
         item.Attack = baseItem.Attack;
         item.Defence = baseItem.Defence;
         item.Magic = baseItem.Magic;
         item.EnhanceLevel = 0;
-        item.RemainingEnhanceCount = baseItem.EnhanceMaxCount;
+        item.EnhanceTryCount = baseItem.EnhanceMaxCount;
         item.IsDestructed = 0;
         return item;
     }

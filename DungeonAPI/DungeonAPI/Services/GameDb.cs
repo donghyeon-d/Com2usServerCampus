@@ -23,14 +23,14 @@ public class GameDb
         _dbConn = new MySqlConnection(_dbConfig.Value.GameDb);
 
         Open();
-
+        
         _compiler = new SqlKata.Compilers.MySqlCompiler();
-        _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
+        _queryFactory = new QueryFactory(_dbConn, _compiler);
     }
 
     protected void Open()
     {
-        if (_dbConn.State == System.Data.ConnectionState.Closed)
+        if (_dbConn.State == ConnectionState.Closed)
         {
             _dbConn.Open();
         }

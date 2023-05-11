@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class ClaimPurchasedProductReq
+public class InAppReq
 {
     [Required]
     [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]

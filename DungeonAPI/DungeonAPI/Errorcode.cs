@@ -82,7 +82,10 @@ public enum ErrorCode : UInt16
     UpdatePlayerFailException = 3006,
     DeletePlayerFail = 3007,
     DeletePlayerFailException = 3008,
-
+    AddMoneyNotFoundPlayer = 3009,
+    AddMoneyFailInvalidRange = 3010,
+    AddMoneyFailUpdateFail = 3011,
+    AddMoneyFailFailException = 3012,
 
     //GameDb 4000~ 
     GetGameDbConnectionFail = 4002,
@@ -92,8 +95,8 @@ public enum ErrorCode : UInt16
     MailLoadFailException = 4101,
     MailDeleteFailNotExist = 4102,
     MailDeleteFailException = 4103,
-    MailReceivedFailNotExistOrAlreadyRecieve = 4104,
-    MailReceivedFailException = 4105,
+    MailMarkAsOpenFailNotExist = 4104,
+    MailMarkAsOpenFailException = 4105,
     MailContentCreateFail = 4106,
     MailContentCreateFailException = 4107,
     MailContentLoadFail = 4108,
@@ -106,7 +109,7 @@ public enum ErrorCode : UInt16
     MailRewardLoadFailException = 4115,
     MailRewardDeleteFail = 4116,
     MailRewardDeleteFailException = 4117,
-    MailReceivedFailNotExistOrAlreadyOpen = 4118,
+    MailMarkAsReceivedFailNotExist = 4118,
     MailDeleteFailNotExistOrCannotDelete = 4119,
     MailRewardNotFound = 4120,
     MailRewardAlreadyReceived = 4121,
@@ -114,6 +117,15 @@ public enum ErrorCode : UInt16
     ReceiveRewardButSomeLoss = 4123,
     NotFoundPlayerMail = 4124,
     PlayerMailCheckException = 4125,
+    MailCreateFail = 4126,
+    ReadMailWrongPlayer = 4127,
+    ReadMailContentWrongPlayer = 4128,
+    MailMarkAsReceivedFailException = 4129,
+    MarkAsNotReceivedItemFailNotExist = 4130,
+    MarkAsNotReceivedItemException = 4131,
+    LoadMailFailNotExist = 4132,
+    LoadMailFailException = 4133,
+    LoadMailWrongPlayer = 4134,
 
 
     // AttendanceBook 4200~
@@ -128,6 +140,7 @@ public enum ErrorCode : UInt16
     UpdateAttendanceBookTupleFail = 4206,
     UpdateAttendanceBookTupleFailException = 4207,
     ReceiveRewardToMailFailException = 4208,
+    InvalidDayCount = 4209,
 
 
     // InAppPurchase 4300~
@@ -163,7 +176,9 @@ public enum ErrorCode : UInt16
     DeleteItemFail = 6015,
     DeleteItemFailException = 6016,
     AcquiredItemFailException = 6017,
-
+    InvalidItemCode = 6018,
+    PushItemToListFail = 6019,
+    PushItemToListException = 6020,
 
     // Item Enhance 6100~
     UnenhanceableItem = 6100,

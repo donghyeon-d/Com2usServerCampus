@@ -7,7 +7,7 @@ public interface IItemDb
     public Task<ErrorCode> CreateDefaltItemsAsync(Int32 playerId);
 
     //public Task<Tuple<ErrorCode, Int32>> CreateItemAsync(Int32 playerId, Int32 itemCode);
-
+    public Task<ErrorCode> PushItemToList(Item item);
     public Task<Tuple<ErrorCode, List<Item>>> LoadPlayerItemListAsync(Int32 playerId);
 
     public Task<ErrorCode> UpdateItemAsync(Item item);

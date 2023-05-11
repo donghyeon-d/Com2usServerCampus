@@ -7,28 +7,29 @@ namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LoadNoticeController : ControllerBase
+public class ReadNoticeController : ControllerBase
 {
-    readonly ILogger<LoadNoticeController> _logger;
+    readonly ILogger<ReadNoticeController> _logger;
     readonly INoticeDb _notice;
 
-    public LoadNoticeController(ILogger<LoadNoticeController> logger, INoticeDb notice)
+    public ReadNoticeController(ILogger<ReadNoticeController> logger, INoticeDb notice)
     {
         _logger = logger;
         _notice = notice;
     }
 
     [HttpPost]
-    public async Task<LoadNoticeRes> LoadNotice(LoadNoticeReq request)
+    public async Task<ReadNoticeRes> LoadNotice()
     {
-        LoadNoticeRes respones = new LoadNoticeRes();
+        ReadNoticeRes respones = new ();
 
-        var (LoadNoticeErrorCode, notices) = await _notice.LoadAllNotification();
-        if (LoadNoticeErrorCode != ErrorCode.None)
+        var (LoadNoticeErrorCode, notices) = await _notice.ReadNotificationList();
+        if (LoadNoticeErrorCode != ErrorCode.None || notices is null)
         {
             respones.ErrorCode = LoadNoticeErrorCode;
             return respones;
         }
+
         respones.Notices = notices;
         return respones;
     }

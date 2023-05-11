@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
+using DungeonAPI.ModelsDB;
 
 namespace DungeonAPI.Services;
 
@@ -34,21 +35,17 @@ public class PlayerDb : GameDb, IPlayerDb
                 Magic = 10
             });
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
-            return new Tuple<ErrorCode, Int32>(ErrorCode.None, characterId);
+            return new (ErrorCode.None, characterId);
         }
         catch(Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.CreatePlayerFailException}");
-            return new Tuple<ErrorCode, Int32>(ErrorCode.CreatePlayerFailException, -1);
-        }
-        finally
-        {
-            Dispose();
+            return new (ErrorCode.CreatePlayerFailException, -1);
         }
     }
 
-    public async Task<Tuple<ErrorCode, Player>> LoadPlayerByPlayerIdAsync(Int32 playerId)
+    public async Task<Tuple<ErrorCode, Player?>> LoadPlayerByPlayerIdAsync(Int32 playerId)
     {
         _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Try");
         try
@@ -59,24 +56,20 @@ public class PlayerDb : GameDb, IPlayerDb
             if (playerInfo is null)
             {
                 _logger.LogError($"Where: Player.LoadPlayerAsync, Status: {ErrorCode.PlayerNotExist}");
-                return new Tuple<ErrorCode, Player>(ErrorCode.PlayerNotExist, null);
+                return new (ErrorCode.PlayerNotExist, null);
             }
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
-            return new Tuple<ErrorCode, Player>(ErrorCode.PlayerNotExist, playerInfo);
+            return new (ErrorCode.PlayerNotExist, playerInfo);
         }
         catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.LoadPlayerFailException}");
-            return new Tuple<ErrorCode, Player>(ErrorCode.CreatePlayerFailException, null);
-        }
-        finally
-        {
-            Dispose();
+            return new (ErrorCode.CreatePlayerFailException, null);
         }
     }
 
-    public async Task<Tuple<ErrorCode, Player>> LoadPlayerByAccountAsync(Int32 accountId)
+    public async Task<Tuple<ErrorCode, Player?>> LoadPlayerByAccountAsync(Int32 accountId)
     {
         _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Try");
         try
@@ -88,20 +81,50 @@ public class PlayerDb : GameDb, IPlayerDb
             if (playerInfo is null)
             {
                 _logger.LogError($"Where: Player.LoadPlayerAsync, Status: {ErrorCode.PlayerNotExist}");
-                return new Tuple<ErrorCode, Player>(ErrorCode.PlayerNotExist, null);
+                return new (ErrorCode.PlayerNotExist, null);
             }
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
-            return new Tuple<ErrorCode, Player>(ErrorCode.None, playerInfo);
+            return new (ErrorCode.None, playerInfo);
         }
         catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.LoadPlayerFailException}");
-            return new Tuple<ErrorCode, Player>(ErrorCode.LoadPlayerFailException, null);
+            return new (ErrorCode.LoadPlayerFailException, null);
         }
-        finally
+    }
+    public async Task<ErrorCode> AddMoney(Int32 playerId, Int32 money)
+    {
+        try
         {
-            Dispose();
+            var hadMoney = await _queryFactory.Query("Player")
+                .Where("PlayerId", playerId)
+                .Select("Money")
+                .FirstOrDefaultAsync<Int32>();
+            if (hadMoney == 0)
+            {
+                return ErrorCode.AddMoneyNotFoundPlayer;
+            }
+
+            hadMoney += money;
+            if (hadMoney < 0)
+            {
+                return ErrorCode.AddMoneyFailInvalidRange;
+            }
+
+            var count = await _queryFactory.Query("Player")
+                                    .Where("PlayerId", playerId)
+                                    .UpdateAsync(new { Money = hadMoney });
+            if (count != 1)
+            {
+                return ErrorCode.AddMoneyFailUpdateFail;
+            }
+
+            return ErrorCode.None;
+        }
+        catch(Exception e)
+        {
+            return ErrorCode.AddMoneyFailFailException;
         }
     }
 
@@ -121,10 +144,6 @@ public class PlayerDb : GameDb, IPlayerDb
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.UpdatePlayerFailException}");
             return ErrorCode.UpdatePlayerFailException;
-        }
-        finally
-        {
-            Dispose();
         }
     }
 
@@ -147,13 +166,9 @@ public class PlayerDb : GameDb, IPlayerDb
             // TODO : log
             return ErrorCode.DeletePlayerFailException;
         }
-        finally
-        {
-            Dispose();
-        }
     }
 
-    public async Task<Tuple<ErrorCode, Int32>> LoadPlayerIdByAccountId(Int32 accountId)
+    public async Task<Tuple<ErrorCode, Int32>> LoadPlayerIdByAccountIdAsync(Int32 accountId)
     {
 
         try
@@ -172,10 +187,6 @@ public class PlayerDb : GameDb, IPlayerDb
         catch (Exception e)
         {
             return new Tuple<ErrorCode, Int32>(ErrorCode.LoadPlayerFailException, -1);
-        }
-        finally
-        {
-            Dispose();
         }
     }
 }

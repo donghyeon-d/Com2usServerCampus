@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-
+using DungeonAPI.ModelDB;
 namespace DungeonAPI.RequestResponse;
 
-public class ReceiveMailRewardReq
+public class ReadNoticeReq
 {
     [Required]
     [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]
@@ -19,8 +19,5 @@ public class ReceiveMailRewardReq
 
     [Required]
     public String MasterDataVersion { get; set; }
-
-    [Required]
-    public Int32 MailId { get; set; }
 }
 

@@ -4,15 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class LoadMailContentRes
+public class ReadMailContentRes
 {
-    [Required]
     public MailContent? MailContent { get; set; } = null;
-
-    [Required]
-    public List<MailReward>? MailRewards { get; set; } = null;
-
-    [Required]
     public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 

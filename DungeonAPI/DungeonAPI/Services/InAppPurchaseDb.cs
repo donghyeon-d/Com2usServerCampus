@@ -3,20 +3,18 @@ using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
+using MySqlConnector;
 
 namespace DungeonAPI.Services;
 
 public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
 {
     readonly ILogger<InAppPurchaseDb> _logger;
-    readonly IMailDb _mailDb;
 
-    public InAppPurchaseDb(ILogger<InAppPurchaseDb> logger, IOptions<DbConfig> dbConfig,
-        IMailDb mailDb)
+    public InAppPurchaseDb(ILogger<InAppPurchaseDb> logger, IOptions<DbConfig> dbConfig)
         : base(logger, dbConfig)
     {
         _logger = logger;
-        _mailDb = mailDb;
     }
 
     public async Task<ErrorCode> ProvidePurchasedProductToMail(Int32 playerId, String receiptId)
@@ -68,7 +66,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         }
     }
 
-    async Task<ErrorCode> InsertPurchaseInfoToManageList(Int32 playerId, String receiptId, Int32 productId)
+    public async Task<ErrorCode> RegistReceipt(Int32 playerId, String receiptId, Int32 productCode)
     {
         try
         {
@@ -79,7 +77,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
                                 PlayerId = playerId,
                                 ReceiptId = receiptId,
                                 ReceiveDate = DateTime.Today,
-                                ProductCode = productId
+                                ProductCode = productCode
                             });
             if (result != 1)
             {
@@ -87,8 +85,12 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
             }
             return ErrorCode.None;
         }
-        catch (Exception e)
+        catch (MySqlException e)
         {
+            if (e.Number == 1062)
+            {
+                return ErrorCode.DuplicatedReceipt;
+            }
             return ErrorCode.InsertInAppPurchaseFailException;
         }
     }
@@ -185,25 +187,5 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
     }
 
 
-    Tuple<ErrorCode, Int32> ValidCheckReceiptThenGetProductCode(String receiptId)
-    {
-        // 영수증 검사 필요. (임시)영수증에 따른 물품 번호
-        if (string.IsNullOrEmpty(receiptId))
-        {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.WrongReceipt, -1);
-        }
-        else if (char.IsDigit(receiptId[0]))
-        {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.None, 1);
-        }
-        else if (char.IsLower(receiptId[0]))
-        {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.None, 2);
-        }
-        else
-        {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.None, 3);
-        }
-    }
 }
 

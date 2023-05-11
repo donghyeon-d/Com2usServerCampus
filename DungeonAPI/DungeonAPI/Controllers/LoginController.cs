@@ -38,7 +38,7 @@ public class LoginController : ControllerBase
         }
 
         var (loadPlayerErrorCode, player) = await _player.LoadPlayerByAccountAsync(accountId);
-        if (loadPlayerErrorCode != ErrorCode.None)
+        if (loadPlayerErrorCode != ErrorCode.None || player is null)
         {
             response.ResetThenSetErrorCode(loadPlayerErrorCode);
             return response;

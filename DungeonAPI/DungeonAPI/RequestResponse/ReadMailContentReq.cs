@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class LoadMailContentReq
+public class ReadMailContentReq
 {
     [Required]
     [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]

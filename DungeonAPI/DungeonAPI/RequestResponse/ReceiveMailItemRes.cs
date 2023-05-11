@@ -4,11 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class ReceiveMailRewardRes
+public class ReceiveMailItemRes
 {
-    [Required]
-    public List<MailReward>? MailRewards { get; set; } = null;
-
     [Required]
     public ErrorCode Result { get; set; } = ErrorCode.None;
 }

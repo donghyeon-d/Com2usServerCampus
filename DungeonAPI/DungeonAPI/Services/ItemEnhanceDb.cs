@@ -48,12 +48,12 @@ public class ItemEnhanceDb : GameDb, IItemEnhanceDb
 
 	bool CanEnhanceItem(Item item)
 	{
-		if (item.RemainingEnhanceCount == 0 || item.IsDestructed == 1)
+		if (item.EnhanceTryCount == 0 || item.IsDestructed == 1)
 		{
 			return false;
 		}
 
-		var baseItem = MasterDataDb.s_baseItem.Find(masterDataItem => masterDataItem.Code == item.ItemMasterDataCode);
+		var baseItem = MasterDataDb.s_baseItem.Find(masterDataItem => masterDataItem.Code == item.ItemCode);
 		if (baseItem is null)
 		{
 			return false;
@@ -75,7 +75,7 @@ public class ItemEnhanceDb : GameDb, IItemEnhanceDb
             item.Defence = Convert.ToInt32(item.Defence * 1.1);
             item.Magic = Convert.ToInt32(item.Magic * 1.1);
 			item.EnhanceLevel = Convert.ToByte(item.EnhanceLevel + 1);
-            item.RemainingEnhanceCount = Convert.ToByte(item.RemainingEnhanceCount - 1);
+            item.EnhanceTryCount = Convert.ToByte(item.EnhanceTryCount - 1);
         }
 		else
 		{

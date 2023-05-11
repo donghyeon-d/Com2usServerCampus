@@ -22,8 +22,8 @@ public class ItemDb : GameDb, IItemDb
     {
         Open();
         // 아이템 인스턴스 만들기
-        var cols = new[] { "PlayerId", "ItemMasterDataCode", "ItemCount", "Attack", "Defence", "Magic",
-                "EnhanceLevel", "RemainingEnhanceCount", "IsDestructed"};
+        var cols = new[] { "PlayerId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",
+                "EnhanceLevel", "EnhanceTryCount", "IsDestructed", "IsDeleted"};
         List<object[]> defaltItems = MakeDefalutItems(playerId);
         try
         {
@@ -69,13 +69,31 @@ public class ItemDb : GameDb, IItemDb
                     item.Defence,
                     item.Magic,
                     0,
-                    item.EnhanceMaxCount,
-                    0
+                    0,
+                    false,
+                    false
                 });
             }
 
         }
         return items;
+    }
+
+    public async Task<ErrorCode> PushItemToList(Item item)
+    {
+        try
+        {
+            int itemId = await _queryFactory.Query("Item").InsertGetIdAsync<Int32>(item);
+            if (itemId < 1)
+            {
+                return ErrorCode.PushItemToListFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.PushItemToListException;
+        }
     }
 
     public async Task<Tuple<ErrorCode, Int32>> AcquiredItem(Int32 playerId, Item item)
@@ -112,7 +130,7 @@ public class ItemDb : GameDb, IItemDb
         try
         {
             int itemId = await _queryFactory.Query("Item").InsertGetIdAsync<Int32>(item);
-            if (itemId != 1)
+            if (itemId == 0)
             {
                 return new Tuple<ErrorCode, Int32>(ErrorCode.AddOneItemFail, -1);
             }
@@ -135,13 +153,13 @@ public class ItemDb : GameDb, IItemDb
             }
             var playerItems = result.ToList<Item>();
 
-            var masterDataItem = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
+            var masterDataItem = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
             if (masterDataItem == null)
             {
                 return new Tuple<ErrorCode, Int32>(ErrorCode.NotFoundMasterDataItemAtAddStackItem, -1);
             }
 
-            var sameAtrributItems = playerItems.FindAll(i => i.ItemMasterDataCode == item.ItemMasterDataCode);
+            var sameAtrributItems = playerItems.FindAll(i => i.ItemCode == item.ItemCode);
             var canAddedItem = sameAtrributItems.Find(i => i.ItemCount < masterDataItem.MaxStack);
 
             if (canAddedItem != null)
@@ -207,7 +225,7 @@ public class ItemDb : GameDb, IItemDb
 
 bool IsEquipment(Item item)
     {
-        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
+        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
         if (itemKind == null)
         {
             return false;
@@ -222,7 +240,7 @@ bool IsEquipment(Item item)
 
     bool IsGold(Item item)
     {
-        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
+        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
         if (itemKind.Attribute == 5)
         {
             return true;
@@ -232,7 +250,7 @@ bool IsEquipment(Item item)
 
     bool IsComsumableItem(Item item)
     {
-        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemMasterDataCode);
+        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
         if (itemKind.Attribute == 4)
         {
             return true;

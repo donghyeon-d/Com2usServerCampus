@@ -1,7 +1,7 @@
 ﻿using System;
 namespace DungeonAPI.RequestResponse;
 
-public class ClaimPurchasedProductRes
+public class InAppRes
 {
 	public ErrorCode Result { get; set; }
 }

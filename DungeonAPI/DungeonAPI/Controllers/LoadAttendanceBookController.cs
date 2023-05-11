@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using DungeonAPI.Services;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.ModelDB;
@@ -12,58 +11,65 @@ public class LoadAttendanceBookController : ControllerBase
 {
 	readonly ILogger<LoadAttendanceBookController> _logger;
 	readonly IAttendanceBookDb _attendanceBookDb;
-	readonly IMasterDataDb _masterDataDb;
 
 	public LoadAttendanceBookController(ILogger<LoadAttendanceBookController> logger,
-        IAttendanceBookDb attendanceBookDb, IMasterDataDb masterDataDb)
+        IAttendanceBookDb attendanceBookDb)
 	{
 		_logger = logger;
 		_attendanceBookDb = attendanceBookDb;
-		_masterDataDb = masterDataDb;
     }
 
     [HttpPost]
-    public async Task<LoadAttendanceBookRes> LoadAttendanceBook(LoadAttendanceBookReq request)
+    public async Task<LoadAttendanceBookRes> LoadAttendanceBook()
 	{
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         LoadAttendanceBookRes respons = new LoadAttendanceBookRes();
 
-        var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfoByPlayerId(playerId);
-		if (loadAttandanceBookErrorCode != ErrorCode.None)
+        var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfo(playerId);
+		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
 		{
 			respons.Result = loadAttandanceBookErrorCode;
 			return respons;
 		}
 
         respons.CanReceive = CanReceiveAttendanceReward(attendanceBook);
-        respons.ConsecutiveDays = GetConsecutiveDays(attendanceBook);
-        respons.RewardList = MasterDataDb.s_attendanceReward;
+        respons.DayCount = GetDayCount(attendanceBook);
         return respons;
     }
-
-    Int32 GetConsecutiveDays(AttendanceBook attendanceBook)
-    {
-        if (attendanceBook.StartDate.Date == attendanceBook.LastReceiveDate.Date)
-        {
-            return attendanceBook.ConsecutiveDays;
-        }
-        if (attendanceBook.StartDate.Date == attendanceBook.LastReceiveDate.AddDays(-1).Date)
-        {
-            return attendanceBook.ConsecutiveDays + 1;
-        }
-        return 1;
-    }
-
+    
     bool CanReceiveAttendanceReward(AttendanceBook attendanceBook)
     {
-        if (attendanceBook.StartDate.Date == attendanceBook.LastReceiveDate.Date)
+        if (attendanceBook.LastReceiveDate.Date == DateTime.Today.Date)
         {
             return false;
         }
         else
         {
             return true;
+        }
+    }
+
+    int GetDayCount(AttendanceBook attendanceBook)
+    {
+        if (attendanceBook.LastReceiveDate.Date == DateTime.Today.Date)
+        {
+            return attendanceBook.DayCount;
+        }
+        else if (attendanceBook.LastReceiveDate.Date == DateTime.Today.AddDays(-1).Date) 
+        {
+            if (attendanceBook.DayCount == 30)
+            {
+                return 1;
+            }
+            else
+            {
+                return attendanceBook.DayCount + 1;
+            }
+        }
+        else
+        {
+            return 1;
         }
     }
 }

@@ -55,7 +55,7 @@ public class CreateNoticeController : ControllerBase
 
     async Task<ErrorCode> CheckDuplicateTitle(String title)
     {
-        var (LoadNoticeErrorCode, notices) = await _notice.LoadAllNotification();
+        var (LoadNoticeErrorCode, notices) = await _notice.ReadNotificationList();
         if (LoadNoticeErrorCode != ErrorCode.None)
         {
             return LoadNoticeErrorCode;
