@@ -30,31 +30,34 @@ public class InAppController : ControllerBase
 
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        response.Result = 
-            await _inAppPurchaseDb.ProvidePurchasedProductToMail(playerId, request.ReceiptId);
+        response.Result = await ProvidePurchasedProductToMail(playerId, request.ReceiptId);
 
         return response;
     }
 
     async Task<ErrorCode> ProvidePurchasedProductToMail(Int32 playerId, String receiptId)
     {
-        var (CheckReceiptErrorCode, productId) = ValidCheckReceiptThenGetProductCode(receiptId);
-        if (CheckReceiptErrorCode != ErrorCode.None)
+        var (checkReceiptErrorCode, productId) = ValidCheckReceiptThenGetProductCode(receiptId);
+        if (checkReceiptErrorCode != ErrorCode.None)
         {
-            return CheckReceiptErrorCode;
+            return checkReceiptErrorCode;
         }
 
-        var InsertPurchaseInfoError = await _inAppPurchaseDb.RegistReceipt(playerId, receiptId, productId);
-        if (InsertPurchaseInfoError != ErrorCode.None)
+        var registReceiptError = await _inAppPurchaseDb.RegistReceipt(playerId, receiptId, productId);
+        if (registReceiptError != ErrorCode.None)
         {
-            return InsertPurchaseInfoError;
+            return registReceiptError;
         }
 
-        ErrorCode SendToMailErrorCode = await SendToMail(playerId, productId);
-        if (SendToMailErrorCode != ErrorCode.None)
+        ErrorCode sendItemsToMailErrorCode = await SendItemsToMail(playerId, productId);
+        if (sendItemsToMailErrorCode != ErrorCode.None)
         {
-            await DeletePurchaseInfoWhenFail(receiptId);
-            return SendToMailErrorCode;
+            var deleteErrorCode = await _inAppPurchaseDb.DeleteReceipt(receiptId);
+            if (deleteErrorCode != ErrorCode.None)
+            {
+                // TODO : Rollback error
+            }
+            return sendItemsToMailErrorCode;
         }
 
         return ErrorCode.None;
@@ -83,15 +86,37 @@ public class InAppController : ControllerBase
 
     async Task<ErrorCode> SendItemsToMail(Int32 playerId, Int32 productId)
     {
-        // 메일 리스트 만들기
-        List<Mail> mailList = InitInAppMailList(playerId, productId);
-        // foreach _mailDb.SendMail
-           // 잘못되면
-           // 죽이고
-           // break
-           // List<int>mailId add
-           // 
+        List<Mail>? mailList = InitInAppMailList(playerId, productId);
+        if (mailList == null)
+        {
+            return ErrorCode.InvalidInAppProduct;
+        }
 
+        List<int> mailIdList = new();
+        foreach (Mail mail in mailList)
+        {
+            var (sendMailErrorCode, mailId) = await _mailDb.SendMail(mail);
+            if (sendMailErrorCode != ErrorCode.None)
+            {
+                mailIdList.Add(mailId);
+                break;
+            }
+        }
+
+        if (mailIdList.Count > 0)
+        {
+            foreach (var mailId in mailIdList)
+            {
+                var deleteMailErrorCode = await _mailDb.DeleteMail(mailId);
+                if (deleteMailErrorCode != ErrorCode.None)
+                {
+                    // TODO : log rollback error
+                }
+            }
+            return ErrorCode.InAppSendMailFail;
+        }
+
+        return ErrorCode.None;
     }
 
     List<Mail>? InitInAppMailList(Int32 playerId, Int32 productId)
@@ -105,11 +130,11 @@ public class InAppController : ControllerBase
         List<Mail> mailList = new();
         foreach (var item in items)
         {
-            Mail mail = new Mail()
+            Mail mail = new()
             {
                 PlayerId = playerId,
                 Title = "InAppProduct",
-                Content = "Thank you for Purchasing Product. You can get Product in Mailbox"
+                Content = "Thank you for Purchasing Product. You can get Product in Mailbox",
                 ExpiredDate = DateTime.MaxValue,
                 CanDelete = true,
                 Sender = "InApp",

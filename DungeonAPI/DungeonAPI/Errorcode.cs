@@ -152,6 +152,8 @@ public enum ErrorCode : UInt16
     SendToMailExceptionAtProvidePurchasedProduct = 4306,
     DeletePurchaseInfoFail = 4307,
     DeletePurchaseInfoFailException = 4308,
+    InvalidInAppProduct = 4309,
+    InAppSendMailFail = 4310,
 
     // MasterDataDB 5000~
     MasterDataConnectionFail = 5001,
@@ -183,6 +185,8 @@ public enum ErrorCode : UInt16
     // Item Enhance 6100~
     UnenhanceableItem = 6100,
     WrongItemOwner = 6101,
+    TryMoreThanMaxCount = 6102,
+    DestructedItem = 6103,
 
 
     // Notice 7000~

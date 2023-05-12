@@ -6,6 +6,6 @@ public class EnhanceItemRes
 {
     public ErrorCode Result { get; set; } = ErrorCode.None;
 
-    public Item ResultItem { get; set; }
+    public Item? ResultItem { get; set; } = null;
 }
 

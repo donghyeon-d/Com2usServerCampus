@@ -160,7 +160,7 @@ public class MailRewardDb : GameDb, IMailRewardDb
         item.Magic = baseItem.Magic;
         item.EnhanceLevel = 0;
         item.EnhanceTryCount = baseItem.EnhanceMaxCount;
-        item.IsDestructed = 0;
+        item.IsDestructed = false;
         return item;
     }
 

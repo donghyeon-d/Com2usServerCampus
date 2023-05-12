@@ -20,7 +20,7 @@ public class MasterDataDb : IMasterDataDb
     //public static MasterData? s_Data = null;
     public static List<Meta>? s_meta { get; set; } = null;
     public static List<MasterData.BaseItem> s_baseItem { get; set; }
-    public static List<ItemAttribute> s_itemAttribute { get; set; }
+    public static List<MasterData.ItemAttribute> s_itemAttribute { get; set; }
     public static List<AttendanceReward> s_attendanceReward { get; set; }
     public static List<InAppProduct> s_inAppProduct { get; set; }
     public static List<StageItem> s_stageItem { get; set; }

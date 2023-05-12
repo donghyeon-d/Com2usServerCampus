@@ -24,7 +24,7 @@ public class LoadAttendanceBookController : ControllerBase
 	{
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        LoadAttendanceBookRes respons = new LoadAttendanceBookRes();
+        LoadAttendanceBookRes respons = new();
 
         var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfo(playerId);
 		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)

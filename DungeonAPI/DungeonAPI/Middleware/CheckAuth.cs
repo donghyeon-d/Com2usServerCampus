@@ -93,7 +93,7 @@ public class CheckAuth
     {
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareRes
         {
-            result = errorCode
+            Result = errorCode
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);

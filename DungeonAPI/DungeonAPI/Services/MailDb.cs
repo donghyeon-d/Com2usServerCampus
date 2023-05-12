@@ -9,7 +9,6 @@ public class MailDb : GameDb, IMailDb
 {
     // mail 유효기간, 리스트(페이지)당 메일 개수 정해야 
     readonly ILogger<MailDb> _logger;
-    int _expireDay = 30;
     int _listCount = 2;
 
     public MailDb(ILogger<MailDb> logger, IOptions<DbConfig> dbConfig)
@@ -201,9 +200,8 @@ public class MailDb : GameDb, IMailDb
         }
     }
 
-    async Task<ErrorCode> DeleteMail(Int32 mailId)
+    public async Task<ErrorCode> DeleteMail(Int32 mailId)
     {
-        Open();
         try
         {
             int count = await _queryFactory.Query("Mail")

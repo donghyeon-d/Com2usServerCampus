@@ -21,3 +21,5 @@ public interface IMailDb
     public Task<ErrorCode> MarkAsOpenMail(Int32 MailId, Int32 playerId);
     public Task<ErrorCode> MarkAsReceivedItem(Int32 MailId, Int32 playerId);
     public Task<ErrorCode> MarkAsNotReceivedItem(Int32 MailId, Int32 playerId);
+    public Task<ErrorCode> DeleteMail(Int32 mailId);
+}

@@ -96,7 +96,7 @@ public class CheckVersion
     {
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareRes
         {
-            result = ErrorCode.InValidRequestAppVersion
+            Result = ErrorCode.InValidRequestAppVersion
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
@@ -126,7 +126,7 @@ public class CheckVersion
     {
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareRes
         {
-            result = ErrorCode.InValidRequestMasterDataVersion
+            Result = ErrorCode.InValidRequestMasterDataVersion
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
@@ -136,7 +136,7 @@ public class CheckVersion
     {
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareRes
         {
-            result = ErrorCode.EmptyRequestBody
+            Result = ErrorCode.EmptyRequestBody
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);

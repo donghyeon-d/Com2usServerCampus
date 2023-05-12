@@ -5,7 +5,6 @@ namespace DungeonAPI.RequestResponse;
 
 public class PlayerItemListRes
 {
-    public ErrorCode Result { get; set; }
-    public List<Item> ItemList { get; set; }
+    public ErrorCode Result { get; set; } = ErrorCode.None;
+    public List<Item>? ItemList { get; set; } = null;
 }
-

@@ -10,15 +10,12 @@ namespace DungeonAPI.Services;
 public class AttendanceBookDb : GameDb, IAttendanceBookDb
 {
     readonly ILogger<AttendanceBookDb> _logger;
-    readonly IMasterDataDb _masterDataDb;
-    int _expiredDate = 30;
 
     public AttendanceBookDb(ILogger<AttendanceBookDb> logger, IOptions<DbConfig> dbConfig,
         IMasterDataDb masterDataDb)
         : base(logger, dbConfig)
     {
         _logger = logger;
-        _masterDataDb = masterDataDb;
     }
 
     public async Task<Tuple<ErrorCode, AttendanceBook?>> LoadAttandanceBookInfo(Int32 playerId)

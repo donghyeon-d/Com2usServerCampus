@@ -3,6 +3,6 @@ namespace DungeonAPI.RequestResponse;
 
 public class MiddlewareRes
 {
-    public ErrorCode result { get; set; }
+    public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 
