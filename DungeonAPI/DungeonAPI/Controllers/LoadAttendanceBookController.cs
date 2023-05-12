@@ -24,18 +24,18 @@ public class LoadAttendanceBookController : ControllerBase
 	{
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        LoadAttendanceBookRes respons = new();
+        LoadAttendanceBookRes response = new();
 
         var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfo(playerId);
 		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
 		{
-			respons.Result = loadAttandanceBookErrorCode;
-			return respons;
+			response.Result = loadAttandanceBookErrorCode;
+			return response;
 		}
 
-        respons.CanReceive = CanReceiveAttendanceReward(attendanceBook);
-        respons.DayCount = GetDayCount(attendanceBook);
-        return respons;
+        response.CanReceive = CanReceiveAttendanceReward(attendanceBook);
+        response.DayCount = GetDayCount(attendanceBook);
+        return response;
     }
     
     bool CanReceiveAttendanceReward(AttendanceBook attendanceBook)

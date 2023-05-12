@@ -192,5 +192,17 @@ public enum ErrorCode : UInt16
     // Notice 7000~
     NoticeFailException = 7000,
     NoticeAuthFail = 7001,
-    NoticeDuplicatedTitile = 7002
+    NoticeDuplicatedTitile = 7002,
+
+    // Stage 8000~
+    AddCompletedDungeonFail = 8000,
+    AddCompletedDungeonFailException = 8001,
+    DeleteCompletedDungeonFail = 8002,
+    DeleteCompletedDungeonFailException = 8003,
+    CompleteListNotExist = 8004,
+    ReadCompleteListFailException = 8005,
+    CompleteThemaListNotExist = 8006,
+    ReadCompleteThemaListFailException = 8007,
+    InvalidStageCode = 8008,
+    NotCompleteBeforeStage = 8009
 }

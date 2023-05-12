@@ -103,7 +103,7 @@ public class EnhanceItemController : ControllerBase
             item.Defence = Convert.ToInt32(item.Defence * 1.1);
             item.Magic = Convert.ToInt32(item.Magic * 1.1);
             item.EnhanceLevel = Convert.ToByte(item.EnhanceLevel + 1);
-            item.EnhanceTryCount = Convert.ToByte(item.EnhanceTryCount - 1);
+            item.EnhanceTryCount = Convert.ToByte(item.EnhanceTryCount + 1);
         }
         else
         {

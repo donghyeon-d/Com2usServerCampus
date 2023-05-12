@@ -13,7 +13,7 @@ public class MasterData
     public class BaseItem
     {
         public Int32 Code { get; set; }
-        public String Name { get; set; }
+        public String Name { get; set; } = "";
         public Int32 Attribute { get; set; }
         public Int64 Sell { get; set; }
         public Int64 Buy { get; set; }
@@ -27,7 +27,7 @@ public class MasterData
 
     public class ItemAttribute
     {
-        public String Name { get; set; }
+        public String Name { get; set; } = "";
         public Int32 Code { get; set; }
     }
 
@@ -43,21 +43,30 @@ public class MasterData
     {
         public Int32 Code { get; set; }
         public Int32 ItemCode { get; set; }
-        public String ItemName { get; set; }
+        public String ItemName { get; set; } = "";
         public Int32 ItemCount { get; set; }
+    }
+
+    public class Stage
+    {
+        public Int32 StageCode { get; set; }
+        public String Thema { get; set; } = "";
+        public Int32 Step { get; set; }
     }
 
     public class StageItem
     {
-        public Int32 Code { get; set; }
+        public Int32 StageCode { get; set; }
         public Int32 ItemCode { get; set; }
+        public Int32 Count { get;set; }
     }
      
     public class StageAttackNPC
     {
-        public Int32 Code { get; set; }
+        public Int32 StageCode { get; set; }
         public Int32 NPCCode { get; set; }
         public Int32 NPCCount { get; set; }
         public Int32 Exp { get; set; }
     }
+
 }

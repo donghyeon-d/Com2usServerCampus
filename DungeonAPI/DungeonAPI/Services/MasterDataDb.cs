@@ -23,6 +23,7 @@ public class MasterDataDb : IMasterDataDb
     public static List<MasterData.ItemAttribute> s_itemAttribute { get; set; }
     public static List<AttendanceReward> s_attendanceReward { get; set; }
     public static List<InAppProduct> s_inAppProduct { get; set; }
+    public static List<Stage> s_stage { get; set; }
     public static List<StageItem> s_stageItem { get; set; }
     public static List<StageAttackNPC> s_stageAttackNPC { get; set; }
 
@@ -42,7 +43,7 @@ public class MasterDataDb : IMasterDataDb
         Open();
 
         _compiler = new SqlKata.Compilers.MySqlCompiler();
-        _queryFactory = new SqlKata.Execution.QueryFactory(_dbConn, _compiler);
+        _queryFactory = new QueryFactory(_dbConn, _compiler);
 
         try
         {
@@ -56,6 +57,8 @@ public class MasterDataDb : IMasterDataDb
             s_attendanceReward = attendanceReward.ToList();
             var inAppProduct = await _queryFactory.Query("InAppProduct").GetAsync<MasterData.InAppProduct>();
             s_inAppProduct = inAppProduct.ToList();
+            var stage = await _queryFactory.Query("Stage").GetAsync<MasterData.Stage>();
+            s_stage = stage.ToList();
             var stageItem = await _queryFactory.Query("StageItem").GetAsync<MasterData.StageItem>();
             s_stageItem = stageItem.ToList();
             var stageAttackNPC = await _queryFactory.Query("StageAttackNPC").GetAsync<MasterData.StageAttackNPC>();
