@@ -14,10 +14,10 @@ public class CheckAuthAndVersion
     readonly IMasterDataDb _masterData;
     readonly ILogger<CheckVersion> _logger;
     readonly IOptions<AppConfig> _appConfig;
-    readonly IAuthUserDb _authUserDb;
+    readonly IMemoryDb _authUserDb;
 
     public CheckAuthAndVersion(RequestDelegate next, IMasterDataDb masterData,
-        ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig, IAuthUserDb authUserDb)
+        ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig, IMemoryDb authUserDb)
     {
         _next = next;
         _masterData = masterData;
@@ -61,6 +61,8 @@ public class CheckAuthAndVersion
                 if (isValid)
                 {
                     PushAuthUserToContextItem(context, authUser);
+                    PushPlayerStatusToContextItem(context, authUser);
+                    PushPlayerStageToContextItem(context, authUser);
                     context.Request.Body.Position = 0;
                     await _next(context);
                 }
@@ -77,7 +79,7 @@ public class CheckAuthAndVersion
         }
     }
 
-    async Task<Tuple<bool, AuthUser>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
+    async Task<Tuple<bool, PlayerInfo>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
     {
         try
         {
@@ -88,15 +90,15 @@ public class CheckAuthAndVersion
             if (LoadAuthUserErrorCode != ErrorCode.None)
             {
                 await SetResponseAuthFail(context, LoadAuthUserErrorCode);
-                return new Tuple<bool, AuthUser>(false, null);
+                return new Tuple<bool, PlayerInfo>(false, null);
             }
-            return new Tuple<bool, AuthUser>(true, authUser);
+            return new Tuple<bool, PlayerInfo>(true, authUser);
         }
         catch (Exception e)
         {
             // TODO : log
             await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
-            return new Tuple<bool, AuthUser>(false, null);
+            return new Tuple<bool, PlayerInfo>(false, null);
         }
 
     }
@@ -111,11 +113,19 @@ public class CheckAuthAndVersion
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
     }
 
-    void PushAuthUserToContextItem(HttpContext context, AuthUser authUser)
+    void PushAuthUserToContextItem(HttpContext context, PlayerInfo authUser)
     {
         context.Items["PlayerId"] = authUser.PlayerId.ToString();
     }
 
+    void PushPlayerStatusToContextItem(HttpContext context, PlayerInfo authUser)
+    {
+        context.Items["PlayerStatus"] = authUser.Status.ToString();
+    }
+    void PushPlayerStageToContextItem(HttpContext context, PlayerInfo authUser)
+    {
+        context.Items["PlayerStage"] = authUser.StageCode.ToString();
+    }
 
     async Task CheckVersion(HttpContext context)
     {

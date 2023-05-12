@@ -192,3 +192,14 @@ CREATE TABLE IF NOT EXISTS GameDB.CompletedDungeon
     Thema INT NOT NULL COMMENT '던전 종류',
     Stage INT NOT NULL COMMENT '단계'
 ) COMMENT '완료한 던전';
+
+
+### Redis
+AuthUser : RedisString
+Email = {string AuthToken, int PlayerId, string Status}
+
+Notice : RedisList
+"noticekey" = [{string Title, string Content, dateTime Date}, {...}]
+
+Dungeon : RedisString
+PlayerId + "Dungeon" = {int Exp, [{itemCode, Count}, {ItemCode, Count}, ... ]}

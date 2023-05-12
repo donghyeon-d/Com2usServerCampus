@@ -11,18 +11,18 @@ public class LoginController : ControllerBase
 {
     readonly ILogger<LoginController> _logger;
     readonly IAccountDb _accountDb;
-    readonly IAuthUserDb _authUser;
-    readonly IPlayerDb _player;
-    readonly IItemDb _item;
+    readonly IMemoryDb _memoryDb;
+    readonly IPlayerDb _playerDb;
+    readonly IItemDb _itemDb;
 
     public LoginController(ILogger<LoginController> logger, IAccountDb accountDb,
-        IPlayerDb player, IItemDb item, IAuthUserDb authUser) 
+        IPlayerDb player, IItemDb item, IMemoryDb authUser) 
 	{
         _logger = logger;
         _accountDb = accountDb;
-        _player = player;
-        _item = item;
-        _authUser = authUser;
+        _playerDb = player;
+        _itemDb = item;
+        _memoryDb = authUser;
 	}
 
     [HttpPost]
@@ -37,30 +37,31 @@ public class LoginController : ControllerBase
             return response;
         }
 
-        var (loadPlayerErrorCode, player) = await _player.LoadPlayerByAccountAsync(accountId);
+        var (loadPlayerErrorCode, player) = await _playerDb.LoadPlayerByAccountAsync(accountId);
         if (loadPlayerErrorCode != ErrorCode.None || player is null)
         {
-            response.ResetThenSetErrorCode(loadPlayerErrorCode);
+            response.Result = loadPlayerErrorCode;
             return response;
         }
-        response.Player = player;
 
-        var (loadItemErrorcode, items) = await _item.LoadPlayerItemListAsync(player.PlayerId);
+        var (loadItemErrorcode, items) = await _itemDb.LoadPlayerItemListAsync(player.PlayerId);
         if (loadItemErrorcode != ErrorCode.None)
         {
-            response.ResetThenSetErrorCode(loadItemErrorcode);
+            response.Result = loadItemErrorcode;
             return response;
         }
-        response.Item = items;
 
         var authToken = Security.CreateAuthToken();
 
-        var authCheckErrorCode = await _authUser.CreateAuthUserAsync(request.Email, authToken, player.PlayerId);
+        var authCheckErrorCode = await _memoryDb.CreateAuthUserAsync(request.Email, authToken, player.PlayerId);
         if (authCheckErrorCode != ErrorCode.None)
         {
-            response.ResetThenSetErrorCode(authCheckErrorCode);
+            response.Result = authCheckErrorCode;
             return response;
         }
+
+        response.Player = player;
+        response.Item = items;
         response.AuthToken = authToken;
 
         return response;

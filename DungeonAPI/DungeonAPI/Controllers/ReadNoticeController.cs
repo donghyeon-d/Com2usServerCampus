@@ -10,9 +10,9 @@ namespace DungeonAPI.Controllers;
 public class ReadNoticeController : ControllerBase
 {
     readonly ILogger<ReadNoticeController> _logger;
-    readonly INoticeDb _notice;
+    readonly INoticeMemoryDb _notice;
 
-    public ReadNoticeController(ILogger<ReadNoticeController> logger, INoticeDb notice)
+    public ReadNoticeController(ILogger<ReadNoticeController> logger, INoticeMemoryDb notice)
     {
         _logger = logger;
         _notice = notice;

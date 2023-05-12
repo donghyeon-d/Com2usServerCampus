@@ -16,10 +16,10 @@ namespace DungeonAPI.Controllers;
 public class CreateNoticeController : ControllerBase
 {
     readonly ILogger<CreateNoticeController> _logger;
-    readonly INoticeDb _notice;
+    readonly INoticeMemoryDb _notice;
     readonly IOptions<AdminConfig> _admin;
 
-    public CreateNoticeController(ILogger<CreateNoticeController> logger, INoticeDb notice, IOptions<AdminConfig> admin)
+    public CreateNoticeController(ILogger<CreateNoticeController> logger, INoticeMemoryDb notice, IOptions<AdminConfig> admin)
 	{
         _logger = logger;
         _notice = notice;

@@ -2,6 +2,7 @@
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace DungeonAPI.Controllers;
 
@@ -11,12 +12,15 @@ public class SelecetStageController : ControllerBase
 {
     readonly ILogger<SelecetStageController> _logger;
     readonly ICompletedDungeonDb _dungeonStageDb;
+    readonly IMemoryDb _memoryDb;
 
     public SelecetStageController(ILogger<SelecetStageController> logger,
-        ICompletedDungeonDb dungeonStageDb)
+        ICompletedDungeonDb dungeonStageDb, IMemoryDb memoryDb)
     {
         _logger = logger;
         _dungeonStageDb = dungeonStageDb;
+        _memoryDb = memoryDb;
+
     }
 
 
@@ -34,15 +38,16 @@ public class SelecetStageController : ControllerBase
             return response;
         }
 
-        response.ItemList = InitItemList(request.StageCode);
-        response.NPCList = InitNPCList(request.StageCode);
-        if (response.ItemList is null || response.NPCList is null)
+        var changeUserStatusErrorCode
+            = await _memoryDb.ChangeUserStatus(request.Email, PlayerStatus.DungeonPlay, request.StageCode);
+        if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            response.ItemList = null;
-            response.NPCList = null;
-            response.Result = ErrorCode.InvalidStageCode;
+            response.Result = changeUserStatusErrorCode;
+            return response;
         }
 
+        response.ItemList = InitItemList(request.StageCode);
+        response.NPCList = InitNPCList(request.StageCode);
         return response;
     }
 
@@ -102,15 +107,11 @@ public class SelecetStageController : ControllerBase
         return true;
     }
 
-    List<StageItem>? InitItemList(Int32 stageCode)
+    List<FarmingItem> InitItemList(Int32 stageCode)
     {
-        List<StageItem>? list = new();
+        List<FarmingItem> list = new();
 
         var stageItemList = MasterDataDb.s_stageItem.FindAll(item => item.StageCode == stageCode);
-        if (stageItemList is null)
-        {
-            return null;
-        }
 
         foreach ( var item in stageItemList )
         {
@@ -123,15 +124,11 @@ public class SelecetStageController : ControllerBase
         return list;
     }
 
-    List<StageNPC>? InitNPCList(Int32 stageCode)
+    List<KillNPC> InitNPCList(Int32 stageCode)
     {
-        List<StageNPC>? list = new();
+        List<KillNPC> list = new();
 
         var stageNPCList = MasterDataDb.s_stageAttackNPC.FindAll(item => item.StageCode == stageCode);
-        if (stageNPCList is null)
-        {
-            return null;
-        }
 
         foreach (var NPC in stageNPCList)
         {
@@ -143,5 +140,17 @@ public class SelecetStageController : ControllerBase
         }
 
         return list;
+    }
+
+
+    async Task RollbackUserStatus(string email)
+    {
+        var changeUserStatusErrorCode
+            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+        if (changeUserStatusErrorCode != ErrorCode.None)
+        {
+            // TODO : Log
+        }
+
     }
 }

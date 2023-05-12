@@ -7,15 +7,15 @@ using CloudStructures.Structures;
 
 namespace DungeonAPI.Services;
 
-public class NoticeDb : INoticeDb
+public class NoticeMemeoryDb : INoticeMemoryDb
 {
     static string s_notificationKey { get; set; } = "noticekey";
     readonly RedisConnection _redisConn;
-    readonly ILogger<NoticeDb> _logger;
+    readonly ILogger<NoticeMemeoryDb> _logger;
     readonly IOptions<DbConfig> _dbConfig;
     readonly TimeSpan defaultExpiry = TimeSpan.FromDays(1); // TODO: Expiry setting
 
-    public NoticeDb(ILogger<NoticeDb> logger, IOptions<DbConfig> dbConfig)
+    public NoticeMemeoryDb(ILogger<NoticeMemeoryDb> logger, IOptions<DbConfig> dbConfig)
 	{
         _logger = logger;
         _dbConfig = dbConfig;

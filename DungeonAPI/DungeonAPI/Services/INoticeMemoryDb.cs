@@ -2,7 +2,7 @@
 using DungeonAPI.ModelDB;
 namespace DungeonAPI.Services;
 
-public interface INoticeDb
+public interface INoticeMemoryDb
 {
     // 후입 선출
 

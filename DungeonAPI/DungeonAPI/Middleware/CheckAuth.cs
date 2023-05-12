@@ -13,10 +13,10 @@ public class CheckAuth
 {
     readonly RequestDelegate _next;
     readonly ILogger<CheckAuth> _logger;
-    readonly IAuthUserDb _authUserDb;
+    readonly IMemoryDb _authUserDb;
 
     public CheckAuth(RequestDelegate next, ILogger<CheckAuth> logger,
-        IAuthUserDb authUserDb)
+        IMemoryDb authUserDb)
     {
         _next = next;
         _logger = logger;
@@ -65,7 +65,7 @@ public class CheckAuth
         }
     }
 
-    async Task<Tuple <bool, AuthUser>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
+    async Task<Tuple <bool, PlayerInfo>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
     {
         try
         {
@@ -76,15 +76,15 @@ public class CheckAuth
             if (LoadAuthUserErrorCode != ErrorCode.None)
             {
                 await SetResponseAuthFail(context, LoadAuthUserErrorCode);
-                return new Tuple<bool, AuthUser>(false, null);
+                return new Tuple<bool, PlayerInfo>(false, null);
             }
-            return new Tuple<bool, AuthUser>(true, authUser);
+            return new Tuple<bool, PlayerInfo>(true, authUser);
         }
         catch (Exception e)
         {
             // TODO : log
             await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
-            return new Tuple<bool, AuthUser>(false, null);
+            return new Tuple<bool, PlayerInfo>(false, null);
         }
 
     }
@@ -99,7 +99,7 @@ public class CheckAuth
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
     }
 
-    void PushAuthUserToContextItem(HttpContext context, AuthUser authUser)
+    void PushAuthUserToContextItem(HttpContext context, PlayerInfo authUser)
     {
         context.Items["PlayerId"] = authUser.PlayerId.ToString();
     }
