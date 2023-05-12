@@ -18,8 +18,8 @@ builder.Services.AddTransient<IMailRewardDb, MailRewardDb>();
 builder.Services.AddTransient<IMailDb, MailDb>();
 builder.Services.AddTransient<IInAppPurchaseDb, InAppPurchaseDb>();
 builder.Services.AddTransient<IAttendanceBookDb, AttendanceBookDb>();
-builder.Services.AddSingleton<INoticeDb, NoticeDb>();
-builder.Services.AddSingleton<IAuthUserDb, AuthUserDb>();
+builder.Services.AddSingleton<INoticeMemoryDb, NoticeMemeoryDb>();
+builder.Services.AddSingleton<IMemoryDb, MemoryDb>();
 
 builder.Services.AddControllers();
 

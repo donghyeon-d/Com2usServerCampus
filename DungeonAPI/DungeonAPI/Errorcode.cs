@@ -40,6 +40,23 @@ public enum ErrorCode : UInt16
     DeleteAccountFailException = 2023,
     LoadAccountEmailNotMatch = 2034,
     LoadAccountFailException = 2025,
+    AuthTockenCreateFail = 2026,
+
+    // MemoryDB 2100~
+
+    ChangUserStatusFail = 2100,
+    ChangUserStatusFailException = 2101,
+    ChangUserNotFound = 2102,
+    ChangUserSetStautsFail = 2103,
+    GetFarmingItemListNotExist = 2104,
+    GetFarmingItemListFailException = 2105,
+    GetKillNPCNotExist = 2106,
+    GetKillNPCFailException = 2107,
+    SetFarmingItemListFail = 2108,
+    SetFarmingItemListFailException = 2109,
+    SetKillNPCListFail = 2110,
+    SetKillNPCListFailException = 2111,
+
 
     // Character 3000 ~
     //CreateCharacterRollbackFail = 3001,
@@ -204,5 +221,10 @@ public enum ErrorCode : UInt16
     CompleteThemaListNotExist = 8006,
     ReadCompleteThemaListFailException = 8007,
     InvalidStageCode = 8008,
-    NotCompleteBeforeStage = 8009
+    NotCompleteBeforeStage = 8009,
+
+    // Stage Farming 8100~
+    InvalidPlayerStatusNotPlayStage = 8100,
+    InvalidFarmingItem = 8101,
+    InvalidStageNPC = 8101,
 }
