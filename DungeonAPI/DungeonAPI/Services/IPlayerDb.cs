@@ -18,6 +18,10 @@ public interface IPlayerDb
 
     public Task<Tuple<ErrorCode, Int32>> LoadPlayerIdByAccountIdAsync(Int32 accountId);
 
+    public Task<ErrorCode> AddMoney(Int32 playerId, Int32 amount);
+    public Task<ErrorCode> AddExp(Int32 playerId, Int32 amount);
+
+
     //public Task<Tuple<ErrorCode, Int32>> LoadPlayerIdByEmail(Int32 accountId);
 }
 

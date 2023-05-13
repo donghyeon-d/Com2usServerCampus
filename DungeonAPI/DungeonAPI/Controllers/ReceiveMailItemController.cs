@@ -76,8 +76,8 @@ public class ReceiveMailItemController : ControllerBase
             return ErrorCode.InvalidItemCode;
         }
 
-        var pushItemToListErrorCode = await _itemDb.PushItemToList(item);
-        if (pushItemToListErrorCode != ErrorCode.None)
+        var (pushItemToListErrorCode, itemId) = await _itemDb.AddItemToPlayerItemList(playerId, item);
+        if (pushItemToListErrorCode != ErrorCode.None || itemId < 1)
         {
             return pushItemToListErrorCode;
         }

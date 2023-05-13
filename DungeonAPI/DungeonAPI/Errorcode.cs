@@ -103,6 +103,9 @@ public enum ErrorCode : UInt16
     AddMoneyFailInvalidRange = 3010,
     AddMoneyFailUpdateFail = 3011,
     AddMoneyFailFailException = 3012,
+    AddExpNotFoundPlayer = 3013,
+    AddExpFailFailException = 3014,
+
 
     //GameDb 4000~ 
     GetGameDbConnectionFail = 4002,
@@ -226,5 +229,16 @@ public enum ErrorCode : UInt16
     // Stage Farming 8100~
     InvalidPlayerStatusNotPlayStage = 8100,
     InvalidFarmingItem = 8101,
-    InvalidStageNPC = 8101,
+    FarmingItemNotMatchStageItem = 8102,
+
+
+    // Stage KillNPC 8200 ~
+    InvalidStageNPC = 8200,
+
+    // Stage Complete 8300 ~
+    StageCompleteInvalidPlayerStatus = 8300,
+    PlayerDontKillAllNPC = 8301,
+    SaveStageRewardItemListFail = 8302,
+    SaveStageRewardMoneyFail = 8302,
+
 }

@@ -27,15 +27,10 @@ namespace DungeonAPI.Controllers
             string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
             Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
 
-            if (playerStatus != PlayerStatus.DungeonPlay.ToString())
+            var checkValidRequestErrorCode = CheckVaildRequest(playerStatus, playerStage, request.FarmingItem);
+            if (checkValidRequestErrorCode != ErrorCode.None)
             {
-                response.Result = ErrorCode.InvalidPlayerStatusNotPlayStage;
-                return response;
-            }
-
-            if (IsVaildFarmingItem(playerStage, request.FarmingItem) == false)
-            {
-                response.Result = ErrorCode.InvalidFarmingItem;
+                response.Result = checkValidRequestErrorCode;
                 return response;
             }
 
@@ -47,7 +42,8 @@ namespace DungeonAPI.Controllers
                 return response;
             }
 
-            itemList.Add(request.FarmingItem);
+            AddFarmingItemToList(itemList, request.FarmingItem);
+
             var setFarmingItemErrorCode = await _memoryDb.SetFarmingItemList(request.Email, itemList);
             if (setFarmingItemErrorCode == ErrorCode.None)
             {
@@ -56,6 +52,35 @@ namespace DungeonAPI.Controllers
             }
 
             return response;
+        }
+
+        void AddFarmingItemToList(List<FarmingItem> list, FarmingItem farmingItem)
+        {
+            int index = list.FindIndex(item => item.ItemCode == farmingItem.ItemCode);
+
+            if (index == -1)
+            {
+                list.Add(farmingItem);
+            }
+            else
+            {
+                list[index].Count++;
+            }
+        }
+
+        ErrorCode CheckVaildRequest(string playerStatus, Int32 playerStage, FarmingItem farmingItem)
+        {
+            if (playerStatus != PlayerStatus.DungeonPlay.ToString())
+            {
+                return ErrorCode.InvalidPlayerStatusNotPlayStage;
+            }
+
+            if (IsVaildFarmingItem(playerStage, farmingItem) == false)
+            {
+                return ErrorCode.InvalidFarmingItem;
+            }
+
+            return ErrorCode.None;
         }
 
         bool IsVaildFarmingItem(Int32 playerStage, FarmingItem farmingItem)

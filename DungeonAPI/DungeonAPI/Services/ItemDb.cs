@@ -79,24 +79,7 @@ public class ItemDb : GameDb, IItemDb
         return items;
     }
 
-    public async Task<ErrorCode> PushItemToList(Item item)
-    {
-        try
-        {
-            int itemId = await _queryFactory.Query("Item").InsertGetIdAsync<Int32>(item);
-            if (itemId < 1)
-            {
-                return ErrorCode.PushItemToListFail;
-            }
-            return ErrorCode.None;
-        }
-        catch (Exception e)
-        {
-            return ErrorCode.PushItemToListException;
-        }
-    }
-
-    public async Task<Tuple<ErrorCode, Int32>> AcquiredItem(Int32 playerId, Item item)
+    public async Task<Tuple<ErrorCode, Int32>> AddItemToPlayerItemList(Int32 playerId, Item item)
     {
         try
         {
@@ -149,14 +132,14 @@ public class ItemDb : GameDb, IItemDb
             var result = await _queryFactory.Query("Item").Where("PlayerId", playerId).GetAsync<Item>();
             if (result == null)
             {
-                return new Tuple<ErrorCode, Int32>(ErrorCode.AddStackItemGetFail, -1);
+                return new (ErrorCode.AddStackItemGetFail, -1);
             }
             var playerItems = result.ToList<Item>();
 
             var masterDataItem = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
             if (masterDataItem == null)
             {
-                return new Tuple<ErrorCode, Int32>(ErrorCode.NotFoundMasterDataItemAtAddStackItem, -1);
+                return new (ErrorCode.NotFoundMasterDataItemAtAddStackItem, -1);
             }
 
             var sameAtrributItems = playerItems.FindAll(i => i.ItemCode == item.ItemCode);
@@ -167,23 +150,23 @@ public class ItemDb : GameDb, IItemDb
                 var (AddStackItemErrorCode, newItemId) = await AddStackItemWithDivision(canAddedItem, item, masterDataItem);
                 if (AddStackItemErrorCode != ErrorCode.None)
                 {
-                    return new Tuple<ErrorCode, Int32>(AddStackItemErrorCode, -1);
+                    return new (AddStackItemErrorCode, -1);
                 }
-                return new Tuple<ErrorCode, Int32>(ErrorCode.None, newItemId);
+                return new (ErrorCode.None, newItemId);
             }
             else
             {
                 var (insertItemErrorCode, itemId) = await AddOneItem(item);
                 if (insertItemErrorCode != ErrorCode.None)
                 {
-                    return new Tuple<ErrorCode, Int32>(insertItemErrorCode, -1);
+                    return new (insertItemErrorCode, -1);
                 }
-                return new Tuple<ErrorCode, Int32>(ErrorCode.None, itemId);
+                return new (ErrorCode.None, itemId);
             }
         }
         catch (Exception e)
         {
-            return new Tuple<ErrorCode, Int32>(ErrorCode.AddStackItemFailException, -1);
+            return new (ErrorCode.AddStackItemFailException, -1);
         }
     }
 
@@ -198,17 +181,17 @@ public class ItemDb : GameDb, IItemDb
             var(insertItemErrorCode, itemId) = await AddOneItem(addItem);
             if (insertItemErrorCode != ErrorCode.None)
             {
-                return new Tuple<ErrorCode, Int32>(insertItemErrorCode, -1);
+                return new (insertItemErrorCode, -1);
             }
 
             ErrorCode UpdateErrorCode = await UpdateItemAsync(DbItem);
             if (UpdateErrorCode != ErrorCode.None)
             {
-                await DeleteItemByItemId(itemId);
-                return new Tuple<ErrorCode, Int32>(UpdateErrorCode, -1);
+                await DeleteItem(itemId);
+                return new (UpdateErrorCode, -1);
             }
 
-            return new Tuple<ErrorCode, Int32>(ErrorCode.None, itemId);
+            return new (ErrorCode.None, itemId);
         }
         else
         {
@@ -216,14 +199,14 @@ public class ItemDb : GameDb, IItemDb
             ErrorCode UpdateErrorCode = await UpdateItemAsync(DbItem);
             if (UpdateErrorCode != ErrorCode.None)
             {
-                return new Tuple<ErrorCode, Int32>(UpdateErrorCode, -1);
+                return new (UpdateErrorCode, -1);
             }
             
-            return new Tuple<ErrorCode, Int32>(ErrorCode.None, DbItem.ItemId); // TODO: WRONG RETURN
+            return new (ErrorCode.None, DbItem.ItemId); // TODO: WRONG RETURN
         }
     }
 
-bool IsEquipment(Item item)
+    bool IsEquipment(Item item)
     {
         var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
         if (itemKind == null)
@@ -264,19 +247,18 @@ bool IsEquipment(Item item)
         {
             var result = await _queryFactory.Query("Item").Where("PlayerId", playerId).GetAsync<Item>();
             List<Item> items = result.ToList();
-            return new Tuple<ErrorCode, List<Item>>(ErrorCode.None, items);
+            return new (ErrorCode.None, items);
         }
         catch (Exception e)
         {
             // TODO : log
             _logger.LogError(e.Message);
-            return new Tuple<ErrorCode, List<Item>>(ErrorCode.LoadAllItemsFailException, null);
+            return new (ErrorCode.LoadAllItemsFailException, null);
         }
     }
 
-    public async Task<ErrorCode> DeleteItemByItemId(Int32 itemId)
+    public async Task<ErrorCode> DeleteItem(Int32 itemId)
     {
-        Open();
         try
         {
             int count = await _queryFactory.Query("Item")
@@ -293,15 +275,10 @@ bool IsEquipment(Item item)
             // TODO : log
             return ErrorCode.DeleteItemFailException;
         }
-        finally
-        {
-            Dispose();
-        }
     }
 
     public async Task<ErrorCode> DeletePlayerAllItemsAsync(Int32 playerId)
     {
-        Open();
         try
         {
             int count = await _queryFactory.Query("Item")
@@ -318,15 +295,10 @@ bool IsEquipment(Item item)
             // TODO : log
             return ErrorCode.DeletePlayerAllItemsFailException;
         }
-        finally
-        {
-            Dispose();
-        }
     }
 
     public async Task<Tuple<ErrorCode, Item>> LoadItemByItemId(Int32 itemId)
     {
-        Open();
         try
         {
             var item = await _queryFactory.Query("Item")
@@ -334,24 +306,19 @@ bool IsEquipment(Item item)
                                             .FirstOrDefaultAsync<Item>();
             if (item is null)
             {
-                return new Tuple<ErrorCode, Item>(ErrorCode.LoadItemNotFound, null);
+                return new (ErrorCode.LoadItemNotFound, null);
             }
-            return new Tuple<ErrorCode, Item>(ErrorCode.None, item);
+            return new (ErrorCode.None, item);
         }
         catch (Exception e)
         {
             // TODO : log
-            return new Tuple<ErrorCode, Item>(ErrorCode.LoadItemFailException, null);
-        }
-        finally
-        {
-            Dispose();
+            return new (ErrorCode.LoadItemFailException, null);
         }
     }
 
     public async Task<ErrorCode> UpdateItemAsync(Item item)
     {
-        Open();
         try
         {
             int count = await _queryFactory.Query("Item")
@@ -367,10 +334,6 @@ bool IsEquipment(Item item)
         {
             // TODO : log
             return ErrorCode.UpdateItemFailException;
-        }
-        finally
-        {
-            Dispose();
         }
     }
 }

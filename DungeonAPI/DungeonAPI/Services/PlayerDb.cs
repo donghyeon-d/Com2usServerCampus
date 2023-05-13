@@ -35,13 +35,13 @@ public class PlayerDb : GameDb, IPlayerDb
                 Magic = 10
             });
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
-            return new (ErrorCode.None, characterId);
+            return new(ErrorCode.None, characterId);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.CreatePlayerFailException}");
-            return new (ErrorCode.CreatePlayerFailException, -1);
+            return new(ErrorCode.CreatePlayerFailException, -1);
         }
     }
 
@@ -56,16 +56,16 @@ public class PlayerDb : GameDb, IPlayerDb
             if (playerInfo is null)
             {
                 _logger.LogError($"Where: Player.LoadPlayerAsync, Status: {ErrorCode.PlayerNotExist}");
-                return new (ErrorCode.PlayerNotExist, null);
+                return new(ErrorCode.PlayerNotExist, null);
             }
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
-            return new (ErrorCode.PlayerNotExist, playerInfo);
+            return new(ErrorCode.PlayerNotExist, playerInfo);
         }
         catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.LoadPlayerFailException}");
-            return new (ErrorCode.CreatePlayerFailException, null);
+            return new(ErrorCode.CreatePlayerFailException, null);
         }
     }
 
@@ -81,52 +81,53 @@ public class PlayerDb : GameDb, IPlayerDb
             if (playerInfo is null)
             {
                 _logger.LogError($"Where: Player.LoadPlayerAsync, Status: {ErrorCode.PlayerNotExist}");
-                return new (ErrorCode.PlayerNotExist, null);
+                return new(ErrorCode.PlayerNotExist, null);
             }
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
-            return new (ErrorCode.None, playerInfo);
+            return new(ErrorCode.None, playerInfo);
         }
         catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.LoadPlayerFailException}");
-            return new (ErrorCode.LoadPlayerFailException, null);
+            return new(ErrorCode.LoadPlayerFailException, null);
         }
     }
-    public async Task<ErrorCode> AddMoney(Int32 playerId, Int32 money)
-    {
-        try
-        {
-            var hadMoney = await _queryFactory.Query("Player")
-                .Where("PlayerId", playerId)
-                .Select("Money")
-                .FirstOrDefaultAsync<Int32>();
-            if (hadMoney == 0)
-            {
-                return ErrorCode.AddMoneyNotFoundPlayer;
-            }
 
-            hadMoney += money;
-            if (hadMoney < 0)
-            {
-                return ErrorCode.AddMoneyFailInvalidRange;
-            }
+    //public async Task<ErrorCode> AddMoney(Int32 playerId, Int32 moneyAmount)
+    //{
+    //    try
+    //    {
+    //        var hadMoney = await _queryFactory.Query("Player")
+    //            .Where("PlayerId", playerId)
+    //            .Select("Money")
+    //            .FirstOrDefaultAsync<Int32>();
+    //        if (hadMoney == 0)
+    //        {
+    //            return ErrorCode.AddMoneyNotFoundPlayer;
+    //        }
 
-            var count = await _queryFactory.Query("Player")
-                                    .Where("PlayerId", playerId)
-                                    .UpdateAsync(new { Money = hadMoney });
-            if (count != 1)
-            {
-                return ErrorCode.AddMoneyFailUpdateFail;
-            }
+    //        hadMoney += money;
+    //        if (hadMoney < 0)
+    //        {
+    //            return ErrorCode.AddMoneyFailInvalidRange;
+    //        }
 
-            return ErrorCode.None;
-        }
-        catch(Exception e)
-        {
-            return ErrorCode.AddMoneyFailFailException;
-        }
-    }
+    //        var count = await _queryFactory.Query("Player")
+    //                                .Where("PlayerId", playerId)
+    //                                .UpdateAsync(new { Money = hadMoney });
+    //        if (count != 1)
+    //        {
+    //            return ErrorCode.AddMoneyFailUpdateFail;
+    //        }
+
+    //        return ErrorCode.None;
+    //    }
+    //    catch(Exception e)
+    //    {
+    //        return ErrorCode.AddMoneyFailFailException;
+    //    }
+    //}
 
     public async Task<ErrorCode> UpdatePlayerAsync(Player player)
     {
@@ -139,7 +140,7 @@ public class PlayerDb : GameDb, IPlayerDb
             // TODO : affected 리턴값 확인
             return ErrorCode.None;
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             _logger.LogError(e,
                 $"Where: Player.LoadPlayerAsync, Status: {ErrorCode.UpdatePlayerFailException}");
@@ -187,6 +188,48 @@ public class PlayerDb : GameDb, IPlayerDb
         catch (Exception e)
         {
             return new Tuple<ErrorCode, Int32>(ErrorCode.LoadPlayerFailException, -1);
+        }
+    }
+
+    public async Task<ErrorCode> AddMoney(Int32 playerId, Int32 amount)
+    {
+        try
+        {
+            var result = await _queryFactory.Query("Player")
+                    .Where("PlayerId", playerId)
+                    .IncrementAsync("Money", amount);
+            if (result != 1)
+            {
+                // TODO : log
+                return ErrorCode.AddMoneyNotFoundPlayer;
+            }
+
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.AddMoneyFailFailException;
+        }
+    }
+
+    public async Task<ErrorCode> AddExp(Int32 playerId, Int32 amount)
+    {
+        try
+        {
+            var result = await _queryFactory.Query("Player")
+                    .Where("PlayerId", playerId)
+                    .IncrementAsync("Exp", amount);
+            if (result != 1)
+            {
+                // TODO : log
+                return ErrorCode.AddExpNotFoundPlayer;
+            }
+
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.AddExpFailFailException;
         }
     }
 }

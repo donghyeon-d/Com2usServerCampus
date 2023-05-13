@@ -27,15 +27,10 @@ public class KillNPCController : ControllerBase
         string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
         Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
 
-        if (playerStatus != PlayerStatus.DungeonPlay.ToString())
+        var checkValidRequestErrorCode = CheckValidRequest(request, playerStatus, playerStage);
+        if (checkValidRequestErrorCode != ErrorCode.None)
         {
-            response.Result = ErrorCode.InvalidPlayerStatusNotPlayStage;
-            return response;
-        }
-
-        if (IsVaildStageNPC(playerStage, request.KilledNPCCode) == false)
-        {
-            response.Result = ErrorCode.InvalidStageNPC;
+            response.Result = checkValidRequestErrorCode;
             return response;
         }
 
@@ -47,12 +42,54 @@ public class KillNPCController : ControllerBase
             return response;
         }
 
-        NPCList.Add(request.KilledNPCCode); ///
+        AddKilledNPCToList(NPCList, request.KilledNPCCode);
+
         var setKillNPCErrorCode = await _memoryDb.SetKillNPCList(request.Email, NPCList);
         if (setKillNPCErrorCode == ErrorCode.None)
         {
             response.Result = setKillNPCErrorCode;
             return response;
+        }
+
+        return response;
+    }
+
+    ErrorCode CheckValidRequest(KillNPCReq request, string playerStatus, Int32 playerStage)
+    {
+        if (IsPlayerInDungeon(playerStatus) == false)
+        {
+            return ErrorCode.InvalidPlayerStatusNotPlayStage;
+            
+        }
+
+        if (IsVaildStageNPC(playerStage, request.KilledNPCCode) == false)
+        {
+            return ErrorCode.InvalidStageNPC;
+            
+        }
+
+        return ErrorCode.None;
+    }
+
+    bool IsPlayerInDungeon(string playerStatus)
+    {
+        if (playerStatus != PlayerStatus.DungeonPlay.ToString())
+        {
+            return false;
+        }
+        return true;
+    }
+
+    void AddKilledNPCToList(List<KillNPC> list, Int32 NPCCode)
+    {
+        int index = list.FindIndex(NPC => NPC.NPCCode == NPCCode);
+        if (index == -1)
+        {
+            list.Add(new() { NPCCode = NPCCode, Count = 1 });
+        }
+        else
+        {
+            list[index].Count++;
         }
     }
 
