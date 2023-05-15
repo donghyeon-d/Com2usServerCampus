@@ -64,15 +64,15 @@ CREATE TABLE IF NOT EXISTS MasterDataDB.InAppProduct
     ItemCount INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '인생 삼풍 정보 테이블 묶음상품';
 
-### MasterDataDB.Stage
+### MasterDataDB.DungeonStage
 USE MasterDataDB;
 
-DROP TABLE IF EXISTS MasterDataDB.Stage;
-CREATE TABLE IF NOT EXISTS MasterDataDB.Stage
+DROP TABLE IF EXISTS MasterDataDB.ClearStage;
+CREATE TABLE IF NOT EXISTS MasterDataDB.ClearStage
 (
     StageCode INT NOT NULL COMMENT '스테이지 번호',
     Thema VARCHAR(30) NOT NULL COMMENT '던전종류',
-    Step INT NOT NULL COMMENT '스테이지 단계'
+    Stage INT NOT NULL COMMENT '스테이지 단계'
 ) COMMENT '스테이지에서 드롭되는 아이템';
     
 
@@ -201,5 +201,8 @@ Email = {string AuthToken, int PlayerId, string Status}
 Notice : RedisList
 "noticekey" = [{string Title, string Content, dateTime Date}, {...}]
 
-Dungeon : RedisString
-PlayerId + "Dungeon" = {int Exp, [{itemCode, Count}, {ItemCode, Count}, ... ]}
+Dungeon KillNPC : RedisString
+PlayerId + "KillNPC" = {[{NPCCode, Count}, {NPCCode, Count}, ... ]}
+
+Dungeon FarmingItem : RedisString
+PlayerId + "FarmingItem" = {[{NPCCode, Count}, {NPCCode, Count}, ... ]}

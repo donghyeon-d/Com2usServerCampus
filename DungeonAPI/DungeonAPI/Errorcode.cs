@@ -46,7 +46,7 @@ public enum ErrorCode : UInt16
 
     ChangUserStatusFail = 2100,
     ChangUserStatusFailException = 2101,
-    ChangUserNotFound = 2102,
+    ChangeUserNotFound = 2102,
     ChangUserSetStautsFail = 2103,
     GetFarmingItemListNotExist = 2104,
     GetFarmingItemListFailException = 2105,
@@ -227,7 +227,7 @@ public enum ErrorCode : UInt16
     NotCompleteBeforeStage = 8009,
 
     // Stage Farming 8100~
-    InvalidPlayerStatusNotPlayStage = 8100,
+    InvalidPlayerStatusNotPlayDungeon = 8100,
     InvalidFarmingItem = 8101,
     FarmingItemNotMatchStageItem = 8102,
 

@@ -60,7 +60,7 @@ public class MemoryDb : IMemoryDb
             var redisValue = await redis.GetAsync();
             if (redisValue.HasValue == false)
             {
-                return ErrorCode.ChangUserNotFound;
+                return ErrorCode.ChangeUserNotFound;
             }
 
             PlayerInfo value = redisValue.Value;

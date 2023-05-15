@@ -18,4 +18,7 @@ public class StageCompleteReq
 
     [Required]
     public string MasterDataVersion { get; set; } = "";
+
+    [Required]
+    public Int32 Stage { get; set;}
 }

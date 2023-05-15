@@ -59,47 +59,47 @@ public class SelecetStageController : ControllerBase
             return ErrorCode.InvalidStageCode;
         }
 
-        var (readCompleteThemaListErrorCode, themaStepList)
+        var (readCompleteThemaListErrorCode, themaCompeteStageList)
               = await _dungeonStageDb.ReadCompleteThemaList(playerId, requestStageInfo.Thema);
         if (readCompleteThemaListErrorCode != ErrorCode.None)
         {
             return readCompleteThemaListErrorCode;
         }
 
-        if (themaStepList is null)
+        if (themaCompeteStageList is null)
         {
-            if (IsFirstStep(requestStageInfo))
+            if (IsFirstStage(requestStageInfo))
             {
                 return ErrorCode.None;
             }
             return ErrorCode.InvalidStageCode;
         }
 
-        if (IsClearBeforeStage(requestStageInfo, themaStepList))
+        if (IsCompeteBeforeStage(requestStageInfo, themaCompeteStageList))
         {
             return ErrorCode.None;
         }
         return ErrorCode.NotCompleteBeforeStage;
     }
 
-    bool IsFirstStep(MasterData.Stage stageInfo)
+    bool IsFirstStage(MasterData.DungeonStage stageInfo)
     {
-        if (stageInfo.Step == 1)
+        if (stageInfo.Stage == 1)
         {
             return true;
         }
         return false;
     }
 
-    bool IsClearBeforeStage(MasterData.Stage stageInfo, List<CompletedDungeon> themaStepList)
+    bool IsCompeteBeforeStage(MasterData.DungeonStage stageInfo, List<CompletedDungeon> themaCompleteStageList)
     {
-        if (stageInfo.Step == 1)
+        if (stageInfo.Stage == 1)
         {
             return true;
         }
 
-        var beforeStep = themaStepList.Find(step => step.Stage == stageInfo.Step - 1);
-        if (beforeStep is null)
+        var beforeStage = themaCompleteStageList.Find(Stage => Stage.Stage == stageInfo.Stage - 1);
+        if (beforeStage is null)
         {
             return false;
         }

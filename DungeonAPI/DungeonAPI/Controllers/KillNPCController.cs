@@ -31,6 +31,7 @@ public class KillNPCController : ControllerBase
         if (checkValidRequestErrorCode != ErrorCode.None)
         {
             response.Result = checkValidRequestErrorCode;
+            await SetExitDungeon(request.Email);
             return response;
         }
 
@@ -58,7 +59,7 @@ public class KillNPCController : ControllerBase
     {
         if (IsPlayerInDungeon(playerStatus) == false)
         {
-            return ErrorCode.InvalidPlayerStatusNotPlayStage;
+            return ErrorCode.InvalidPlayerStatusNotPlayDungeon;
             
         }
 
@@ -69,6 +70,16 @@ public class KillNPCController : ControllerBase
         }
 
         return ErrorCode.None;
+    }
+
+    async Task SetExitDungeon(string email)
+    {
+        var changeUserStatusErrorCode
+            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+        if (changeUserStatusErrorCode != ErrorCode.None)
+        {
+            // TODO: Rollback Error
+        }
     }
 
     bool IsPlayerInDungeon(string playerStatus)

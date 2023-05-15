@@ -23,7 +23,7 @@ public class MasterDataDb : IMasterDataDb
     public static List<MasterData.ItemAttribute> s_itemAttribute { get; set; }
     public static List<AttendanceReward> s_attendanceReward { get; set; }
     public static List<InAppProduct> s_inAppProduct { get; set; }
-    public static List<Stage> s_stage { get; set; }
+    public static List<DungeonStage> s_stage { get; set; }
     public static List<StageItem> s_stageItem { get; set; }
     public static List<StageAttackNPC> s_stageAttackNPC { get; set; }
 
@@ -57,7 +57,7 @@ public class MasterDataDb : IMasterDataDb
             s_attendanceReward = attendanceReward.ToList();
             var inAppProduct = await _queryFactory.Query("InAppProduct").GetAsync<MasterData.InAppProduct>();
             s_inAppProduct = inAppProduct.ToList();
-            var stage = await _queryFactory.Query("Stage").GetAsync<MasterData.Stage>();
+            var stage = await _queryFactory.Query("Stage").GetAsync<MasterData.DungeonStage>();
             s_stage = stage.ToList();
             var stageItem = await _queryFactory.Query("StageItem").GetAsync<MasterData.StageItem>();
             s_stageItem = stageItem.ToList();

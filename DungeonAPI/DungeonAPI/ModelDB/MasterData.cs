@@ -47,11 +47,11 @@ public class MasterData
         public Int32 ItemCount { get; set; }
     }
 
-    public class Stage
+    public class DungeonStage
     {
         public Int32 StageCode { get; set; }
         public String Thema { get; set; } = "";
-        public Int32 Step { get; set; }
+        public Int32 Stage { get; set; }
     }
 
     public class StageItem

@@ -30,8 +30,9 @@ public class StageCompleteController : ControllerBase
         string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
         Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
 
-        if (IsValidRequest(playerStatus, playerStage) == false)
+        if (IsValidRequest(playerStatus, playerStage, request.Stage) == false)
         {
+            await SetExitDungeon(request.Email);
             return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
         }
 
@@ -66,19 +67,34 @@ public class StageCompleteController : ControllerBase
         return new StageCompleteRes() { Result = ErrorCode.None, RewardList = farmingItemList };
         }
 
-    bool IsValidRequest(string playerStatus, Int32 playerStage)
+    bool IsValidRequest(string playerStatus, Int32 playerCurrentStage, Int32 requestStage)
     {
         if (playerStatus == PlayerStatus.DungeonPlay.ToString())
         {
             return true;
         }
 
-        if (MasterDataDb.s_stage.Find(stage => stage.StageCode == playerStage) == null)
+        if (playerCurrentStage != requestStage)
+        {
+            return false;
+        }
+
+        if (MasterDataDb.s_stage.Find(stage => stage.StageCode == playerCurrentStage) == null)
         { 
             return false;
         }
 
         return false;
+    }
+
+    async Task SetExitDungeon(string email)
+    {
+        var changeUserStatusErrorCode
+            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+        if (changeUserStatusErrorCode != ErrorCode.None)
+        {
+            // TODO: Rollback Error
+        }
     }
 
     async Task<Tuple<ErrorCode, List<KillNPC>?>> CheckKillAllNPC(Int32 playerStage, string email)
