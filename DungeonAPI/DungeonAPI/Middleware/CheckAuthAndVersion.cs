@@ -11,16 +11,14 @@ namespace DungeonAPI.Middleware;
 public class CheckAuthAndVersion
 {
     readonly RequestDelegate _next;
-    readonly IMasterDataDb _masterData;
     readonly ILogger<CheckVersion> _logger;
     readonly IOptions<AppConfig> _appConfig;
     readonly IMemoryDb _authUserDb;
 
-    public CheckAuthAndVersion(RequestDelegate next, IMasterDataDb masterData,
+    public CheckAuthAndVersion(RequestDelegate next, 
         ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig, IMemoryDb authUserDb)
     {
         _next = next;
-        _masterData = masterData;
         _logger = logger;
         _appConfig = appConfig;
         _authUserDb = authUserDb;
@@ -30,22 +28,24 @@ public class CheckAuthAndVersion
     {
         var formString = context.Request.Path.Value;
 
-        context.Request.EnableBuffering();
+        if (string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) == 0
+            || string.Compare(formString, "/CreateNotice", StringComparison.OrdinalIgnoreCase) == 0
+            || string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            await _next(context);
 
-        if (string.Compare(formString, "/CreateAccount", StringComparison.OrdinalIgnoreCase) != 0)
-        {
-            await CheckVersion(context);
+            return;
         }
-        if (string.Compare(formString, "/Login", StringComparison.OrdinalIgnoreCase) != 0
-            && string.Compare(formString, "/CreateNotice", StringComparison.OrdinalIgnoreCase) != 0)
+
+        if (await CheckVersion(context) == false || await CheckAuth(context) == false)
         {
-            await CheckAuth(context);
+            return;
         }
 
         await _next(context);
     }
 
-    async Task CheckAuth(HttpContext context)
+    async Task<bool> CheckAuth(HttpContext context)
     {
         context.Request.EnableBuffering();
 
@@ -58,19 +58,19 @@ public class CheckAuthAndVersion
             try
             {
                 var (isValid, authUser) = await IsValidPlayerThenLoadAuthPlayer(context, document);
-                if (isValid)
+                if (isValid && authUser is not null)
                 {
                     PushAuthUserToContextItem(context, authUser);
                     PushPlayerStatusToContextItem(context, authUser);
                     PushPlayerStageToContextItem(context, authUser);
-                    context.Request.Body.Position = 0;
-                    await _next(context);
+                    return true;
                 }
-                return;
+                return false;
             }
             catch (Exception e)
             {
                 await SetResponseAuthFail(context, ErrorCode.AuthTokenFailException);
+                return false;
             }
             finally
             {
@@ -79,7 +79,7 @@ public class CheckAuthAndVersion
         }
     }
 
-    async Task<Tuple<bool, PlayerInfo>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
+    async Task<Tuple<bool, PlayerInfo?>> IsValidPlayerThenLoadAuthPlayer(HttpContext context, JsonDocument document)
     {
         try
         {
@@ -90,15 +90,15 @@ public class CheckAuthAndVersion
             if (LoadAuthUserErrorCode != ErrorCode.None)
             {
                 await SetResponseAuthFail(context, LoadAuthUserErrorCode);
-                return new Tuple<bool, PlayerInfo>(false, null);
+                return new (false, null);
             }
-            return new Tuple<bool, PlayerInfo>(true, authUser);
+            return new (true, authUser);
         }
         catch (Exception e)
         {
             // TODO : log
             await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
-            return new Tuple<bool, PlayerInfo>(false, null);
+            return new (false, null);
         }
 
     }
@@ -127,7 +127,7 @@ public class CheckAuthAndVersion
         context.Items["PlayerStage"] = authUser.StageCode.ToString();
     }
 
-    async Task CheckVersion(HttpContext context)
+    async Task<bool> CheckVersion(HttpContext context)
     {
         context.Request.EnableBuffering();
 
@@ -139,25 +139,23 @@ public class CheckAuthAndVersion
                 if (string.IsNullOrEmpty(bodyStr) == true)
                 {
                     // TODO: check - empty body 이면 아무것도 안함. 나중에 확인하기?
-                    return;
+                    return false;
                 }
 
                 var document = JsonDocument.Parse(bodyStr);
 
-                if (await IsValidAppVersion(context, document))
+                if (await IsValidAppVersion(context, document) == true &&
+                    await IsValidMasterDataVersion(context, document) == true)
                 {
-                    if (await IsValidMasterDataVersion(context, document))
-                    {
-                        context.Request.Body.Position = 0;
-                        await _next(context);
-                    }
+                    return true;
                 }
+                return false;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 await SetResponseEmptyRequestBody(context);
-                return;
+                return false;
             }
             finally
             {
@@ -200,6 +198,7 @@ public class CheckAuthAndVersion
     {
         try
         {
+            var a = MasterDataDb.s_meta;
             var version = document.RootElement.GetProperty("MasterDataVersion").GetString();
             if (version != MasterDataDb.s_meta.Last().Version.ToString()) // TODO : check
             {

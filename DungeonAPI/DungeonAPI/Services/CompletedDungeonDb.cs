@@ -86,7 +86,7 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
                                             .GetAsync<CompletedDungeon>();
             if (result is null)
             {
-                return new(ErrorCode.CompleteThemaListNotExist, null);
+                return new(ErrorCode.ReadCompleteThemaListFail, null);
             }
             return new(ErrorCode.None, result.ToList());
         }

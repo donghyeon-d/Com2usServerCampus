@@ -32,7 +32,7 @@ public class StageCompleteController : ControllerBase
         string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
         Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
 
-        if (IsValidRequest(playerStatus, playerStage, request.Stage) == false)
+        if (IsValidRequest(playerStatus, playerStage, request.StageCode) == false)
         {
             await SetExitDungeon(request.Email);
             return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
@@ -92,7 +92,7 @@ public class StageCompleteController : ControllerBase
         }
 
         var (totalFarmingItemListErrorCode, totalFarmingList) = await TotalFarmingItemList(email);
-        if (totalFarmingItemListErrorCode == ErrorCode.None || totalFarmingList is null)
+        if (totalFarmingItemListErrorCode != ErrorCode.None && totalFarmingItemListErrorCode != ErrorCode.GetFarmingItemListNotExist)
         {
             return new(totalFarmingItemListErrorCode, null);
         }
@@ -146,8 +146,13 @@ public class StageCompleteController : ControllerBase
         return await _memoryDb.GetFarmingItemList(email);
     }
 
-    async Task<Tuple<ErrorCode, List<int>?>> SaveItemToInventory(Int32 playerId, List<FarmingItem> farmingList)
+    async Task<Tuple<ErrorCode, List<int>?>> SaveItemToInventory(Int32 playerId, List<FarmingItem>? farmingList)
     {
+        if (farmingList is null)
+        {
+            return new(ErrorCode.None, new List<int>());
+        }
+
         var ItemList = MakeItemList(playerId, farmingList);
 
         List<int> itemIdList = new();
@@ -192,36 +197,61 @@ public class StageCompleteController : ControllerBase
         }
     }
 
-    async Task<ErrorCode> SaveMoneyAndExpToPlayerData(Int32 playerId, int totalExp, List<FarmingItem> totalFarmingList)
+    async Task<ErrorCode> SaveMoneyAndExpToPlayerData(Int32 playerId, int totalExp, List<FarmingItem>? totalFarmingList)
     {
-        FarmingItem money = totalFarmingList.Find(item => Util.ItemAttribute.IsGold(item.ItemCode));
-
-        var addMoneyErrorCode =  await _playerDb.AddMoney(playerId, money.Count);
-        if (addMoneyErrorCode != ErrorCode.None)
+        var (saveMoneyErrorCode, moneyCount) = await SaveMoney(playerId, totalFarmingList);
+        if (saveMoneyErrorCode != ErrorCode.None)
         {
-            return addMoneyErrorCode;
+            return saveMoneyErrorCode;
         }
 
         var addExpErrorCode = await _playerDb.AddExp(playerId, totalExp);
         if(addExpErrorCode != ErrorCode.None)
         {
-            await RollbackAddMoney(playerId, money.Count);
+            await RollbackAddMoney(playerId, moneyCount);
             return addExpErrorCode;
         }
 
         return ErrorCode.None;
     }
 
+    async Task<Tuple<ErrorCode, int>> SaveMoney(Int32 playerId, List<FarmingItem>? totalFarmingList)
+    {
+        if (totalFarmingList is null)
+        {
+            return new(ErrorCode.None, 0);
+        }
+
+        FarmingItem? money = totalFarmingList.Find(item => Util.ItemAttribute.IsGold(item.ItemCode));
+        if (money is null)
+        {
+            return new(ErrorCode.None, 0);
+        }
+
+        var addMoneyErrorCode = await _playerDb.AddMoney(playerId, money.Count);
+        if (addMoneyErrorCode != ErrorCode.None)
+        {
+            return new(addMoneyErrorCode, 0);
+        }
+
+        return new(ErrorCode.None, money.Count);
+    }
+
     async Task RollbackAddMoney(Int32 playerId, int amount)
     {
+        if (amount == 0)
+        {
+            return;
+        }
+
         await _playerDb.AddMoney(playerId, amount * -1);
     }
 
     bool IsValidRequest(string playerStatus, Int32 playerCurrentStage, Int32 requestStage)
     {
-        if (playerStatus == PlayerStatus.DungeonPlay.ToString())
+        if (playerStatus != PlayerStatus.DungeonPlay.ToString())
         {
-            return true;
+            return false;
         }
 
         if (playerCurrentStage != requestStage)
@@ -234,7 +264,7 @@ public class StageCompleteController : ControllerBase
             return false;
         }
 
-        return false;
+        return true;
     }
 
     async Task SetExitDungeon(string email)

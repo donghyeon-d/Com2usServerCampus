@@ -24,7 +24,6 @@ public class SelecetStageController : ControllerBase
 
     }
 
-
     [HttpPost]
     public async Task<SelecetStageRes> SelectStage(SelecetStageReq request)
     {
@@ -62,18 +61,18 @@ public class SelecetStageController : ControllerBase
 
         var (readCompleteThemaListErrorCode, themaCompeteStageList)
               = await _dungeonStageDb.ReadCompleteThemaList(playerId, requestStageInfo.Thema);
-        if (readCompleteThemaListErrorCode != ErrorCode.None)
+        if (readCompleteThemaListErrorCode != ErrorCode.None || themaCompeteStageList is null)
         {
             return readCompleteThemaListErrorCode;
         }
 
-        if (themaCompeteStageList is null)
+        if (themaCompeteStageList.Count == 0)
         {
             if (IsFirstStage(requestStageInfo))
             {
                 return ErrorCode.None;
             }
-            return ErrorCode.InvalidStageCode;
+            return ErrorCode.NeedToCompleteBeforeStage;
         }
 
         if (IsCompeteBeforeStage(requestStageInfo, themaCompeteStageList))

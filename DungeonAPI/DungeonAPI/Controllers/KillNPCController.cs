@@ -37,23 +37,39 @@ public class KillNPCController : ControllerBase
         }
 
         var (getKillNPCErrorCode, NPCList)
-            = await _memoryDb.GetKillNPCList(request.Email);
+            = await GetKillNPCList(request.Email);
         if (getKillNPCErrorCode != ErrorCode.None || NPCList is null)
         {
             response.Result = getKillNPCErrorCode;
             return response;
         }
 
-        AddKilledNPCToList(NPCList, request.KilledNPCCode);
-
-        var setKillNPCErrorCode = await _memoryDb.SetKillNPCList(request.Email, NPCList);
-        if (setKillNPCErrorCode == ErrorCode.None)
+        var addKillNPCToListErrorCode = await AddKilledNPCToList(request.Email, NPCList, request.KilledNPCCode);
+        if (addKillNPCToListErrorCode != ErrorCode.None)
         {
-            response.Result = setKillNPCErrorCode;
+            response.Result = addKillNPCToListErrorCode;
+            await SetExitDungeon(request.Email);
             return response;
         }
 
         return response;
+    }
+
+    async Task<Tuple<ErrorCode, List<KillNPC>?>>GetKillNPCList(string email)
+    {
+        var (getKillNPCErrorCode, NPCList) = await _memoryDb.GetKillNPCList(email);
+        if (getKillNPCErrorCode == ErrorCode.GetKillNPCNotExist)
+        {
+            return new(ErrorCode.None, new List<KillNPC>());
+        }
+
+        if (getKillNPCErrorCode != ErrorCode.None || NPCList is null)
+        {
+            return new(getKillNPCErrorCode, null);
+        }
+
+
+        return new(ErrorCode.None, NPCList);
     }
 
     ErrorCode CheckValidRequest(KillNPCReq request, string playerStatus, Int32 playerStage)
@@ -67,20 +83,9 @@ public class KillNPCController : ControllerBase
         if (IsVaildStageNPC(playerStage, request.KilledNPCCode) == false)
         {
             return ErrorCode.InvalidStageNPC;
-            
         }
 
         return ErrorCode.None;
-    }
-
-    async Task SetExitDungeon(string email)
-    {
-        var changeUserStatusErrorCode
-            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
-        if (changeUserStatusErrorCode != ErrorCode.None)
-        {
-            // TODO: Rollback Error
-        }
     }
 
     bool IsPlayerInDungeon(string playerStatus)
@@ -92,19 +97,6 @@ public class KillNPCController : ControllerBase
         return true;
     }
 
-    void AddKilledNPCToList(List<KillNPC> list, Int32 NPCCode)
-    {
-        int index = list.FindIndex(NPC => NPC.NPCCode == NPCCode);
-        if (index == -1)
-        {
-            list.Add(new() { NPCCode = NPCCode, Count = 1 });
-        }
-        else
-        {
-            list[index].Count++;
-        }
-    }
-
     bool IsVaildStageNPC(Int32 playerStage, Int32 killedNPCCode)
     {
         var stageNPCs = MasterDataDb.s_stageAttackNPC.FindAll(item => item.StageCode == playerStage);
@@ -113,15 +105,82 @@ public class KillNPCController : ControllerBase
             return false;
         }
 
-        foreach ( var stageNPC in stageNPCs)
+        foreach (var stageNPC in stageNPCs)
         {
             if (stageNPC.NPCCode == killedNPCCode)
-            { 
-                return true; 
+            {
+                return true;
             }
         }
         return false;
     }
 
+    async Task<ErrorCode> AddKilledNPCToList(string email, List<KillNPC> NPCList, Int32 NPCCode)
+    {
+        var NPCToListErrorCode = NPCToList(NPCList, NPCCode);
+        if (NPCToListErrorCode != ErrorCode.None)
+        {
+            return NPCToListErrorCode;
+        }
 
+        var setKillNPCErrorCode = await _memoryDb.SetKillNPCList(email, NPCList);
+        if (setKillNPCErrorCode != ErrorCode.None)
+        {
+            return setKillNPCErrorCode;
+        }
+
+        return ErrorCode.None;
+    }
+
+    ErrorCode NPCToList(List<KillNPC> NPCList, Int32 NPCCode)
+    {
+        int index = NPCList.FindIndex(NPC => NPC.NPCCode == NPCCode);
+        if (index == -1)
+        {
+            NPCList.Add(new() { NPCCode = NPCCode, Count = 1 });
+        }
+        else
+        {
+            if (CanAddNPCToKillList(NPCList[index], NPCCode) == false)
+            {
+                return ErrorCode.TooMuchKillNPC;
+            }
+            else
+            {
+                NPCList[index].Count++;
+            }
+        }
+        return ErrorCode.None;
+    }
+
+    bool CanAddNPCToKillList(KillNPC NPC, Int32 NPCCode)
+    {
+        if (NPC.Count == MaxNPCKillCount(NPCCode))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    int MaxNPCKillCount(Int32 NPCCode)
+    {
+        var baseNPC = MasterDataDb.s_stageAttackNPC.Find(npc => npc.NPCCode == NPCCode);
+        return baseNPC.NPCCount;
+    }
+
+    async Task SetExitDungeon(string email)
+    {
+        var changeUserStatusErrorCode
+            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+        if (changeUserStatusErrorCode != ErrorCode.None)
+        {
+            // TODO: Rollback Error
+        }
+
+        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+        if (deleteDungeonInfoErrorCode != ErrorCode.None)
+        {
+            // TODO : Rollback Error
+        }
+    }
 }

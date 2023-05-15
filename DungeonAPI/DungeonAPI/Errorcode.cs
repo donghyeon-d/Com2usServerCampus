@@ -228,10 +228,11 @@ public enum ErrorCode : UInt16
     DeleteCompletedDungeonFailException = 8003,
     CompleteListNotExist = 8004,
     ReadCompleteListFailException = 8005,
-    CompleteThemaListNotExist = 8006,
+    ReadCompleteThemaListFail = 8006,
     ReadCompleteThemaListFailException = 8007,
     InvalidStageCode = 8008,
     NotCompleteBeforeStage = 8009,
+    NeedToCompleteBeforeStage = 8010,
 
     // Stage Farming 8100~
     InvalidPlayerStatusNotPlayDungeon = 8100,
@@ -241,7 +242,7 @@ public enum ErrorCode : UInt16
 
     // Stage KillNPC 8200 ~
     InvalidStageNPC = 8200,
-
+    TooMuchKillNPC = 8201,
 
 
     // Stage Complete 8300 ~

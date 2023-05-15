@@ -12,7 +12,7 @@ public interface IMemoryDb
     public Task<Tuple<ErrorCode, List<KillNPC>?>> GetKillNPCList(string email);
     public Task<ErrorCode> SetFarmingItemList(string email,  List<FarmingItem> items);
     public Task<ErrorCode> SetKillNPCList(string email, List<KillNPC> NPCs);
-    public async Task<ErrorCode> DeleteDungeonInfo(string email);
+    public Task<ErrorCode> DeleteDungeonInfo(string email);
 
 }
 

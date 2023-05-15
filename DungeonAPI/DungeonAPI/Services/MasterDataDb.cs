@@ -49,7 +49,7 @@ public class MasterDataDb : IMasterDataDb
         {
             var meta = await _queryFactory.Query("Meta").GetAsync<MasterData.Meta>();
             s_meta = meta.ToList();
-            var item = await _queryFactory.Query("Item").GetAsync<MasterData.BaseItem>();
+            var item = await _queryFactory.Query("BaseItem").GetAsync<MasterData.BaseItem>();
             s_baseItem = item.ToList();
             var itemAttribute = await _queryFactory.Query("ItemAttribute").GetAsync<MasterData.ItemAttribute>();
             s_itemAttribute = itemAttribute.ToList();
@@ -57,7 +57,7 @@ public class MasterDataDb : IMasterDataDb
             s_attendanceReward = attendanceReward.ToList();
             var inAppProduct = await _queryFactory.Query("InAppProduct").GetAsync<MasterData.InAppProduct>();
             s_inAppProduct = inAppProduct.ToList();
-            var stage = await _queryFactory.Query("Stage").GetAsync<MasterData.DungeonStage>();
+            var stage = await _queryFactory.Query("DungeonStage").GetAsync<MasterData.DungeonStage>();
             s_stage = stage.ToList();
             var stageItem = await _queryFactory.Query("StageItem").GetAsync<MasterData.StageItem>();
             s_stageItem = stageItem.ToList();

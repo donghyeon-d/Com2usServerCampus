@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS MasterDataDB.InAppProduct
 ### MasterDataDB.DungeonStage
 USE MasterDataDB;
 
-DROP TABLE IF EXISTS MasterDataDB.ClearStage;
-CREATE TABLE IF NOT EXISTS MasterDataDB.ClearStage
+DROP TABLE IF EXISTS MasterDataDB.DungeonStage;
+CREATE TABLE IF NOT EXISTS MasterDataDB.DungeonStage
 (
     StageCode INT NOT NULL COMMENT '스테이지 번호',
     Thema VARCHAR(30) NOT NULL COMMENT '던전종류',
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS GameDB.Item
     Defence BIGINT NOT NULL COMMENT '방어력',
     Magic BIGINT NOT NULL COMMENT '마법력',
     EnhanceLevel INT NOT NULL COMMENT '강화 레벨',
-    RemainingEnhanceCount TINYINT NOT NULL COMMENT '남은 강화 횟수',
+    EnhanceTryCount TINYINT NOT NULL COMMENT '남은 강화 횟수',
     IsDestructed BOOL NOT NULL COMMENT '파괴 유무',
     IsDeleted BOOL NOT NULL COMMENT '삭제 유무'
 ) COMMENT '아이템 데이터';

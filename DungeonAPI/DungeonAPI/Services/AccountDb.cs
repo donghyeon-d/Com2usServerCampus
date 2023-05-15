@@ -73,10 +73,6 @@ public class AccountDb : IAccountDb
                 $"Where: AccountDb.CreateAccount, Status: Error, ErrorCode: {ErrorCode.CreateAccountFailException}, Email: {email}");
             return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailException, -1);
         }
-        finally
-        {
-            Dispose();
-        }
     }
 
     public async Task<Tuple<ErrorCode, Int32>> VerifyAccountAsync(String email, String pw)
@@ -109,15 +105,10 @@ public class AccountDb : IAccountDb
                 $"Where: AccountDb.VerifyAccount, Status: Error, ErrorCode: {ErrorCode.LoginFailException}, Email: {email}");
             return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailException, 0);
         }
-        finally
-        {
-            Dispose();
-        }
     }
 
     public async Task<ErrorCode> DeleteAccountAsync(String email)
     {
-        Open();
         try
         {
             int count = await _queryFactory.Query("Account")
@@ -134,15 +125,10 @@ public class AccountDb : IAccountDb
             // TODO : log
             return ErrorCode.DeleteAccountFailException;
         }
-        finally
-        {
-            Dispose();
-        }
     }
 
     public async Task<Tuple<ErrorCode, Int32>> LoadAccountIdByEmail(String email)
     {
-        Open();
         try
         {
             var account = await _queryFactory.Query("Account")
@@ -158,10 +144,6 @@ public class AccountDb : IAccountDb
         {
             // TODO : log
             return new Tuple<ErrorCode, Int32>(ErrorCode.LoadAccountFailException, -1);
-        }
-        finally
-        {
-            Dispose();
         }
     }
 

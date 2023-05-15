@@ -4,6 +4,7 @@ using SqlKata.Execution;
 using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
 using DungeonAPI.ModelsDB;
+using static Humanizer.In;
 
 namespace DungeonAPI.Services;
 
@@ -32,7 +33,8 @@ public class PlayerDb : GameDb, IPlayerDb
                 Mp = 100,
                 Attack = 10,
                 Defence = 10,
-                Magic = 10
+                Magic = 10,
+                Money = 0
             });
             _logger.LogDebug($"Where: Player.LoadPlayerAsync, Status: Complete");
             return new(ErrorCode.None, characterId);

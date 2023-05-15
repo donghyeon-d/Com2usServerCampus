@@ -83,7 +83,7 @@ public class ItemDb : GameDb, IItemDb
     {
         try
         {
-            if (IsEquipment(item))
+            if (Util.ItemAttribute.IsEquipment(item.ItemCode))
             {
                 var (addOneItemErrorCode, itemId) = await AddOneItem(item);
                 if (addOneItemErrorCode != ErrorCode.None)
