@@ -206,41 +206,6 @@ public class ItemDb : GameDb, IItemDb
         }
     }
 
-    bool IsEquipment(Item item)
-    {
-        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
-        if (itemKind == null)
-        {
-            return false;
-        }
-
-        if (itemKind.Attribute == 1 || itemKind.Attribute == 2 || itemKind.Attribute == 3)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    bool IsGold(Item item)
-    {
-        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
-        if (itemKind.Attribute == 5)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    bool IsComsumableItem(Item item)
-    {
-        var itemKind = MasterDataDb.s_baseItem.Find(i => i.Code == item.ItemCode);
-        if (itemKind.Attribute == 4)
-        {
-            return true;
-        }
-        return false;
-    }
-
     public async Task<Tuple<ErrorCode, List<Item>>> LoadPlayerItemListAsync(Int32 playerId)
     {
         try
@@ -264,6 +229,7 @@ public class ItemDb : GameDb, IItemDb
             int count = await _queryFactory.Query("Item")
                                             .Where("ItemId", itemId)
                                             .DeleteAsync();
+
             if (count != 1)
             {
                 return ErrorCode.DeleteItemFail;

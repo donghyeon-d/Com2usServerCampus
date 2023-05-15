@@ -56,6 +56,10 @@ public enum ErrorCode : UInt16
     SetFarmingItemListFailException = 2109,
     SetKillNPCListFail = 2110,
     SetKillNPCListFailException = 2111,
+    DeleteKillNPCListFail = 2112,
+    DeleteKillNPCListFailException = 2113,
+    DeleteFarmingItemListFail = 2114,
+    DeleteFarmingItemListFailException = 2115,
 
 
     // Character 3000 ~
@@ -105,6 +109,9 @@ public enum ErrorCode : UInt16
     AddMoneyFailFailException = 3012,
     AddExpNotFoundPlayer = 3013,
     AddExpFailFailException = 3014,
+    IncreamentFactorFail = 3015,
+    IncreamentFactorFailException = 3016,
+
 
 
     //GameDb 4000~ 
@@ -234,6 +241,8 @@ public enum ErrorCode : UInt16
 
     // Stage KillNPC 8200 ~
     InvalidStageNPC = 8200,
+
+
 
     // Stage Complete 8300 ~
     StageCompleteInvalidPlayerStatus = 8300,

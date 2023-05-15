@@ -1,4 +1,5 @@
-﻿using DungeonAPI.ModelDB;
+﻿using DungeonAPI.Enum;
+using DungeonAPI.ModelDB;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;

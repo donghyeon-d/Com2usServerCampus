@@ -3,6 +3,7 @@ using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using DungeonAPI.Enum;
 
 namespace DungeonAPI.Controllers;
 

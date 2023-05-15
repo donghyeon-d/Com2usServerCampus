@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Options;
-using SqlKata.Execution;
 using System.Data;
+using SqlKata.Execution;
 using MySqlConnector;
 using DungeonAPI.Configs;
 

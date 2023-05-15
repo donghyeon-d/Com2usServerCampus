@@ -1,7 +1,10 @@
 ﻿using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
+using DungeonAPI.Util;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Emit;
+using DungeonAPI.Enum;
 
 namespace DungeonAPI.Controllers
 {
@@ -109,9 +112,21 @@ namespace DungeonAPI.Controllers
         // 보상 받을 때 아이템 db에 넣을때 정리 한번 해줘야 함
         void AddFarmingItemToList(List<FarmingItem> list, FarmingItem farmingItem)
         {
-            int index = list.FindIndex(item => item.ItemCode == farmingItem.ItemCode);
+            if (Util.ItemAttribute.IsEquipment(farmingItem.ItemCode))
+            {
+                list.Add(farmingItem);
+                return;
+            }
 
-            list.Add(farmingItem);
+            int index = list.FindIndex(item => item.ItemCode == farmingItem.ItemCode);
+            if (index == -1)
+            {
+                list.Add(farmingItem);
+            }
+            else
+            {
+                list[index].Count++;
+            }
         }
     }
 }

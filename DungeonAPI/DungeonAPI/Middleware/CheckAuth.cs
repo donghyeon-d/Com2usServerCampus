@@ -71,7 +71,7 @@ public class CheckAuth
         {
             var email = document.RootElement.GetProperty("Email").GetString();
             var authToken = document.RootElement.GetProperty("AuthToken").GetString();
-            var (LoadAuthUserErrorCode, authUser) = await _authUserDb.LoadAuthUserByEmail(email);
+            var (LoadAuthUserErrorCode, authUser) = await _authUserDb.LoadAuthUser(email);
 
             if (LoadAuthUserErrorCode != ErrorCode.None)
             {

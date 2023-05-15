@@ -1,4 +1,5 @@
 ﻿using System;
+using DungeonAPI.Enum;
 using DungeonAPI.ModelDB;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;

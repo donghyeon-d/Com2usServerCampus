@@ -1,7 +1,9 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
 using DungeonAPI.Configs;
+using DungeonAPI.Enum;
 using DungeonAPI.ModelDB;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
 
 namespace DungeonAPI.Services;
@@ -100,7 +102,7 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadAuthUserByEmail(string email)
+    public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadAuthUser(string email)
     {
         var key = email;
 
@@ -201,6 +203,63 @@ public class MemoryDb : IMemoryDb
         catch (Exception e)
         {
             return ErrorCode.SetFarmingItemListFailException;
+        }
+    }
+
+    public async Task<ErrorCode> DeleteDungeonInfo(string email)
+    {
+        var deleteKillNPCErrorCode = await DeleteKillNPCList(email);
+        if (deleteKillNPCErrorCode != ErrorCode.None)
+        {
+            // TODO : delete fail error
+            return deleteKillNPCErrorCode;
+        }
+
+        var deleteFarmingItemErrorCode = await DeleteFarmingItemList(email);
+        if (deleteFarmingItemErrorCode != ErrorCode.None)
+        {
+            // TODO : delete fail error
+            return deleteFarmingItemErrorCode;
+        }
+
+        return ErrorCode.None;
+    }
+
+    async Task<ErrorCode> DeleteKillNPCList(string email)
+    {
+        var key = email + "KillNPC";
+
+        try
+        {
+            var redis = new RedisString<List<KillNPC>>(_redisConn, key, _dungeonExpiry);
+            if (await redis.DeleteAsync() == false)
+            {
+                return ErrorCode.DeleteKillNPCListFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.DeleteKillNPCListFailException;
+        }
+    }
+
+    async Task<ErrorCode> DeleteFarmingItemList(string email)
+    {
+        var key = email + "FarmingItem";
+
+        try
+        {
+            var redis = new RedisString<List<FarmingItem>>(_redisConn, key, _dungeonExpiry);
+            if (await redis.DeleteAsync() == false)
+            {
+                return ErrorCode.DeleteFarmingItemListFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.DeleteFarmingItemListFailException;
         }
     }
 }

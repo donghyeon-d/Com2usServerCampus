@@ -14,7 +14,6 @@ builder.Services.AddTransient<IAccountDb, AccountDb>();
 builder.Services.AddTransient<IPlayerDb, PlayerDb>();
 builder.Services.AddTransient<IItemDb, ItemDb>();
 builder.Services.AddTransient<IMailContentDb, MailContentDb>();
-builder.Services.AddTransient<IMailRewardDb, MailRewardDb>();
 builder.Services.AddTransient<IMailDb, MailDb>();
 builder.Services.AddTransient<IInAppPurchaseDb, InAppPurchaseDb>();
 builder.Services.AddTransient<IAttendanceBookDb, AttendanceBookDb>();
