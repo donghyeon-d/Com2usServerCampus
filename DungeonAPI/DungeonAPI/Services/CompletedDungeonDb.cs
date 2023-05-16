@@ -15,7 +15,7 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
         _logger = logger;
     }
 
-    public async Task<ErrorCode> AddCompletedDungeon(Int32 playerId, String thema, Int32 step)
+    public async Task<ErrorCode> AddCompletedDungeon(Int32 playerId, String thema, Int32 stage)
     {
         try
         {
@@ -23,7 +23,7 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
                               .InsertAsync(new { 
                                   PlayerId = playerId, 
                                   Thema = thema,
-                                  Step = step });
+                                  Stage = stage });
             if (result != 1)
             {
                 return ErrorCode.AddCompletedDungeonFail;
@@ -36,14 +36,14 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
         }
     }
 
-    public async Task<ErrorCode> DeleteWhenFail(Int32 playerId, String thema, Int32 step)
+    public async Task<ErrorCode> DeleteWhenFail(Int32 playerId, String thema, Int32 stage)
     {
         try
         {
             int result = await _queryFactory.Query("CompletedDungeon")
                                             .Where("PlayerId", playerId)
                                             .Where("Thema", thema)
-                                            .Where("Step", step)
+                                            .Where("Stage", stage)
                                             .DeleteAsync();
             if (result != 1)
             {
