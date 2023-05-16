@@ -11,12 +11,12 @@ namespace DungeonAPI.Middleware;
 public class CheckAuthAndVersion
 {
     readonly RequestDelegate _next;
-    readonly ILogger<CheckVersion> _logger;
+    readonly ILogger<CheckAuthAndVersion> _logger;
     readonly IOptions<AppConfig> _appConfig;
     readonly IMemoryDb _authUserDb;
 
     public CheckAuthAndVersion(RequestDelegate next, 
-        ILogger<CheckVersion> logger, IOptions<AppConfig> appConfig, IMemoryDb authUserDb)
+        ILogger<CheckAuthAndVersion> logger, IOptions<AppConfig> appConfig, IMemoryDb authUserDb)
     {
         _next = next;
         _logger = logger;
@@ -57,12 +57,10 @@ public class CheckAuthAndVersion
 
             try
             {
-                var (isValid, authUser) = await IsValidPlayerThenLoadAuthPlayer(context, document);
-                if (isValid && authUser is not null)
+                var (isValid, playerInfo) = await IsValidPlayerThenLoadAuthPlayer(context, document);
+                if (isValid && playerInfo is not null)
                 {
-                    PushAuthUserToContextItem(context, authUser);
-                    PushPlayerStatusToContextItem(context, authUser);
-                    PushPlayerStageToContextItem(context, authUser);
+                    PushPlayerInfoToContextItem(context, playerInfo);
                     return true;
                 }
                 return false;
@@ -113,18 +111,9 @@ public class CheckAuthAndVersion
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
     }
 
-    void PushAuthUserToContextItem(HttpContext context, PlayerInfo authUser)
+    void PushPlayerInfoToContextItem(HttpContext context, PlayerInfo playerInfo)
     {
-        context.Items["PlayerId"] = authUser.PlayerId.ToString();
-    }
-
-    void PushPlayerStatusToContextItem(HttpContext context, PlayerInfo authUser)
-    {
-        context.Items["PlayerStatus"] = authUser.Status.ToString();
-    }
-    void PushPlayerStageToContextItem(HttpContext context, PlayerInfo authUser)
-    {
-        context.Items["PlayerStage"] = authUser.StageCode.ToString();
+        context.Items["PlayerInfo"] = playerInfo;
     }
 
     async Task<bool> CheckVersion(HttpContext context)

@@ -30,23 +30,21 @@ public class StageCompleteController : ControllerBase
     [HttpPost]
     public async Task<StageCompleteRes> StageCompleteThenApplyResult(StageCompleteReq request)
     {
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
-        string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
-        Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        if (IsValidRequest(playerStatus, playerStage, request.StageCode) == false)
+        if (IsValidRequest(player.Status, player.currentStage, request.StageCode) == false)
         {
             await SetExitDungeon(request.Email);
             return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
         }
 
-        var saveCompletedDungeon = await SaveCompletedDungeonToList(playerId, playerStage);
+        var saveCompletedDungeon = await SaveCompletedDungeonToList(player.Id, player.currentStage);
         if (saveCompletedDungeon != ErrorCode.None)
         {
             return new StageCompleteRes() { Result = saveCompletedDungeon };
         }
 
-        var (saveReward, farmingItemList) = await SaveReward(request.Email, playerId, playerStage);
+        var (saveReward, farmingItemList) = await SaveReward(request.Email, player.Id, player.currentStage);
         if (saveReward != ErrorCode.None)
         {
             return new StageCompleteRes() { Result = saveReward };

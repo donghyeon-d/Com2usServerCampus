@@ -23,20 +23,20 @@ public class StageListController : ControllerBase
     [HttpPost]
     public async Task<StageListRes> ReadCompletedDungeonList()
     {
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
         StageListRes response = new();
 
         var (readCompleteListErrorCode, completedStageList)
-                = await _completedDungeonDb.ReadCompleteList(playerId);
-        if ( readCompleteListErrorCode != ErrorCode.None || completedStageList is null)
+                = await _completedDungeonDb.ReadCompleteList(player.Id);
+        if (readCompleteListErrorCode != ErrorCode.None || completedStageList is null)
         {
             response.Result = readCompleteListErrorCode;
             return response;
         }
 
         response.StageCodeList = InitStageList(completedStageList);
-        
+
         return response;
     }
 

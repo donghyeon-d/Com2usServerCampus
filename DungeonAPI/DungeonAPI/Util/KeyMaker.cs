@@ -12,8 +12,13 @@ public class KeyMaker
         return email + "Farming";
     }
 
-    public static string MakePlayerInfo(string email)
+    public static string MakePlayerInfoKey(string email)
     {
         return email;
+    }
+
+    public static string MakeInDungeonKey(string email)
+    {
+        return email + "Dungeon";
     }
 }

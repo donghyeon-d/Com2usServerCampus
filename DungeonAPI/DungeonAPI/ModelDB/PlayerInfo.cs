@@ -3,7 +3,7 @@
 public class PlayerInfo
 {
     public String AuthToken { get; set; } = "";
-    public Int32 PlayerId { get; set; } = 0;
+    public Int32 Id { get; set; } = 0;
     public String Status { get; set; } = "";
-    public Int32 StageCode { get; set; } = 0;
+    public Int32 currentStage { get; set; } = 0;
 }

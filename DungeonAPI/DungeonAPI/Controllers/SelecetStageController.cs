@@ -21,27 +21,31 @@ public class SelecetStageController : ControllerBase
         _logger = logger;
         _dungeonStageDb = dungeonStageDb;
         _memoryDb = memoryDb;
-
     }
 
     [HttpPost]
     public async Task<SelecetStageRes> SelectStage(SelecetStageReq request)
     {
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
-        string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
-        Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
         SelecetStageRes response = new();
 
-        var checkCanEnterStage = await CheckCanEnterStage(playerId, request.StageCode);
+        var checkCanEnterStage = await CheckCanEnterStage(player.Id, request.StageCode);
         if (checkCanEnterStage != ErrorCode.None)
         {
             response.Result = checkCanEnterStage;
             return response;
         }
 
+        var initDungeonInfoErrorCode = await MemorizeDungeonInfo(request.Email, request.StageCode);
+        if (initDungeonInfoErrorCode != ErrorCode.None)
+        {
+            response.Result = initDungeonInfoErrorCode;
+            return response;
+        }
+
         var changeUserStatusErrorCode
-            = await _memoryDb.ChangeUserStatus(request.Email, PlayerStatus.DungeonPlay, request.StageCode);
+            = await ChangeUserStatus(request.Email, player, request.StageCode);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
             response.Result = changeUserStatusErrorCode;
@@ -52,6 +56,7 @@ public class SelecetStageController : ControllerBase
         response.NPCList = InitNPCList(request.StageCode);
         return response;
     }
+
 
     async Task<ErrorCode> CheckCanEnterStage(Int32 playerId, Int32 stageCode)
     {
@@ -100,13 +105,52 @@ public class SelecetStageController : ControllerBase
             return true;
         }
 
-        var beforeStage = themaCompleteStageList.Find(Stage => Stage.Stage == stageInfo.Stage - 1);
+        var beforeStage = themaCompleteStageList.Find(Stage => Stage.StageCode == stageInfo.Stage - 1);
         if (beforeStage is null)
         {
             return false;
         }
 
         return true;
+    }
+
+    async Task<ErrorCode> MemorizeDungeonInfo(string email, Int32 stageCode)
+    {
+        InDungeon dungeonInfo = InitDungeonInfo(stageCode);
+
+        var setDungeonInfoErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
+        if (setDungeonInfoErrorCode != ErrorCode.None)
+        {
+            return setDungeonInfoErrorCode;
+        }
+
+        return ErrorCode.None;
+    }
+
+    InDungeon InitDungeonInfo(Int32 stageCode)
+    {
+        InDungeon dungeonInfo = new()
+        {
+            KillNPCList = InitNPCList(stageCode),
+            ItemList = InitItemList(stageCode)
+        };
+
+        return dungeonInfo;
+    }
+
+    async Task<ErrorCode> ChangeUserStatus(string email, PlayerInfo player, Int32 stageCode)
+    {
+        player.Status = PlayerStatus.DungeonPlay.ToString();
+        player.currentStage = stageCode;
+
+        var changeUserStatusErrorCode
+            = await _memoryDb.UpdateUserStatus(email, player);
+        if (changeUserStatusErrorCode != ErrorCode.None)
+        {
+            return changeUserStatusErrorCode;
+        }
+
+        return ErrorCode.None;
     }
 
     List<FarmingItem> InitItemList(Int32 stageCode)
@@ -119,7 +163,7 @@ public class SelecetStageController : ControllerBase
         {
             list.Add( new() { 
                 ItemCode = item.ItemCode, 
-                Count = item.Count 
+                Max = item.Count 
             });
         }
 
@@ -137,22 +181,10 @@ public class SelecetStageController : ControllerBase
             list.Add(new()
             {
                 NPCCode = NPC.NPCCode,
-                Count = NPC.NPCCount
+                Max = NPC.NPCCount
             });
         }
 
         return list;
-    }
-
-
-    async Task RollbackUserStatus(string email)
-    {
-        var changeUserStatusErrorCode
-            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
-        if (changeUserStatusErrorCode != ErrorCode.None)
-        {
-            // TODO : Log
-        }
-
     }
 }

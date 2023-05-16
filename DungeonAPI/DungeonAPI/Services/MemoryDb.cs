@@ -17,7 +17,7 @@ public class MemoryDb : IMemoryDb
     TimeSpan _dungeonExpiry = TimeSpan.FromMinutes(5);
 
     public MemoryDb(ILogger<MemoryDb> logger, IOptions<DbConfig> dbConfig)
-	{
+    {
         _logger = logger;
         _dbConfig = dbConfig;
         var redisAddress = _dbConfig.Value.Redis;
@@ -30,7 +30,7 @@ public class MemoryDb : IMemoryDb
     public async Task<ErrorCode> CreatePlayerInfo(string email, string authToken, Int32 playerId)
     {
 
-        var key = KeyMaker.MakePlayerInfo(email);
+        var key = KeyMaker.MakePlayerInfoKey(email);
         // TODO: Expiry setting
         try
         {
@@ -54,7 +54,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> ChangeUserStatus(string email, PlayerStatus status, Int32 stageCode = 0)
     {
-        var key = KeyMaker.MakePlayerInfo(email);
+        var key = KeyMaker.MakePlayerInfoKey(email);
 
         try
         {
@@ -83,7 +83,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> UpdateUserStatus(string email, PlayerInfo value)
     {
-        var key = KeyMaker.MakePlayerInfo(email);
+        var key = KeyMaker.MakePlayerInfoKey(email);
 
         try
         {
@@ -103,7 +103,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> DeleteAuthUserAsync(string email)
     {
-        var key = KeyMaker.MakePlayerInfo(email);
+        var key = KeyMaker.MakePlayerInfoKey(email);
 
         try
         {
@@ -123,7 +123,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadAuthUser(string email)
     {
-        var key = KeyMaker.MakePlayerInfo(email);
+        var key = KeyMaker.MakePlayerInfoKey(email);
 
         try
         {
@@ -131,15 +131,15 @@ public class MemoryDb : IMemoryDb
             var result = await redis.GetAsync();
             if (result.HasValue == false)
             {
-                return new (ErrorCode.AuthTokenNotFound, null);
+                return new(ErrorCode.AuthTokenNotFound, null);
             }
-            return new (ErrorCode.None, result.Value);
+            return new(ErrorCode.None, result.Value);
 
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message); //TODO:
-            return new (ErrorCode.AuthTokenFailException, null);
+            return new(ErrorCode.AuthTokenFailException, null);
         }
     }
 
@@ -279,6 +279,45 @@ public class MemoryDb : IMemoryDb
         catch (Exception e)
         {
             return ErrorCode.DeleteFarmingItemListFailException;
+        }
+    }
+
+    public async Task<Tuple<ErrorCode, InDungeon>?> GetDungeonInfo(string email)
+    {
+        var key = KeyMaker.MakeInDungeonKey(email);
+
+        try
+        {
+            var redis = new RedisString<InDungeon>(_redisConn, key, _defaultExpiry);
+            var dungeonInfo = await redis.GetAsync();
+            if (dungeonInfo.HasValue == false)
+            {
+                return new(ErrorCode.GetDungeonInfoFailNotExist, null);
+            }
+            return new(ErrorCode.None, dungeonInfo.Value);
+        }
+        catch (Exception e)
+        {
+            return new(ErrorCode.GetDungeonInfoFailException, null);
+        }
+    }
+
+    public async Task<ErrorCode> SetDungeonInfo(string email, InDungeon dungeonInfo)
+    {
+        var key = KeyMaker.MakeInDungeonKey(email);
+
+        try
+        {
+            var redis = new RedisString<InDungeon>(_redisConn, key, _defaultExpiry);
+            if (await redis.SetAsync(dungeonInfo) == false)
+            {
+                return ErrorCode.SetDungeonInfoFailNotExist;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.SetDungeonInfoFailException;
         }
     }
 }

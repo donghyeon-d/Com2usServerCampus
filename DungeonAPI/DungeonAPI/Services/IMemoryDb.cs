@@ -15,5 +15,7 @@ public interface IMemoryDb
     public Task<ErrorCode> SetKillNPCList(string email, List<KillNPC> NPCs);
     public Task<ErrorCode> DeleteDungeonInfo(string email);
 
+    public Task<ErrorCode> SetDungeonInfo(string email, InDungeon dungeonInfo);
+
 }
 

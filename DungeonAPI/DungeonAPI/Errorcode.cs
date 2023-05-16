@@ -61,6 +61,11 @@ public enum ErrorCode : UInt16
     DeleteKillNPCListFailException = 2113,
     DeleteFarmingItemListNotExist = 2114,
     DeleteFarmingItemListFailException = 2115,
+    GetDungeonInfoFailNotExist = 2116,
+    GetDungeonInfoFailException = 2117,
+    SetDungeonInfoFailNotExist = 2118,
+    SetDungeonInfoFailException = 2119,
+
 
 
     // Character 3000 ~
