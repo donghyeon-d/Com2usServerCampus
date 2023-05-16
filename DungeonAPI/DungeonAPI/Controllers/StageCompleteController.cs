@@ -15,14 +15,16 @@ public class StageCompleteController : ControllerBase
     readonly IMemoryDb _memoryDb;
     readonly IItemDb _itemDb;
     readonly IPlayerDb _playerDb;
+    readonly ICompletedDungeonDb _completedDungeonDb;
 
     public StageCompleteController(ILogger<StageCompleteController> logger,
-    IMemoryDb memoryDb, IItemDb itemDb, IPlayerDb playerDb)
+    IMemoryDb memoryDb, IItemDb itemDb, IPlayerDb playerDb, ICompletedDungeonDb completedDungeonDb)
     {
         _logger = logger;
         _memoryDb = memoryDb;
         _itemDb = itemDb;
         _playerDb = playerDb;
+        _completedDungeonDb = completedDungeonDb;
     }
 
     [HttpPost]
@@ -36,6 +38,12 @@ public class StageCompleteController : ControllerBase
         {
             await SetExitDungeon(request.Email);
             return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
+        }
+
+        var saveCompletedDungeon = await SaveCompletedDungeonToList(playerId, playerStage);
+        if (saveCompletedDungeon != ErrorCode.None)
+        {
+            return new StageCompleteRes() { Result = saveCompletedDungeon };
         }
 
         var (saveReward, farmingItemList) = await SaveReward(request.Email, playerId, playerStage);
@@ -52,6 +60,33 @@ public class StageCompleteController : ControllerBase
         }
 
         return new StageCompleteRes() { Result = ErrorCode.None, RewardList = farmingItemList };
+    }
+
+     async Task<ErrorCode> SaveCompletedDungeonToList(Int32 playerId, Int32 playerStage)
+    {
+        var (thema, stage) = FindStageInfo(playerStage);
+        if (stage == -1)
+        {
+            return ErrorCode.InvalidStageCode;
+        }
+
+        var addCompletedDungeonErrorCoed =  await _completedDungeonDb.AddCompletedDungeon(playerId, thema, stage);
+        if (addCompletedDungeonErrorCoed != ErrorCode.None)
+        {
+            return addCompletedDungeonErrorCoed;
+        }
+
+        return ErrorCode.None;
+    }
+
+    Tuple<String, Int32> FindStageInfo(Int32 playerStage)
+    {
+        var stageInfo = MasterDataDb.s_stage.Find(stage => stage.StageCode == playerStage);
+        if (stageInfo == null)
+        {
+            return new("", -1);
+        }
+        return new(stageInfo.Thema, stageInfo.Stage);
     }
 
     async Task<ErrorCode> ChangePlayerStatusToLogin(string email)
