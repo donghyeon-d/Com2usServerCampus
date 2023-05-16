@@ -3,7 +3,7 @@ using CloudStructures.Structures;
 using DungeonAPI.Configs;
 using DungeonAPI.Enum;
 using DungeonAPI.ModelDB;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using DungeonAPI.Util;
 using Microsoft.Extensions.Options;
 
 namespace DungeonAPI.Services;
@@ -27,17 +27,17 @@ public class MemoryDb : IMemoryDb
         // TODO: log
     }
 
-    public async Task<ErrorCode> CreateAuthUserAsync(string email, string authToken, Int32 playerId)
+    public async Task<ErrorCode> CreatePlayerInfo(string email, string authToken, Int32 playerId)
     {
 
-        var key = email;
+        var key = KeyMaker.MakePlayerInfo(email);
         // TODO: Expiry setting
         try
         {
             var redis = new RedisString<PlayerInfo>(_redisConn, key, _defaultExpiry);
             PlayerInfo value = new() {
                 AuthToken = authToken,
-                PlayerId = playerId,
+                Id = playerId,
                 Status = PlayerStatus.LogIn.ToString() };
 
             if (await redis.SetAsync(value) == false)
@@ -54,7 +54,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> ChangeUserStatus(string email, PlayerStatus status, Int32 stageCode = 0)
     {
-        var key = email;
+        var key = KeyMaker.MakePlayerInfo(email);
 
         try
         {
@@ -67,8 +67,27 @@ public class MemoryDb : IMemoryDb
 
             PlayerInfo value = redisValue.Value;
             value.Status = status.ToString();
-            value.StageCode = stageCode;
+            value.currentStage = stageCode;
 
+            if (await redis.SetAsync(value) == false)
+            {
+                return ErrorCode.ChangUserSetStautsFail;
+            }
+            return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            return ErrorCode.ChangUserStatusFailException;
+        }
+    }
+
+    public async Task<ErrorCode> UpdateUserStatus(string email, PlayerInfo value)
+    {
+        var key = KeyMaker.MakePlayerInfo(email);
+
+        try
+        {
+            var redis = new RedisString<PlayerInfo>(_redisConn, key, _defaultExpiry);
             if (await redis.SetAsync(value) == false)
             {
                 return ErrorCode.ChangUserSetStautsFail;
@@ -84,8 +103,8 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> DeleteAuthUserAsync(string email)
     {
-        var key = email;
-        
+        var key = KeyMaker.MakePlayerInfo(email);
+
         try
         {
             var redis = new RedisString<PlayerInfo>(_redisConn, key, _defaultExpiry);
@@ -104,7 +123,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadAuthUser(string email)
     {
-        var key = email;
+        var key = KeyMaker.MakePlayerInfo(email);
 
         try
         {
@@ -126,7 +145,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<Tuple<ErrorCode, List<FarmingItem>?>> GetFarmingItemList(string email)
     {
-        var key = email + "FarmingItem";
+        var key = KeyMaker.MakeFarmingItemKey(email);
 
         try
         {
@@ -148,7 +167,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<Tuple<ErrorCode, List<KillNPC>?>> GetKillNPCList(string email)
     {
-        var key = email + "KillNPC";
+        var key = KeyMaker.MakeKillNPCKey(email);
 
         try
         {
@@ -170,7 +189,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> SetFarmingItemList(string email, List<FarmingItem> itemList)
     {
-        var key = email + "FarmingItem";
+        var key = KeyMaker.MakeFarmingItemKey(email);
 
         try
         {
@@ -189,7 +208,7 @@ public class MemoryDb : IMemoryDb
 
     public async Task<ErrorCode> SetKillNPCList(string email, List<KillNPC> NPCList)
     {
-        var key = email + "KillNPC";
+        var key = KeyMaker.MakeKillNPCKey(email);
 
         try
         {
@@ -227,7 +246,7 @@ public class MemoryDb : IMemoryDb
 
     async Task<ErrorCode> DeleteKillNPCList(string email)
     {
-        var key = email + "KillNPC";
+        var key = KeyMaker.MakeKillNPCKey(email);
 
         try
         {
@@ -246,7 +265,7 @@ public class MemoryDb : IMemoryDb
 
     async Task<ErrorCode> DeleteFarmingItemList(string email)
     {
-        var key = email + "FarmingItem";
+        var key = KeyMaker.MakeFarmingItemKey(email);
 
         try
         {
