@@ -28,6 +28,8 @@ public class SelecetStageController : ControllerBase
     public async Task<SelecetStageRes> SelectStage(SelecetStageReq request)
     {
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
+        Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
 
         SelecetStageRes response = new();
 

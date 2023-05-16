@@ -1,6 +1,9 @@
 ﻿using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using DungeonAPI.RequestResponse;
+using DungeonAPI.ModelDB;
+using System.Collections.Generic;
+
 namespace DungeonAPI.Controllers;
 
 [ApiController]
@@ -24,16 +27,27 @@ public class StageListController : ControllerBase
 
         StageListRes response = new();
 
-        var (readCompleteListErrorCode, currentStage)
+        var (readCompleteListErrorCode, completedStageList)
                 = await _completedDungeonDb.ReadCompleteList(playerId);
-        if ( readCompleteListErrorCode != ErrorCode.None)
+        if ( readCompleteListErrorCode != ErrorCode.None || completedStageList is null)
         {
             response.Result = readCompleteListErrorCode;
             return response;
         }
 
-        response.CompleteList = currentStage;
+        response.StageCodeList = InitStageList(completedStageList);
         
         return response;
+    }
+
+    List<Int32> InitStageList(List<CompletedDungeon> completedStageList)
+    {
+        List<Int32> stageCodeList = new();
+        foreach (var completedDungeon in completedStageList)
+        {
+            stageCodeList.Add(completedDungeon.StageCode);
+        }
+
+        return stageCodeList;
     }
 }

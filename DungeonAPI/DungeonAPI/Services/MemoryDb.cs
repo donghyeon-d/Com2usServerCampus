@@ -234,7 +234,7 @@ public class MemoryDb : IMemoryDb
             var redis = new RedisString<List<KillNPC>>(_redisConn, key, _dungeonExpiry);
             if (await redis.DeleteAsync() == false)
             {
-                return ErrorCode.DeleteKillNPCListFail;
+                return ErrorCode.DeleteKillNPCListFailNotExist;
             }
             return ErrorCode.None;
         }
@@ -253,7 +253,7 @@ public class MemoryDb : IMemoryDb
             var redis = new RedisString<List<FarmingItem>>(_redisConn, key, _dungeonExpiry);
             if (await redis.DeleteAsync() == false)
             {
-                return ErrorCode.DeleteFarmingItemListFail;
+                return ErrorCode.DeleteFarmingItemListNotExist;
             }
             return ErrorCode.None;
         }

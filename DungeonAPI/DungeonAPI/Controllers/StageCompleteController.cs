@@ -98,7 +98,8 @@ public class StageCompleteController : ControllerBase
         }
 
         var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
-        if (deleteDungeonInfoErrorCode != ErrorCode.None)
+        if (deleteDungeonInfoErrorCode != ErrorCode.None
+            && deleteDungeonInfoErrorCode != ErrorCode.DeleteFarmingItemListNotExist)
         {
             return deleteDungeonInfoErrorCode;
         }
@@ -324,9 +325,6 @@ public class StageCompleteController : ControllerBase
             }
         }
     }
-
-
-
 }
 
 

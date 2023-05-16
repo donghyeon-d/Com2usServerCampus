@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SqlKata.Execution;
+using System;
 
 // 1000 ~ 19999
 public enum ErrorCode : UInt16
@@ -56,9 +57,9 @@ public enum ErrorCode : UInt16
     SetFarmingItemListFailException = 2109,
     SetKillNPCListFail = 2110,
     SetKillNPCListFailException = 2111,
-    DeleteKillNPCListFail = 2112,
+    DeleteKillNPCListFailNotExist = 2112,
     DeleteKillNPCListFailException = 2113,
-    DeleteFarmingItemListFail = 2114,
+    DeleteFarmingItemListNotExist = 2114,
     DeleteFarmingItemListFailException = 2115,
 
 
@@ -250,5 +251,19 @@ public enum ErrorCode : UInt16
     PlayerDontKillAllNPC = 8301,
     SaveStageRewardItemListFail = 8302,
     SaveStageRewardMoneyFail = 8302,
-
 }
+
+
+//var notExist = _queryFactory.Query("CompletedDungeon")
+//                            .WhereNotExists(q => q.From("CompletedDungeon")
+//                                                   .Where("PlayerId", playerId)
+//                                                   .Where("Thema", thema)
+//                                                   .Where("Stage", stage)
+//                                                   .FromRaw("(Values (?, ?, ?)) AS t (PlayerId, Thema, Stage)", playerId, thema, stage)
+//                                                   .Select("t.PlayerId", "t.Thema", "t.Stage"));
+//var insert = _queryFactory.Query("CompletedDungeon")
+//    .AsInsert(new[] { "PlayerId", "Thema", "Stage" }, notExist);
+
+
+
+//var result = await _queryFactory.ExecuteAsync(insert);

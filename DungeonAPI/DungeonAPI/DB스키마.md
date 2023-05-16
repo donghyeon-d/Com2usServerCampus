@@ -189,8 +189,8 @@ CREATE TABLE IF NOT EXISTS GameDB.InAppPurchase
 CREATE TABLE IF NOT EXISTS GameDB.CompletedDungeon
 (
     PlayerId INT NOT NULL COMMENT '유저 고유번호',
-    Thema INT NOT NULL COMMENT '던전 종류',
-    Stage INT NOT NULL COMMENT '단계'
+    StageCode INT NOT NULL COMMENT '스테이지 고유번호',
+    PRIMARY KEY(PlayerId, StageCode)
 ) COMMENT '완료한 던전';
 
 
