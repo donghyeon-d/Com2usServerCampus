@@ -29,7 +29,7 @@ public class StageListController : ControllerBase
 
         var (readCompleteListErrorCode, completedStageList)
                 = await _completedDungeonDb.ReadCompleteList(player.Id);
-        if (readCompleteListErrorCode != ErrorCode.None || completedStageList is null)
+        if (readCompleteListErrorCode != ErrorCode.None || completedStageList.Count() == 0)
         {
             response.Result = readCompleteListErrorCode;
             return response;

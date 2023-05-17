@@ -2,20 +2,19 @@
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using DungeonAPI.Enum;
 
 namespace DungeonAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class SelecetStageController : ControllerBase
+public class SelectStageController : ControllerBase
 {
-    readonly ILogger<SelecetStageController> _logger;
+    readonly ILogger<SelectStageController> _logger;
     readonly ICompletedDungeonDb _dungeonStageDb;
     readonly IMemoryDb _memoryDb;
 
-    public SelecetStageController(ILogger<SelecetStageController> logger,
+    public SelectStageController(ILogger<SelectStageController> logger,
         ICompletedDungeonDb dungeonStageDb, IMemoryDb memoryDb)
     {
         _logger = logger;
@@ -24,11 +23,11 @@ public class SelecetStageController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<SelecetStageRes> SelectStage(SelecetStageReq request)
+    public async Task<SelectStageRes> SelectStage(SelectStageReq request)
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        SelecetStageRes response = new();
+        SelectStageRes response = new();
 
         var checkCanEnterStage = await CheckCanEnterStage(player.Id, request.StageCode);
         if (checkCanEnterStage != ErrorCode.None)
@@ -48,15 +47,29 @@ public class SelecetStageController : ControllerBase
             = await ChangeUserStatus(request.Email, player, request.StageCode);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
+            await RollbackDungeonInfo(request.Email);
             response.Result = changeUserStatusErrorCode;
             return response;
         }
 
-        response.ItemList = InitItemList(request.StageCode);
-        response.NPCList = InitNPCList(request.StageCode);
+        InitResponse(response, request.StageCode);
         return response;
     }
 
+    async Task RollbackDungeonInfo(string email)
+    {
+        var deleteDungeonInfo = await _memoryDb.DeleteDungeonInfo(email);
+        if (deleteDungeonInfo != ErrorCode.None)
+        {
+            // log Rollback ErrorCode
+        }
+    }
+
+    void InitResponse(SelectStageRes response, Int32 stageCode)
+    {
+        response.ItemList = InitItemList(stageCode);
+        response.NPCList = InitNPCList(stageCode);
+    }
 
     async Task<ErrorCode> CheckCanEnterStage(Int32 playerId, Int32 stageCode)
     {
@@ -66,14 +79,14 @@ public class SelecetStageController : ControllerBase
             return ErrorCode.InvalidStageCode;
         }
 
-        var (readCompleteThemaListErrorCode, themaCompeteStageList)
-              = await _dungeonStageDb.ReadCompleteThemaList(playerId, requestStageInfo.Thema);
-        if (readCompleteThemaListErrorCode != ErrorCode.None || themaCompeteStageList is null)
+        var (readCompleteThemaListErrorCode, competeStageList)
+              = await _dungeonStageDb.ReadCompleteList(playerId);
+        if (readCompleteThemaListErrorCode != ErrorCode.None || competeStageList is null)
         {
             return readCompleteThemaListErrorCode;
         }
 
-        if (themaCompeteStageList.Count == 0)
+        if (competeStageList.Count == 0)
         {
             if (IsFirstStage(requestStageInfo))
             {
@@ -82,7 +95,7 @@ public class SelecetStageController : ControllerBase
             return ErrorCode.NeedToCompleteBeforeStage;
         }
 
-        if (IsCompeteBeforeStage(requestStageInfo, themaCompeteStageList))
+        if (IsCompeteBeforeStage(requestStageInfo, competeStageList))
         {
             return ErrorCode.None;
         }
@@ -105,7 +118,7 @@ public class SelecetStageController : ControllerBase
             return true;
         }
 
-        var beforeStage = themaCompleteStageList.Find(Stage => Stage.StageCode == stageInfo.Stage - 1);
+        var beforeStage = themaCompleteStageList.Find(Stage => Stage.StageCode == stageInfo.StageCode - 1);
         if (beforeStage is null)
         {
             return false;
@@ -181,7 +194,7 @@ public class SelecetStageController : ControllerBase
             list.Add(new()
             {
                 NPCCode = NPC.NPCCode,
-                Max = NPC.NPCCount
+                Max = NPC.Count
             });
         }
 

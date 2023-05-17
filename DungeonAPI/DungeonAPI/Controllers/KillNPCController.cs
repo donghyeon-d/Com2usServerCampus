@@ -23,12 +23,11 @@ public class KillNPCController : ControllerBase
     [HttpPost]
     public async Task<KillNPCRes> AddKillNPCToList(KillNPCReq request)
     {
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
+
         KillNPCRes response = new();
 
-        string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
-        Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
-
-        var checkValidRequestErrorCode = CheckValidRequest(request, playerStatus, playerStage);
+        var checkValidRequestErrorCode = CheckValidRequest(player, request);
         if (checkValidRequestErrorCode != ErrorCode.None)
         {
             response.Result = checkValidRequestErrorCode;
@@ -36,15 +35,14 @@ public class KillNPCController : ControllerBase
             return response;
         }
 
-        var (getKillNPCErrorCode, NPCList)
-            = await GetKillNPCList(request.Email);
-        if (getKillNPCErrorCode != ErrorCode.None || NPCList is null)
+        var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(request.Email);
+        if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
-            response.Result = getKillNPCErrorCode;
+            response.Result = getDungeonInfoErrorCode;
             return response;
         }
 
-        var addKillNPCToListErrorCode = await AddKilledNPCToList(request.Email, NPCList, request.KilledNPCCode);
+        var addKillNPCToListErrorCode = await AddKilledNPC(request.Email, dungeonInfo, request.KilledNPCCode);
         if (addKillNPCToListErrorCode != ErrorCode.None)
         {
             response.Result = addKillNPCToListErrorCode;
@@ -55,32 +53,26 @@ public class KillNPCController : ControllerBase
         return response;
     }
 
-    async Task<Tuple<ErrorCode, List<KillNPC>?>>GetKillNPCList(string email)
+    async Task<Tuple<ErrorCode, InDungeon?>>GetDungeonInfo(string email)
     {
-        var (getKillNPCErrorCode, NPCList) = await _memoryDb.GetKillNPCList(email);
-        if (getKillNPCErrorCode == ErrorCode.GetKillNPCNotExist)
+        var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(email);
+        if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
-            return new(ErrorCode.None, new List<KillNPC>());
+            return new(getDungeonInfoErrorCode, null);
         }
 
-        if (getKillNPCErrorCode != ErrorCode.None || NPCList is null)
-        {
-            return new(getKillNPCErrorCode, null);
-        }
-
-
-        return new(ErrorCode.None, NPCList);
+        return new(ErrorCode.None, dungeonInfo);
     }
 
-    ErrorCode CheckValidRequest(KillNPCReq request, string playerStatus, Int32 playerStage)
+    ErrorCode CheckValidRequest(PlayerInfo player, KillNPCReq request)
     {
-        if (IsPlayerInDungeon(playerStatus) == false)
+        if (IsPlayerInDungeon(player.Status) == false)
         {
             return ErrorCode.InvalidPlayerStatusNotPlayDungeon;
             
         }
 
-        if (IsVaildStageNPC(playerStage, request.KilledNPCCode) == false)
+        if (IsVaildStageNPC(player.currentStage, request.KilledNPCCode) == false)
         {
             return ErrorCode.InvalidStageNPC;
         }
@@ -115,15 +107,15 @@ public class KillNPCController : ControllerBase
         return false;
     }
 
-    async Task<ErrorCode> AddKilledNPCToList(string email, List<KillNPC> NPCList, Int32 NPCCode)
+    async Task<ErrorCode> AddKilledNPC(string email, InDungeon dungeonInfo, Int32 NPCCode)
     {
-        var NPCToListErrorCode = NPCToList(NPCList, NPCCode);
-        if (NPCToListErrorCode != ErrorCode.None)
+        var AddNPCCountErrorCode = AddNPCCount(dungeonInfo, NPCCode);
+        if (AddNPCCountErrorCode != ErrorCode.None)
         {
-            return NPCToListErrorCode;
+            return AddNPCCountErrorCode;
         }
 
-        var setKillNPCErrorCode = await _memoryDb.SetKillNPCList(email, NPCList);
+        var setKillNPCErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
         if (setKillNPCErrorCode != ErrorCode.None)
         {
             return setKillNPCErrorCode;
@@ -132,40 +124,33 @@ public class KillNPCController : ControllerBase
         return ErrorCode.None;
     }
 
-    ErrorCode NPCToList(List<KillNPC> NPCList, Int32 NPCCode)
+    ErrorCode AddNPCCount(InDungeon dungeonInfo, Int32 NPCCode)
     {
-        int index = NPCList.FindIndex(NPC => NPC.NPCCode == NPCCode);
-        if (index == -1)
+        var index = dungeonInfo.KillNPCList.FindIndex(NPC => NPC.NPCCode == NPCCode);
+
+        if (IsMaxKillCount(dungeonInfo.KillNPCList[index]))
         {
-            NPCList.Add(new() { NPCCode = NPCCode, Count = 1 });
+            return ErrorCode.TooMuchKillNPC;
         }
         else
         {
-            if (CanAddNPCToKillList(NPCList[index], NPCCode) == false)
-            {
-                return ErrorCode.TooMuchKillNPC;
-            }
-            else
-            {
-                NPCList[index].Count++;
-            }
+            AddNPC(dungeonInfo.KillNPCList[index]);
+            return ErrorCode.None;
         }
-        return ErrorCode.None;
     }
 
-    bool CanAddNPCToKillList(KillNPC NPC, Int32 NPCCode)
+    bool IsMaxKillCount(KillNPC NPC)
     {
-        if (NPC.Count == MaxNPCKillCount(NPCCode))
+        if (NPC.Count == NPC.Max)
         {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
-    int MaxNPCKillCount(Int32 NPCCode)
+    void AddNPC(KillNPC killNPC)
     {
-        var baseNPC = MasterDataDb.s_stageAttackNPC.Find(npc => npc.NPCCode == NPCCode);
-        return baseNPC.NPCCount;
+        killNPC.Count++;
     }
 
     async Task SetExitDungeon(string email)

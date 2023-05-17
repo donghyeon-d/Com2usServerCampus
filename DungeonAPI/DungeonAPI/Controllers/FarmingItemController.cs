@@ -25,12 +25,11 @@ namespace DungeonAPI.Controllers
         [HttpPost]
         public async Task<FarmingItemRes> FarmingItemInStage(FarmingItemReq request)
         {
+            PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
+
             FarmingItemRes response = new();
 
-            string playerStatus = HttpContext.Items["PlayerStatus"].ToString();
-            Int32 playerStage = int.Parse(HttpContext.Items["PlayerStage"].ToString());
-
-            var checkValidRequestErrorCode = CheckVaildRequest(playerStatus, playerStage, request.FarmingItem);
+            var checkValidRequestErrorCode = CheckVaildRequest(player, request);
             if (checkValidRequestErrorCode != ErrorCode.None)
             {
                 response.Result = checkValidRequestErrorCode;
@@ -38,34 +37,77 @@ namespace DungeonAPI.Controllers
                 return response;
             }
 
-            var (getFarmingItemErrorCode, farmingItemList)
-                = await _memoryDb.GetFarmingItemList(request.Email);
-            if (getFarmingItemErrorCode != ErrorCode.None || farmingItemList is null)
+            var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(request.Email);
+            if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
             {
-                response.Result = getFarmingItemErrorCode;
+                response.Result = getDungeonInfoErrorCode;
                 return response;
             }
 
-            AddFarmingItemToList(farmingItemList, request.FarmingItem);
-
-            var setFarmingItemErrorCode = await _memoryDb.SetFarmingItemList(request.Email, farmingItemList);
-            if (setFarmingItemErrorCode == ErrorCode.None)
+            var addFarmingItemErrorCode = await AddFarmingItem(request.Email, dungeonInfo, request.ItemCode);
+            if (addFarmingItemErrorCode == ErrorCode.None)
             {
-                response.Result = setFarmingItemErrorCode;
+                response.Result = addFarmingItemErrorCode;
                 return response;
             }
 
             return response;
         }
 
-        ErrorCode CheckVaildRequest(string playerStatus, Int32 playerStage, FarmingItem farmingItem)
+        async Task<ErrorCode> AddFarmingItem(string email, InDungeon dungeonInfo, Int32 itemCode)
         {
-            if (IsPlayerInDungeon(playerStatus) == false)
+            var addFarmingItemCountErrorCode = AddFarmingItemCount(dungeonInfo, itemCode);
+            if (addFarmingItemCountErrorCode != ErrorCode.None)
+            {
+                return addFarmingItemCountErrorCode;
+            }
+
+            var setFarmingItemErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
+            if (setFarmingItemErrorCode == ErrorCode.None)
+            {
+                return setFarmingItemErrorCode;
+            }
+
+            return ErrorCode.None;
+        }
+
+        ErrorCode AddFarmingItemCount(InDungeon dungeonInfo, Int32 itemCode)
+        {
+            var index = dungeonInfo.ItemList.FindIndex(item => item.ItemCode == itemCode);
+
+            if (IsMaxItemCount(dungeonInfo.ItemList[index]))
+            {
+                return ErrorCode.TooMuchItem;
+            }
+            else
+            {
+                AddItem(dungeonInfo.ItemList[index]);
+                return ErrorCode.None;
+            }
+        }
+
+        bool IsMaxItemCount(FarmingItem item)
+        {
+            if (item.Count == item.Max)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        void AddItem(FarmingItem farmingItem)
+        {
+            farmingItem.Count++;
+        }
+
+        ErrorCode CheckVaildRequest(PlayerInfo player, FarmingItemReq request)
+        {
+            if (IsPlayerInDungeon(player.Status) == false)
             {
                 return ErrorCode.InvalidPlayerStatusNotPlayDungeon;
             }
 
-            if (IsVaildFarmingItem(playerStage, farmingItem) == false)
+            if (IsVaildFarmingItem(player.currentStage, request.ItemCode) == false)
             {
                 return ErrorCode.InvalidFarmingItem;
             }
@@ -82,7 +124,7 @@ namespace DungeonAPI.Controllers
             return true;
         }
 
-        bool IsVaildFarmingItem(Int32 playerStage, FarmingItem farmingItem)
+        bool IsVaildFarmingItem(Int32 playerStage, Int32 itemCode)
         {
             var stageItems = MasterDataDb.s_stageItem.FindAll(item => item.StageCode == playerStage);
             if (stageItems is null || stageItems.Count == 0)
@@ -90,15 +132,27 @@ namespace DungeonAPI.Controllers
                 return false;
             }
 
-            foreach( var stageItem in stageItems )
+            foreach (var stageItem in stageItems)
             {
-                if ( stageItem.ItemCode == farmingItem.ItemCode)
+                if (stageItem.ItemCode == itemCode)
                 {
                     return true;
                 }
             }
             return false;
         }
+
+        async Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(string email)
+        {
+            var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(email);
+            if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
+            {
+                return new(getDungeonInfoErrorCode, null);
+            }
+
+            return new(ErrorCode.None, dungeonInfo);
+        }
+
         async Task SetExitDungeon(string email)
         {
             var changeUserStatusErrorCode
@@ -107,25 +161,11 @@ namespace DungeonAPI.Controllers
             {
                 // TODO: Rollback Error
             }
-        }
 
-        // 보상 받을 때 아이템 db에 넣을때 정리 한번 해줘야 함
-        void AddFarmingItemToList(List<FarmingItem> list, FarmingItem farmingItem)
-        {
-            if (Util.ItemAttribute.IsEquipment(farmingItem.ItemCode))
+            var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+            if (deleteDungeonInfoErrorCode != ErrorCode.None)
             {
-                list.Add(farmingItem);
-                return;
-            }
-
-            int index = list.FindIndex(item => item.ItemCode == farmingItem.ItemCode);
-            if (index == -1)
-            {
-                list.Add(farmingItem);
-            }
-            else
-            {
-                list[index].Count++;
+                // TODO : Rollback Error
             }
         }
     }

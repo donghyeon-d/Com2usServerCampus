@@ -32,22 +32,22 @@ public class StageCompleteController : ControllerBase
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        if (IsValidRequest(player.Status, player.currentStage, request.StageCode) == false)
+        if (IsValidRequest(player.Status, player.currentStage, request.Stage) == false)
         {
             await SetExitDungeon(request.Email);
             return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
         }
 
-        var saveCompletedDungeon = await SaveCompletedDungeonToList(player.Id, player.currentStage);
-        if (saveCompletedDungeon != ErrorCode.None)
+        var saveCompletedDungeonErrorCode = await SaveCompletedDungeon(player.Id, player.currentStage);
+        if (saveCompletedDungeonErrorCode != ErrorCode.None)
         {
-            return new StageCompleteRes() { Result = saveCompletedDungeon };
+            return new StageCompleteRes() { Result = saveCompletedDungeonErrorCode };
         }
 
-        var (saveReward, farmingItemList) = await SaveReward(request.Email, player.Id, player.currentStage);
-        if (saveReward != ErrorCode.None)
+        var (saveRewardErrorCode, farmingItemList) = await SaveReward(request.Email, player.Id, player.currentStage);
+        if (saveRewardErrorCode != ErrorCode.None)
         {
-            return new StageCompleteRes() { Result = saveReward };
+            return new StageCompleteRes() { Result = saveRewardErrorCode };
         }
 
         var changePlayerStatusErrorCode = await ChangePlayerStatusToLogin(request.Email);
@@ -60,31 +60,15 @@ public class StageCompleteController : ControllerBase
         return new StageCompleteRes() { Result = ErrorCode.None, RewardList = farmingItemList };
     }
 
-     async Task<ErrorCode> SaveCompletedDungeonToList(Int32 playerId, Int32 playerStage)
+     async Task<ErrorCode> SaveCompletedDungeon(Int32 playerId, Int32 playerStage)
     {
-        var (thema, stage) = FindStageInfo(playerStage);
-        if (stage == -1)
-        {
-            return ErrorCode.InvalidStageCode;
-        }
-
-        var addCompletedDungeonErrorCoed =  await _completedDungeonDb.AddCompletedDungeon(playerId, thema, stage);
+        var addCompletedDungeonErrorCoed =  await _completedDungeonDb.AddCompletedDungeon(playerId, playerStage);
         if (addCompletedDungeonErrorCoed != ErrorCode.None)
         {
             return addCompletedDungeonErrorCoed;
         }
 
         return ErrorCode.None;
-    }
-
-    Tuple<String, Int32> FindStageInfo(Int32 playerStage)
-    {
-        var stageInfo = MasterDataDb.s_stage.Find(stage => stage.StageCode == playerStage);
-        if (stageInfo == null)
-        {
-            return new("", -1);
-        }
-        return new(stageInfo.Thema, stageInfo.Stage);
     }
 
     async Task<ErrorCode> ChangePlayerStatusToLogin(string email)
@@ -119,70 +103,33 @@ public class StageCompleteController : ControllerBase
 
     async Task<Tuple<ErrorCode, List<FarmingItem>?>> SaveReward(string email, Int32 playerId, Int32 stage)
     {
-        var (sumExpErrorCode, totalExp) = await SumExpAboutKillNPCs(email, stage);
-        if(sumExpErrorCode != ErrorCode.None)
+        var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(email);
+        if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
-            return new(sumExpErrorCode, null);
+            return new(getDungeonInfoErrorCode, null);
         }
 
-        var (totalFarmingItemListErrorCode, totalFarmingList) = await TotalFarmingItemList(email);
-        if (totalFarmingItemListErrorCode != ErrorCode.None && totalFarmingItemListErrorCode != ErrorCode.GetFarmingItemListNotExist)
-        {
-            return new(totalFarmingItemListErrorCode, null);
-        }
-
-        var (saveItemErrorCode, itemIdList) = await SaveItemToInventory(playerId, totalFarmingList);
+        var (saveItemErrorCode, itemIdList) = await SaveItemToInventory(playerId, dungeonInfo.ItemList);
         if (saveItemErrorCode != ErrorCode.None || itemIdList is null)
         {
             return new(saveItemErrorCode, null);
         }
 
-        var saveMoneyAndExpErrorCode = await SaveMoneyAndExpToPlayerData(playerId, totalExp, totalFarmingList);
+        int totalExp = SumKillNPCListExp(dungeonInfo.KillNPCList, stage);
+
+        var saveMoneyAndExpErrorCode = await SaveMoneyAndExpToPlayer(playerId, totalExp, dungeonInfo.ItemList);
         if (saveMoneyAndExpErrorCode != ErrorCode.None)
         {
             await RollbackItems(itemIdList);
             return new(saveMoneyAndExpErrorCode, null);
         }
 
-        return new(ErrorCode.None, totalFarmingList);
+        return new(ErrorCode.None, dungeonInfo.ItemList);
     }
 
-    async Task<Tuple<ErrorCode, int>> SumExpAboutKillNPCs(string email, Int32 stage)
+    async Task<Tuple<ErrorCode, List<int>?>> SaveItemToInventory(Int32 playerId, List<FarmingItem> farmingList)
     {
-        var (getKillNPCListErrorCode, NPCList) = await _memoryDb.GetKillNPCList(email);
-        if (getKillNPCListErrorCode != ErrorCode.None || NPCList is null)
-        {
-            return new(getKillNPCListErrorCode, -1);
-        }
-
-        int totalExp = SumNPCsExp(NPCList, stage);
-
-        return new (ErrorCode.None, totalExp);
-    }
-
-    int SumNPCsExp(List<KillNPC> NPCList, Int32 stage)
-    {
-        int totalExp = 0;
-
-        foreach(var killNPC in NPCList)
-        {
-            // 앞에서 NPC유효성 검사 이미 했기 때문에 findNPC가 null일 수 없음
-            var findNPC = MasterDataDb.s_stageAttackNPC.Find(NPC => 
-                    NPC.NPCCode == killNPC.NPCCode && NPC.StageCode == stage);
-            totalExp += findNPC.Exp * killNPC.Count;
-        }
-
-        return totalExp;
-    }
-
-    async Task<Tuple<ErrorCode, List<FarmingItem>?>> TotalFarmingItemList(string email)
-    {
-        return await _memoryDb.GetFarmingItemList(email);
-    }
-
-    async Task<Tuple<ErrorCode, List<int>?>> SaveItemToInventory(Int32 playerId, List<FarmingItem>? farmingList)
-    {
-        if (farmingList is null)
+        if (farmingList is null || IsEmptyItemList(farmingList))
         {
             return new(ErrorCode.None, new List<int>());
         }
@@ -203,7 +150,7 @@ public class StageCompleteController : ControllerBase
 
         return new(ErrorCode.None, itemIdList);
     }
-
+    
     List<Item> MakeItemList(Int32 playerId, List<FarmingItem> farmingItemList)
     {
         List<Item> itemList = new();
@@ -231,9 +178,24 @@ public class StageCompleteController : ControllerBase
         }
     }
 
-    async Task<ErrorCode> SaveMoneyAndExpToPlayerData(Int32 playerId, int totalExp, List<FarmingItem>? totalFarmingList)
+    int SumKillNPCListExp(List<KillNPC> NPCList, Int32 stage)
     {
-        var (saveMoneyErrorCode, moneyCount) = await SaveMoney(playerId, totalFarmingList);
+        int totalExp = 0;
+
+        foreach(var killNPC in NPCList)
+        {
+            // 앞에서 NPC유효성 검사 이미 했기 때문에 findNPC가 null일 수 없음
+            var findNPC = MasterDataDb.s_stageAttackNPC.Find(NPC => 
+                    NPC.NPCCode == killNPC.NPCCode && NPC.StageCode == stage);
+            totalExp += findNPC.Exp * killNPC.Count;
+        }
+
+        return totalExp;
+    }
+
+    async Task<ErrorCode> SaveMoneyAndExpToPlayer(Int32 playerId, int totalExp, List<FarmingItem>? farmingList)
+    {
+        var (saveMoneyErrorCode, moneyCount) = await SaveMoney(playerId, farmingList);
         if (saveMoneyErrorCode != ErrorCode.None)
         {
             return saveMoneyErrorCode;
@@ -249,15 +211,33 @@ public class StageCompleteController : ControllerBase
         return ErrorCode.None;
     }
 
-    async Task<Tuple<ErrorCode, int>> SaveMoney(Int32 playerId, List<FarmingItem>? totalFarmingList)
+    bool IsEmptyItemList(List<FarmingItem>? farmingList)
     {
-        if (totalFarmingList is null)
+        if (farmingList is null || farmingList.Count() == 0)
+        {
+            return true;
+        }
+
+        foreach(var item in farmingList)
+        {
+            if(item.Count != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    async Task<Tuple<ErrorCode, int>> SaveMoney(Int32 playerId, List<FarmingItem>? farmingList)
+    {
+        if (IsEmptyItemList(farmingList))
         {
             return new(ErrorCode.None, 0);
         }
 
-        FarmingItem? money = totalFarmingList.Find(item => Util.ItemAttribute.IsGold(item.ItemCode));
-        if (money is null)
+        FarmingItem? money = farmingList.Find(item => Util.ItemAttribute.IsGold(item.ItemCode));
+        if (money is null || money.Count == 0)
         {
             return new(ErrorCode.None, 0);
         }
@@ -278,7 +258,11 @@ public class StageCompleteController : ControllerBase
             return;
         }
 
-        await _playerDb.AddMoney(playerId, amount * -1);
+        var addMoneyErrorCode =  await _playerDb.AddMoney(playerId, amount * -1);
+        if (addMoneyErrorCode != ErrorCode.None)
+        {
+            //  Rollback error log
+        }
     }
 
     bool IsValidRequest(string playerStatus, Int32 playerCurrentStage, Int32 requestStage)
@@ -309,8 +293,13 @@ public class StageCompleteController : ControllerBase
         {
             // TODO: Rollback Error
         }
-    }
 
+        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+        if (deleteDungeonInfoErrorCode != ErrorCode.None)
+        {
+            // TODO : Rollback Error
+        }
+    }
 
     async Task RollbackItems(List<int> itemIdList)
     {

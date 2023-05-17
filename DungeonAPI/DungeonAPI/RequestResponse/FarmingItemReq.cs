@@ -21,5 +21,5 @@ public class FarmingItemReq
     public string MasterDataVersion { get; set; } = "";
 
     [Required]
-    public FarmingItem FarmingItem { get; set; }
+    public Int32 ItemCode { get; set; }
 }

@@ -2,7 +2,7 @@
 
 namespace DungeonAPI.RequestResponse;
 
-public class SelecetStageReq
+public class SelectStageReq
 {
     [Required]
     [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]

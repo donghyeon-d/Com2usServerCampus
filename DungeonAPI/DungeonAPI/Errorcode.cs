@@ -65,7 +65,8 @@ public enum ErrorCode : UInt16
     GetDungeonInfoFailException = 2117,
     SetDungeonInfoFailNotExist = 2118,
     SetDungeonInfoFailException = 2119,
-
+    DeleteDungeonInfoFailNotExist = 2120,
+    DeleteDungeonInfoFailException = 2121,
 
 
     // Character 3000 ~
@@ -234,8 +235,7 @@ public enum ErrorCode : UInt16
     DeleteCompletedDungeonFailException = 8003,
     CompleteListNotExist = 8004,
     ReadCompleteListFailException = 8005,
-    ReadCompleteThemaListFail = 8006,
-    ReadCompleteThemaListFailException = 8007,
+    ReadCompleteListFail = 8006,
     InvalidStageCode = 8008,
     NotCompleteBeforeStage = 8009,
     NeedToCompleteBeforeStage = 8010,
@@ -244,7 +244,7 @@ public enum ErrorCode : UInt16
     InvalidPlayerStatusNotPlayDungeon = 8100,
     InvalidFarmingItem = 8101,
     FarmingItemNotMatchStageItem = 8102,
-
+    TooMuchItem = 8103,
 
     // Stage KillNPC 8200 ~
     InvalidStageNPC = 8200,

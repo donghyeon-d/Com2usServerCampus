@@ -65,7 +65,7 @@ public class MasterData
     {
         public Int32 StageCode { get; set; }
         public Int32 NPCCode { get; set; }
-        public Int32 NPCCount { get; set; }
+        public Int32 Count { get; set; }
         public Int32 Exp { get; set; }
     }
 

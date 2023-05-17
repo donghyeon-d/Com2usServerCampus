@@ -100,8 +100,7 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-
-    public async Task<ErrorCode> DeleteAuthUserAsync(string email)
+    public async Task<ErrorCode> DeletePlayer(string email)
     {
         var key = KeyMaker.MakePlayerInfoKey(email);
 
@@ -121,7 +120,7 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadAuthUser(string email)
+    public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadPlayer(string email)
     {
         var key = KeyMaker.MakePlayerInfoKey(email);
 
@@ -143,146 +142,25 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, List<FarmingItem>?>> GetFarmingItemList(string email)
-    {
-        var key = KeyMaker.MakeFarmingItemKey(email);
-
-        try
-        {
-            var redis = new RedisString<List<FarmingItem>>(_redisConn, key, _dungeonExpiry);
-            var result = await redis.GetAsync();
-            if (result.HasValue == false)
-            {
-                return new(ErrorCode.GetFarmingItemListNotExist, null);
-            }
-
-            return new(ErrorCode.None, result.Value);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message); //TODO:
-            return new(ErrorCode.GetFarmingItemListFailException, null);
-        }
-    }
-
-    public async Task<Tuple<ErrorCode, List<KillNPC>?>> GetKillNPCList(string email)
-    {
-        var key = KeyMaker.MakeKillNPCKey(email);
-
-        try
-        {
-            var redis = new RedisString<List<KillNPC>>(_redisConn, key, _dungeonExpiry);
-            var result = await redis.GetAsync();
-            if (result.HasValue == false)
-            {
-                return new(ErrorCode.GetKillNPCNotExist, null);
-            }
-
-            return new(ErrorCode.None, result.Value);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message); //TODO:
-            return new(ErrorCode.GetKillNPCFailException, null);
-        }
-    }
-
-    public async Task<ErrorCode> SetFarmingItemList(string email, List<FarmingItem> itemList)
-    {
-        var key = KeyMaker.MakeFarmingItemKey(email);
-
-        try
-        {
-            var redis = new RedisString<List<FarmingItem>>(_redisConn, key, _dungeonExpiry);
-            if (await redis.SetAsync(itemList) == false)
-            {
-                return ErrorCode.SetFarmingItemListFail;
-            }
-            return ErrorCode.None;
-        }
-        catch (Exception e)
-        {
-            return ErrorCode.SetFarmingItemListFailException;
-        }
-    }
-
-    public async Task<ErrorCode> SetKillNPCList(string email, List<KillNPC> NPCList)
-    {
-        var key = KeyMaker.MakeKillNPCKey(email);
-
-        try
-        {
-            var redis = new RedisString<List<KillNPC>>(_redisConn, key, _dungeonExpiry);
-            if (await redis.SetAsync(NPCList) == false)
-            {
-                return ErrorCode.SetFarmingItemListFail;
-            }
-            return ErrorCode.None;
-        }
-        catch (Exception e)
-        {
-            return ErrorCode.SetFarmingItemListFailException;
-        }
-    }
-
     public async Task<ErrorCode> DeleteDungeonInfo(string email)
     {
-        var deleteKillNPCErrorCode = await DeleteKillNPCList(email);
-        if (deleteKillNPCErrorCode != ErrorCode.None)
-        {
-            // TODO : delete fail error
-            return deleteKillNPCErrorCode;
-        }
-
-        var deleteFarmingItemErrorCode = await DeleteFarmingItemList(email);
-        if (deleteFarmingItemErrorCode != ErrorCode.None)
-        {
-            // TODO : delete fail error
-            return deleteFarmingItemErrorCode;
-        }
-
-        return ErrorCode.None;
-    }
-
-    async Task<ErrorCode> DeleteKillNPCList(string email)
-    {
-        var key = KeyMaker.MakeKillNPCKey(email);
+        var key = KeyMaker.MakeInDungeonKey(email);
 
         try
         {
-            var redis = new RedisString<List<KillNPC>>(_redisConn, key, _dungeonExpiry);
+            var redis = new RedisString<InDungeon>(_redisConn, key, _defaultExpiry);
             if (await redis.DeleteAsync() == false)
             {
-                return ErrorCode.DeleteKillNPCListFailNotExist;
+                return ErrorCode.DeleteDungeonInfoFailNotExist;
             }
             return ErrorCode.None;
         }
         catch (Exception e)
         {
-            return ErrorCode.DeleteKillNPCListFailException;
+            return ErrorCode.DeleteDungeonInfoFailException;
         }
     }
-
-    async Task<ErrorCode> DeleteFarmingItemList(string email)
-    {
-        var key = KeyMaker.MakeFarmingItemKey(email);
-
-        try
-        {
-            var redis = new RedisString<List<FarmingItem>>(_redisConn, key, _dungeonExpiry);
-            if (await redis.DeleteAsync() == false)
-            {
-                return ErrorCode.DeleteFarmingItemListNotExist;
-            }
-            return ErrorCode.None;
-        }
-        catch (Exception e)
-        {
-            return ErrorCode.DeleteFarmingItemListFailException;
-        }
-    }
-
-    public async Task<Tuple<ErrorCode, InDungeon>?> GetDungeonInfo(string email)
+    public async Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(string email)
     {
         var key = KeyMaker.MakeInDungeonKey(email);
 

@@ -16,40 +16,16 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
         _logger = logger;
     }
 
-    public async Task<ErrorCode> AddCompletedDungeon(Int32 playerId, String thema, Int32 stage)
+    public async Task<ErrorCode> AddCompletedDungeon(Int32 playerId, Int32 stageCode)
     {
         try
         {
-
-            var notIn = _queryFactory.Query("CompletedDungeon")
-                            .WhereNotIn("PlayerId", q => q.From("CompletedDungeon")
-                            .Where("PlayerId", playerId))
-                            .WhereNotIn("Thema", q => q.From("CompletedDungeon")
-                            .Where("Thema", thema))
-                            .WhereNotIn("Stage", q => q.From("CompletedDungeon")
-                            .Where("Stage", stage))
-            .Select("PlayerId", "Thema", "Stage");
-                            //.WhereNotIn("Thema", q => q.From("CompletedDungeon")
-                            //    .Where("Thema", thema))
-                            //.WhereNotIn("Stage", q => q.From("CompletedDungeon")
-                            //    .Where("Stage", stage))
-                            //.Select("playerId", "thema", "stage");
-            //.FromRaw("( VALUES ( ?, ?, ? )) AS t ( PlayerId, Thema, Stage )", playerId, thema, stage)
-
-            var insert = _queryFactory.Query("CompletedDungeon")
-                .AsInsert(new[] { "PlayerId", "Thema", "Stage" }, notIn);
-
-
-
-            var result = await _queryFactory.ExecuteAsync(insert);
-
-            //int result = await _queryFactory.Query("CompletedDungeon")
-            //                  .InsertAsync(new
-            //                  {
-            //                      PlayerId = playerId,
-            //                      Thema = thema,
-            //                      Stage = stage
-            //                  });
+            int result = await _queryFactory.Query("CompletedDungeon")
+                              .InsertAsync(new
+                              {
+                                  PlayerId = playerId,
+                                  StageCode = stageCode
+                              });
             if (result != 1)
             {
                 return ErrorCode.AddCompletedDungeonFail;
@@ -58,18 +34,21 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
         }
         catch (Exception e)
         {
+            if (e.Message == "Duplicate entry '2-101' for key 'PRIMARY'")
+            {
+                return ErrorCode.None;
+            }
             return ErrorCode.AddCompletedDungeonFailException;
         }
     }
 
-    public async Task<ErrorCode> DeleteWhenFail(Int32 playerId, String thema, Int32 stage)
+    public async Task<ErrorCode> DeleteWhenFail(Int32 playerId, Int32 stageCode)
     {
         try
         {
             int result = await _queryFactory.Query("CompletedDungeon")
                                             .Where("PlayerId", playerId)
-                                            .Where("Thema", thema)
-                                            .Where("Stage", stage)
+                                            .Where("StageCode", stageCode)
                                             .DeleteAsync();
             if (result != 1)
             {
@@ -92,33 +71,13 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
                                             .GetAsync<CompletedDungeon>();
             if (result is null)
             {
-                return new(ErrorCode.CompleteListNotExist, null);
+                return new(ErrorCode.ReadCompleteListFail, null);
             }
             return new(ErrorCode.None, result.ToList());
         }
         catch (Exception e)
         {
             return new(ErrorCode.ReadCompleteListFailException, null);
-        }
-    }
-
-    public async Task<Tuple<ErrorCode, List<CompletedDungeon>?>> ReadCompleteThemaList(Int32 playerId, String thema)
-    {
-        try
-        {
-            var result = await _queryFactory.Query("CompletedDungeon")
-                                            .Where("PlayerId", playerId)
-                                            .Where("Thema", thema)
-                                            .GetAsync<CompletedDungeon>();
-            if (result is null)
-            {
-                return new(ErrorCode.ReadCompleteThemaListFail, null);
-            }
-            return new(ErrorCode.None, result.ToList());
-        }
-        catch (Exception e)
-        {
-            return new(ErrorCode.ReadCompleteThemaListFailException, null);
         }
     }
 }
