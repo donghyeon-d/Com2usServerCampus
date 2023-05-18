@@ -1,4 +1,4 @@
-CREAT DATABASE MasterDataDB;
+CREATE DATABASE MasterDataDB;
 
 USE MasterDataDB;
 
