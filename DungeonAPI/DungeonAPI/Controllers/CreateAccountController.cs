@@ -36,7 +36,6 @@ public class CreateAccountController : ControllerBase
         if (accountErrorCode != ErrorCode.None)
         {
             response.Result = accountErrorCode;
-            await _accountDb.DeleteAccountAsync(request.Email);
             return response;
         }
 
