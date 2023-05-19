@@ -15,12 +15,12 @@ public class MasterData
         public Int32 Code { get; set; }
         public String Name { get; set; } = "";
         public Int32 Attribute { get; set; }
-        public Int64 Sell { get; set; }
-        public Int64 Buy { get; set; }
+        public Int32 Sell { get; set; }
+        public Int32 Buy { get; set; }
         public Int32 UseLv { get; set; }
-        public Int64 Attack { get; set; }
-        public Int64 Defence { get; set; }
-        public Int64 Magic { get; set; }
+        public Int32 Attack { get; set; }
+        public Int32 Defence { get; set; }
+        public Int32 Magic { get; set; }
         public Byte EnhanceMaxCount { get; set; }
         public Int32 MaxStack { get; set; }
     }
