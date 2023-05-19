@@ -195,14 +195,16 @@ CREATE TABLE IF NOT EXISTS GameDB.CompletedDungeon
 
 
 ### Redis
-AuthUser : RedisString
-Email = {string AuthToken, int PlayerId, string Status}
+Player : RedisString
+"Email" = {string AuthToken, int Id, string Status, int CurrentStage, int ChatRoomNum}
 
 Notice : RedisList
 "noticekey" = [{string Title, string Content, dateTime Date}, {...}]
 
-Dungeon KillNPC : RedisString
-PlayerId + "KillNPC" = {[{NPCCode, Count}, {NPCCode, Count}, ... ]}
+InDungeon : RedisString
+"Email" + "Dungeon" = { [{KillNPC}, {KillNPC}, ...], [{ItemList}, {ItemList}, ...]}
 
-Dungeon FarmingItem : RedisString
-PlayerId + "FarmingItem" = {[{NPCCode, Count}, {NPCCode, Count}, ... ]}
+LobbyCount : RedisList (방번호 = index + 1, 그 값이 인원수}
+"LobbyCount" = [{int count}, {int count}, {int count}, ...] 
+
+"Lobby<number>" = [ {string Message, int Timestemp}, {string Message, int Timestemp}, ... }
