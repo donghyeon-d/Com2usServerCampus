@@ -8,6 +8,7 @@ using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -32,21 +33,21 @@ public class CreateNoticeController : ControllerBase
         CreateNoticeRes response = new CreateNoticeRes();
         if (request.Email != _admin.Value.Email || request.Password != _admin.Value.Password)
         {
-            response.ErrorCode = ErrorCode.NoticeAuthFail;
+            response.Result = ErrorCode.NoticeAuthFail;
             return response;
         }
 
         ErrorCode duplicatedTitleErrorCode = await CheckDuplicateTitle(request.Title);
         if (duplicatedTitleErrorCode != ErrorCode.None)
         {
-            response.ErrorCode = duplicatedTitleErrorCode;
+            response.Result = duplicatedTitleErrorCode;
             return response;
         }
 
         ErrorCode createNoticeErrorCode = await _notice.CreateNotification(request.Title, request.Content, request.Date);
         if (createNoticeErrorCode != ErrorCode.None)
         {
-            response.ErrorCode = createNoticeErrorCode;
+            response.Result = createNoticeErrorCode;
             return response;
         }
 

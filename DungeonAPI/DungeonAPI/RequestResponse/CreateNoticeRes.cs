@@ -6,6 +6,6 @@ namespace DungeonAPI.RequestResponse;
 public class CreateNoticeRes
 {
     [Required]
-    public ErrorCode ErrorCode { get; set; } = ErrorCode.None;
+    public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 

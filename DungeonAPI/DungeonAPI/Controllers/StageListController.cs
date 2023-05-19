@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.ModelDB;
-using System.Collections.Generic;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -21,10 +21,19 @@ public class StageListController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<StageListRes> ReadCompletedDungeonList()
+    public async Task<StageListRes> ProcessRequest(StageListReq request)
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
+        StageListRes response = await ReadCompletedDungeonList(request, player);
+
+        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+
+        return response;
+    }
+
+    async Task<StageListRes> ReadCompletedDungeonList(StageListReq request, PlayerInfo player)
+    {
         StageListRes response = new();
 
         var (readCompleteListErrorCode, completedStageList)
@@ -36,7 +45,6 @@ public class StageListController : ControllerBase
         }
 
         response.StageCodeList = InitStageList(completedStageList);
-
         return response;
     }
 

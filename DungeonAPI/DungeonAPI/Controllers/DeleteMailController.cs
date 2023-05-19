@@ -1,7 +1,9 @@
 ﻿using System;
+using DungeonAPI.ModelDB;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -30,9 +32,11 @@ public class DeleteMailController : ControllerBase
         if (MarkAsDeleteMailErrorCode != ErrorCode.None)
         {
             response.Result = MarkAsDeleteMailErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email, MailId = request.MailId }, response.Result.ToString());
             return response;
         }
 
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, MailId = request.MailId }, response.Result.ToString());
         return response;
     }
 }

@@ -4,6 +4,7 @@ using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
 using static Humanizer.In;
 using DungeonAPI.Enum;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -28,36 +29,52 @@ public class StageCompleteController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<StageCompleteRes> StageCompleteThenApplyResult(StageCompleteReq request)
+    public async Task<StageCompleteRes> ProcessRequest(StageCompleteReq request)
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
+
+        StageCompleteRes response = await StageCompleteThenApplyResult(request, player);
+
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, Stage = request.Stage }, response.Result.ToString());
+
+        return new StageCompleteRes() {  };
+    }
+
+    async Task<StageCompleteRes> StageCompleteThenApplyResult(StageCompleteReq request, PlayerInfo player)
+    {
+        StageCompleteRes response = new() { Result = ErrorCode.None};
 
         if (IsValidRequest(player.Status, player.CurrentStage, request.Stage) == false)
         {
             await SetExitDungeon(request.Email);
-            return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
+            response.Result = ErrorCode.StageCompleteInvalidPlayerStatus;
+            return response;
         }
 
         var saveCompletedDungeonErrorCode = await SaveCompletedDungeon(player.Id, player.CurrentStage);
         if (saveCompletedDungeonErrorCode != ErrorCode.None)
         {
-            return new StageCompleteRes() { Result = saveCompletedDungeonErrorCode };
+            response.Result = saveCompletedDungeonErrorCode;
+            return response;
         }
 
         var (saveRewardErrorCode, farmingItemList) = await SaveReward(request.Email, player.Id, player.CurrentStage);
         if (saveRewardErrorCode != ErrorCode.None)
         {
-            return new StageCompleteRes() { Result = saveRewardErrorCode };
+            response.Result = saveRewardErrorCode;
+            return response;
         }
 
         var changePlayerStatusErrorCode = await ChangePlayerStatusToLogin(request.Email);
         if (changePlayerStatusErrorCode != ErrorCode.None)
         {
             await SetLogOff(request.Email);
-            return new StageCompleteRes() { Result = changePlayerStatusErrorCode };
+            response.Result = changePlayerStatusErrorCode;
+            return response;
         }
 
-        return new StageCompleteRes() { Result = ErrorCode.None, RewardList = farmingItemList };
+        response.RewardList = farmingItemList;
+        return response;
     }
 
      async Task<ErrorCode> SaveCompletedDungeon(Int32 playerId, Int32 playerStage)

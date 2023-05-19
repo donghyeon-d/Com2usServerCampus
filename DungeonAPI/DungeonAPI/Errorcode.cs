@@ -1,7 +1,4 @@
-﻿using SqlKata.Execution;
-using System;
-
-// 1000 ~ 19999
+﻿// 1000 ~ 19999
 public enum ErrorCode : UInt16
 {
     None = 0,
@@ -68,38 +65,6 @@ public enum ErrorCode : UInt16
     DeleteDungeonInfoFailNotExist = 2120,
     DeleteDungeonInfoFailException = 2121,
 
-
-    // Character 3000 ~
-    //CreateCharacterRollbackFail = 3001,
-    //CreateCharacterFailNoSlot = 3002,
-    //CreateCharacterFailException = 3003,
-    //CharacterNotExist = 3004,
-    //CountCharactersFail = 3005,
-    //DeleteCharacterFail = 3006,
-    //GetCharacterInfoFail = 3007,
-    //InvalidCharacterInfo = 3008,
-    //GetCharacterItemsFail = 3009,
-    //CharacterCountOver = 3010,
-    //CharacterArmorTypeMisMatch = 3011,
-    //CharacterHelmetTypeMisMatch = 3012,
-    //CharacterCloakTypeMisMatch = 3012,
-    //CharacterDressTypeMisMatch = 3013,
-    //CharacterPantsTypeMisMatch = 3012,
-    //CharacterMustacheTypeMisMatch = 3012,
-    //CharacterArmorCodeMisMatch = 3013,
-    //CharacterHelmetCodeMisMatch = 3014,
-    //CharacterCloakCodeMisMatch = 3015,
-    //CharacterDressCodeMisMatch = 3016,
-    //CharacterPantsCodeMisMatch = 3017,
-    //CharacterMustacheCodeMisMatch = 3018,
-    //CharacterHairCodeMisMatch = 3019,
-    //CharacterCheckCodeError = 3010,
-    //CharacterLookTypeError = 3011,
-
-    //CharacterStatusChangeFail = 3012,
-    //CharacterIsExistGame = 3013,
-    //GetCharacterListFail = 3014,
-
     // Player 3000~
     PlayerNotExist = 3000,
     CreatePlayerFail = 3001,
@@ -118,8 +83,6 @@ public enum ErrorCode : UInt16
     AddExpFailFailException = 3014,
     IncreamentFactorFail = 3015,
     IncreamentFactorFailException = 3016,
-
-
 
     //GameDb 4000~ 
     GetGameDbConnectionFail = 4002,
@@ -161,7 +124,6 @@ public enum ErrorCode : UInt16
     LoadMailFailException = 4133,
     LoadMailWrongPlayer = 4134,
 
-
     // AttendanceBook 4200~
     LoadPlayerAttendanceBookNotExist = 4200,
     LoadPlayerAttendanceBookFailException = 4201,
@@ -175,7 +137,6 @@ public enum ErrorCode : UInt16
     UpdateAttendanceBookTupleFailException = 4207,
     ReceiveRewardToMailFailException = 4208,
     InvalidDayCount = 4209,
-
 
     // InAppPurchase 4300~
     WrongReceipt = 4300,
@@ -222,7 +183,6 @@ public enum ErrorCode : UInt16
     TryMoreThanMaxCount = 6102,
     DestructedItem = 6103,
 
-
     // Notice 7000~
     NoticeFailException = 7000,
     NoticeAuthFail = 7001,
@@ -257,18 +217,3 @@ public enum ErrorCode : UInt16
     SaveStageRewardItemListFail = 8302,
     SaveStageRewardMoneyFail = 8302,
 }
-
-
-//var notExist = _queryFactory.Query("CompletedDungeon")
-//                            .WhereNotExists(q => q.From("CompletedDungeon")
-//                                                   .Where("PlayerId", playerId)
-//                                                   .Where("Thema", thema)
-//                                                   .Where("Stage", stage)
-//                                                   .FromRaw("(Values (?, ?, ?)) AS t (PlayerId, Thema, Stage)", playerId, thema, stage)
-//                                                   .Select("t.PlayerId", "t.Thema", "t.Stage"));
-//var insert = _queryFactory.Query("CompletedDungeon")
-//    .AsInsert(new[] { "PlayerId", "Thema", "Stage" }, notExist);
-
-
-
-//var result = await _queryFactory.ExecuteAsync(insert);

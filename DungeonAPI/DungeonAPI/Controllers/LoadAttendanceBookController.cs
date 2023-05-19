@@ -2,6 +2,7 @@
 using DungeonAPI.Services;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.ModelDB;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -20,7 +21,7 @@ public class LoadAttendanceBookController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<LoadAttendanceBookRes> LoadAttendanceBook()
+    public async Task<LoadAttendanceBookRes> LoadAttendanceBook(LoadAttendanceBookReq request)
 	{
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
@@ -30,14 +31,16 @@ public class LoadAttendanceBookController : ControllerBase
 		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
 		{
 			response.Result = loadAttandanceBookErrorCode;
-			return response;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+            return response;
 		}
 
         response.CanReceive = CanReceiveAttendanceReward(attendanceBook);
         response.DayCount = GetDayCount(attendanceBook);
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, DayCount = response.DayCount, CanReceive = response.CanReceive }, response.Result.ToString());
         return response;
     }
-    
+
     bool CanReceiveAttendanceReward(AttendanceBook attendanceBook)
     {
         if (attendanceBook.LastReceiveDate.Date == DateTime.Today.Date)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -29,10 +30,12 @@ public class LoadPlayerItemListController : ControllerBase
         if (loadAllItemsErrorCode != ErrorCode.None)
         {
             response.Result = loadAllItemsErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
             return response;
         }
 
         response.ItemList = itemList;
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, ItemCount = response.ItemList.Count() }, response.Result.ToString());
         return response;
     }
 }

@@ -5,6 +5,7 @@ using DungeonAPI.Util;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Emit;
 using DungeonAPI.Enum;
+using ZLogger;
 
 namespace DungeonAPI.Controllers
 {
@@ -29,29 +30,36 @@ namespace DungeonAPI.Controllers
 
             FarmingItemRes response = new();
 
+            var LogicErrorCode = await FarmingItemLogic(player, request);
+
+            response.Result = LogicErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email, ItemCode = request.ItemCode }, response.Result.ToString());
+
+            return response;
+        }
+
+        async Task<ErrorCode> FarmingItemLogic(PlayerInfo player, FarmingItemReq request)
+        {
             var checkValidRequestErrorCode = CheckVaildRequest(player, request);
             if (checkValidRequestErrorCode != ErrorCode.None)
             {
-                response.Result = checkValidRequestErrorCode;
                 await SetExitDungeon(request.Email);
-                return response;
+                return checkValidRequestErrorCode;
             }
 
             var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(request.Email);
             if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
             {
-                response.Result = getDungeonInfoErrorCode;
-                return response;
+                return getDungeonInfoErrorCode;
             }
 
             var addFarmingItemErrorCode = await AddFarmingItem(request.Email, dungeonInfo, request.ItemCode);
             if (addFarmingItemErrorCode == ErrorCode.None)
             {
-                response.Result = addFarmingItemErrorCode;
-                return response;
+                return addFarmingItemErrorCode;
             }
 
-            return response;
+            return ErrorCode.None;
         }
 
         async Task<ErrorCode> AddFarmingItem(string email, InDungeon dungeonInfo, Int32 itemCode)

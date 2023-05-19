@@ -4,6 +4,7 @@ using DungeonAPI.ModelsDB;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -31,6 +32,7 @@ public class InAppController : ControllerBase
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         response.Result = await ProvidePurchasedProductToMail(playerId, request.ReceiptId);
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, ReceiptId = request.ReceiptId }, response.Result.ToString());
 
         return response;
     }

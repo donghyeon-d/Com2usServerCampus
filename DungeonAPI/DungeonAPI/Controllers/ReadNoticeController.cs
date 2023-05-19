@@ -2,6 +2,7 @@
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -19,14 +20,24 @@ public class ReadNoticeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ReadNoticeRes> LoadNotice()
+    public async Task<ReadNoticeRes> ProcessRequest(ReadNoticeReq request)
     {
-        ReadNoticeRes respones = new ();
+        ReadNoticeRes respones = await LoadNotice(request);
+
+        _logger.ZLogInformationWithPayload(new { Email = request.Email }, respones.Result.ToString());
+
+        return respones;
+
+    }
+
+    async Task<ReadNoticeRes> LoadNotice(ReadNoticeReq request)
+    {
+        ReadNoticeRes respones = new();
 
         var (LoadNoticeErrorCode, notices) = await _notice.ReadNotificationList();
         if (LoadNoticeErrorCode != ErrorCode.None || notices is null)
         {
-            respones.ErrorCode = LoadNoticeErrorCode;
+            respones.Result = LoadNoticeErrorCode;
             return respones;
         }
 

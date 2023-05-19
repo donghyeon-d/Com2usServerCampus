@@ -3,6 +3,7 @@ using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -23,13 +24,16 @@ public class ReceiveAttendanceRewardController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ReceiveAttendanceRewardRes> LoadAttendanceBook()
+    public async Task<ReceiveAttendanceRewardRes> LoadAttendanceBook(ReceiveAttendanceRewardReq request)
 	{
 		ReceiveAttendanceRewardRes response = new ReceiveAttendanceRewardRes();
 
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         response.Result = await ReceiveRewardToMail(playerId);
+        
+        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+
         return response;
     }
 

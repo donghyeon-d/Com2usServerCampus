@@ -3,6 +3,7 @@ using DungeonAPI.ModelDB;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -21,36 +22,41 @@ public class KillNPCController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<KillNPCRes> AddKillNPCToList(KillNPCReq request)
+    public async Task<KillNPCRes> ProcessRequest(KillNPCReq request)
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
         KillNPCRes response = new();
 
+        response.Result = await AddKillNPCToList(player, request);
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, KilledNPCCode = request.KilledNPCCode }, response.Result.ToString());
+
+        return response;
+    }
+
+    async Task<ErrorCode> AddKillNPCToList(PlayerInfo player, KillNPCReq request)
+    {
         var checkValidRequestErrorCode = CheckValidRequest(player, request);
         if (checkValidRequestErrorCode != ErrorCode.None)
         {
-            response.Result = checkValidRequestErrorCode;
             await SetExitDungeon(request.Email);
-            return response;
+            return checkValidRequestErrorCode;
         }
 
         var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(request.Email);
         if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
-            response.Result = getDungeonInfoErrorCode;
-            return response;
+            return getDungeonInfoErrorCode;
         }
 
         var addKillNPCToListErrorCode = await AddKilledNPC(request.Email, dungeonInfo, request.KilledNPCCode);
         if (addKillNPCToListErrorCode != ErrorCode.None)
         {
-            response.Result = addKillNPCToListErrorCode;
             await SetExitDungeon(request.Email);
-            return response;
+            return addKillNPCToListErrorCode;
         }
 
-        return response;
+        return ErrorCode.None;
     }
 
     async Task<Tuple<ErrorCode, InDungeon?>>GetDungeonInfo(string email)

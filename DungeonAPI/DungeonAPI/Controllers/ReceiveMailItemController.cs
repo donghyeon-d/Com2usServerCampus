@@ -2,6 +2,7 @@
 using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -22,11 +23,21 @@ public class ReceiveMailItemController : ControllerBase
 	}
 
     [HttpPost]
-    public async Task<ReceiveMailItemRes> ReceiveMailItem(ReceiveMailItemReq request)
+    public async Task<ReceiveMailItemRes> ProcessRequest(ReceiveMailItemReq request)
     {
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        ReceiveMailItemRes response = new ();
+        ReceiveMailItemRes response = await ReceiveMailItem(request, playerId);
+
+        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+
+        return response;
+    }
+
+    async Task<ReceiveMailItemRes> ReceiveMailItem(ReceiveMailItemReq request, Int32 playerId)
+    {
+
+        ReceiveMailItemRes response = new() { Result = ErrorCode.None };
 
         var (loadMailErrorCode, mail) = await LoadMail(playerId, request.MailId);
         if (loadMailErrorCode != ErrorCode.None || mail is null)

@@ -3,6 +3,7 @@ using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
 using DungeonAPI.Enum;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -27,6 +28,15 @@ public class SelectStageController : ControllerBase
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
+        SelectStageRes response = await SelectStage(request, player);
+
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, StageCode = request.StageCode }, response.Result.ToString());
+
+        return response;
+    }
+
+    async Task<SelectStageRes> SelectStage(SelectStageReq request, PlayerInfo player)
+    {
         SelectStageRes response = new();
 
         var checkCanEnterStage = await CheckCanEnterStage(player.Id, request.StageCode);
@@ -53,8 +63,10 @@ public class SelectStageController : ControllerBase
         }
 
         InitResponse(response, request.StageCode);
+
         return response;
     }
+
 
     async Task RollbackDungeonInfo(string email)
     {

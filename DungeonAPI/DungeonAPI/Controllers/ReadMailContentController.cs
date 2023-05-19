@@ -3,6 +3,7 @@ using DungeonAPI.RequestResponse;
 using DungeonAPI.ModelDB;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -21,11 +22,21 @@ public class ReadMailContentController : ControllerBase
 	}
 
     [HttpPost]
-    public async Task<ReadMailContentRes> LoadMailContent(ReadMailContentReq request)
+    public async Task<ReadMailContentRes> ProcessRequest(ReadMailContentReq request)
     {
-        ReadMailContentRes response = new ();
-
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+
+        ReadMailContentRes response = await LoadMailContent(request, playerId);
+
+        _logger.ZLogInformationWithPayload(new { Email = request.Email, RequestMailId = request.MailId }, response.Result.ToString());
+
+        return response;
+    }
+
+    async Task <ReadMailContentRes>LoadMailContent(ReadMailContentReq request, Int32 playerId)
+    {
+        ReadMailContentRes response = new();
+
 
         var (readMailContentErrorCode, mailContent) = await _mailDb.ReadMailContent(playerId, request.MailId);
         if (readMailContentErrorCode != ErrorCode.None)
@@ -42,6 +53,7 @@ public class ReadMailContentController : ControllerBase
         }
 
         response.MailContent = mailContent;
+        
         return response;
     }
 }

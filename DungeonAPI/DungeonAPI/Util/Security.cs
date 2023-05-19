@@ -2,13 +2,13 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace DungeonAPI;
+namespace DungeonAPI.Util;
 
 public class Security
 {
-    private const String _allowableCharacters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    private const string _allowableCharacters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-    public static String MakeHashingPassWord(String saltValue, String pw)
+    public static string MakeHashingPassWord(string saltValue, string pw)
     {
         var sha = SHA256.Create();
         var hash = sha.ComputeHash(Encoding.ASCII.GetBytes(saltValue + pw));
@@ -21,26 +21,26 @@ public class Security
         return stringBuilder.ToString();
     }
 
-    public static String MakeSaltString()
+    public static string MakeSaltString()
     {
-        var bytes = new Byte[64];
+        var bytes = new byte[64];
         using (var random = RandomNumberGenerator.Create())
         {
             random.GetBytes(bytes);
         }
 
-        return new String(bytes.Select(x => _allowableCharacters[x % _allowableCharacters.Length]).ToArray());
+        return new string(bytes.Select(x => _allowableCharacters[x % _allowableCharacters.Length]).ToArray());
     }
 
-    public static String CreateAuthToken()
+    public static string CreateAuthToken()
     {
-        var bytes = new Byte[25];
+        var bytes = new byte[25];
         using (var random = RandomNumberGenerator.Create())
         {
             random.GetBytes(bytes);
         }
 
-        return new String(bytes.Select(x => _allowableCharacters[x % _allowableCharacters.Length]).ToArray());
+        return new string(bytes.Select(x => _allowableCharacters[x % _allowableCharacters.Length]).ToArray());
     }
 }
 

@@ -2,6 +2,8 @@
 using DungeonAPI.Services;
 using DungeonAPI.RequestResponse;
 using Microsoft.AspNetCore.Mvc;
+using DungeonAPI.Util;
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -26,7 +28,15 @@ public class LoginController : ControllerBase
 	}
 
     [HttpPost]
-    public async Task<LoginRes> TryLogin(LoginReq request)
+    public async Task<LoginRes> ProcessRequest(LoginReq request)
+    {
+        LoginRes response = await TryLogin(request);
+        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+
+        return response;
+    }
+
+    async Task<LoginRes> TryLogin(LoginReq request)
     {
         LoginRes response = new LoginRes();
 

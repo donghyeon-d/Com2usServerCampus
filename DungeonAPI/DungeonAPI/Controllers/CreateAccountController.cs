@@ -2,7 +2,7 @@
 using DungeonAPI.Services;
 using DungeonAPI.RequestResponse;
 using Microsoft.AspNetCore.Mvc;
-
+using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -31,49 +31,66 @@ public class CreateAccountController : ControllerBase
     {
         var response = new CreateAccountRes();
 
-        // 계정 생성
         var (accountErrorCode, accountId) = await _accountDb.CreateAccountAsync(request.Email, request.Password);
         if (accountErrorCode != ErrorCode.None)
         {
             response.Result = accountErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
             return response;
         }
 
-        // 게임 데이터 Player 생성
         var (playerErrorCode, playerId) = await _player.CreatePlayerAsync(accountId);
         if (playerErrorCode != ErrorCode.None)
         {
-            await _accountDb.DeleteAccountAsync(request.Email);
-            await _player.DeletePlayerAsync(accountId);
+            await Rollback(request.Email, accountId);
             response.Result = playerErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
             return response;
         }
 
-        // 게임 기본 아이템 생성
         var itemErrorCode = await _item.CreateDefaltItemsAsync(playerId);
         if (itemErrorCode != ErrorCode.None)
         {
-            await _accountDb.DeleteAccountAsync(request.Email);
-            await _player.DeletePlayerAsync(accountId);
-            await _item.DeletePlayerAllItemsAsync(playerId);
+            await Rollback(request.Email, accountId, playerId);
             response.Result = itemErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
             return response;
         }
 
-        // player의 출석부 생성
         var createPlayerAttendanceBookErrorCode = await _attendanceBook.CreatePlayerAttendanceBook(playerId);
         if (createPlayerAttendanceBookErrorCode != ErrorCode.None)
         {
-            await _accountDb.DeleteAccountAsync(request.Email);
-            await _player.DeletePlayerAsync(accountId);
-            await _item.DeletePlayerAllItemsAsync(playerId);
-            await _attendanceBook.DeletePlayerAttendanceBook(playerId);
+            await Rollback(request.Email, accountId, playerId, playerId);
             response.Result = createPlayerAttendanceBookErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
             return response;
         }
 
-         //_logger.ZLogInformationWithPayload(EventIdDic[EventType.CreateAccount], new { Email = request.Email }, $"CreateAccount Success");
-         return response;
+        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+        return response;
+    }
+
+    async Task Rollback(String email = "", Int32 accountId = 0, Int32 playerId = 0, Int32 attendancePlayerId = 0)
+    {
+        if (string.IsNullOrEmpty(email) == false)
+        {
+            await _accountDb.DeleteAccountAsync(email);
+        }
+
+        if (accountId != 0) 
+        { 
+            await _player.DeletePlayerAsync(accountId);
+        }
+
+        if (playerId != 0)
+        {
+            await _item.DeletePlayerAllItemsAsync(playerId);
+        }
+
+        if (attendancePlayerId != 0)
+        {
+            await _attendanceBook.DeletePlayerAttendanceBook(playerId);
+        }
     }
 }
 
