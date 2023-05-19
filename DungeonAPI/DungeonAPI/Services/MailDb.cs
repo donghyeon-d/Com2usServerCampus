@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using DungeonAPI.ModelDB;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -30,6 +31,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.MailCreateFailException, -1);
         }
     }
@@ -51,6 +53,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.LoadMailFailException, null);
         }
     }
@@ -77,6 +80,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.MailLoadFailException, null);
         }
     }
@@ -111,6 +115,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new(ErrorCode.MailContentLoadFailException, null);
         }
     }
@@ -132,6 +137,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.MailDeleteFailException;
         }
     }
@@ -176,6 +182,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.MailMarkAsReceivedFailException;
         }
     }
@@ -196,6 +203,7 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.MarkAsNotReceivedItemException;
         }
     }
@@ -215,30 +223,9 @@ public class MailDb : GameDb, IMailDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.MailDeleteFailException;
         }
     }
-
-    //public async Task<ErrorCode> CheckPlayerHasMail(Int32 playerId, Int32 mailId)
-    //{
-    //    try
-    //    {
-    //        var result = await _queryFactory.Query("Mail")
-    //                            .Where("PlayerId", playerId)
-    //                            .Where("MailId", mailId)
-    //                            .FirstOrDefaultAsync<Mail>();
-
-    //        if (result is null)
-    //        {
-    //            return ErrorCode.NotFoundPlayerMail;
-    //        }
-
-    //        return ErrorCode.None;
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        return ErrorCode.PlayerMailCheckException;
-    //    }
-    //}
 }
 

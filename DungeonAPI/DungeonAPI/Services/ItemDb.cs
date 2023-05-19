@@ -4,6 +4,7 @@ using DungeonAPI.ModelsDB;
 using DungeonAPI.Services;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
+using ZLogger;
 using static DungeonAPI.ModelDB.MasterData;
 
 namespace DungeonAPI.Services;
@@ -20,8 +21,6 @@ public class ItemDb : GameDb, IItemDb
 
     public async Task<ErrorCode> CreateDefaltItemsAsync(Int32 playerId)
     {
-        Open();
-        // 아이템 인스턴스 만들기
         var cols = new[] { "PlayerId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",
                 "EnhanceLevel", "EnhanceTryCount", "IsDestructed", "IsDeleted"};
         List<object[]> defaltItems = MakeDefalutItems(playerId);
@@ -30,7 +29,7 @@ public class ItemDb : GameDb, IItemDb
             var count = await _queryFactory.Query("Item").InsertAsync(cols, defaltItems);
             if (defaltItems.Count != count)
             {
-                // 롤백
+                // TODO: rollback error log
                 await DeletePlayerAllItemsAsync(playerId);
                 return ErrorCode.DefaultItemCreateFail;
             }
@@ -38,14 +37,10 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
-            // 로그
-            _logger.LogError(e.Message);
+            _logger.ZLogWarning(e.Message);
             await DeletePlayerAllItemsAsync(playerId);
+            // TODO: rollback error log
             return ErrorCode.DefaultItemCreateFailException;
-        }
-        finally
-        {
-            Dispose();
         }
     }
 
@@ -104,6 +99,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch ( Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new Tuple<ErrorCode, Int32>(ErrorCode.AcquiredItemFailException, -1);
         }
     }
@@ -121,6 +117,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new Tuple<ErrorCode, Int32>(ErrorCode.AddOntItemFailException, -1);
         }
     }
@@ -216,8 +213,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
-            // TODO : log
-            _logger.LogError(e.Message);
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.LoadAllItemsFailException, null);
         }
     }
@@ -238,7 +234,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeleteItemFailException;
         }
     }
@@ -258,7 +254,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeletePlayerAllItemsFailException;
         }
     }
@@ -278,7 +274,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.LoadItemFailException, null);
         }
     }
@@ -298,7 +294,7 @@ public class ItemDb : GameDb, IItemDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.UpdateItemFailException;
         }
     }

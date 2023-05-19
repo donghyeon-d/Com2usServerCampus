@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Data;
-using DungeonAPI;
 using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
 using DungeonAPI.ModelsDB;
+using DungeonAPI.Util;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SqlKata.Execution;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -35,31 +36,23 @@ public class AccountDb : IAccountDb
 
     public async Task<Tuple<ErrorCode, Int32>> CreateAccountAsync(String email, String pw)
     {
-        _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: Try, Email: {email}");
-
         try
         {
-            // 계정 중복 확인
             var accountInfo = await _queryFactory.Query("Account").Where("Email", email).FirstOrDefaultAsync<Account>();
             if (accountInfo != null && accountInfo.Email == email)
             {
-                _logger.LogDebug($"Where: AccountDb.CreateAccount, Status: {ErrorCode.CreateAccountFailDuplicatedEmail}, Email: {email}");
                 return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailDuplicatedEmail, -1);
             }
 
-            // 솔트값, 해시pw값 설정
             String saltValue = Security.MakeSaltString();
             String hashedPassword = Security.MakeHashingPassWord(saltValue, pw);
 
-            // id, 솔티값, 해시pw값 db에 저장
             var accountId = await _queryFactory.Query("Account").InsertGetIdAsync<Int32>(new {
                 Email = email,
                 SaltValue = saltValue,
                 HashedPassword = hashedPassword,
                 IsDeleted = 0
             });
-            _logger.LogDebug(
-                $"Where: AccountDb.CreateAccount, Status: InsertToDb, Email: {email}, SaltValue: {saltValue}, hashedPassword:{hashedPassword}");
 
             if (accountId == -1)
             {
@@ -69,40 +62,32 @@ public class AccountDb : IAccountDb
         }
         catch (Exception e)
         {
-            _logger.LogError(e,
-                $"Where: AccountDb.CreateAccount, Status: Error, ErrorCode: {ErrorCode.CreateAccountFailException}, Email: {email}");
+            _logger.ZLogWarning(e.Message);
             return new Tuple<ErrorCode, Int32>(ErrorCode.CreateAccountFailException, -1);
         }
     }
 
     public async Task<Tuple<ErrorCode, Int32>> VerifyAccountAsync(String email, String pw)
     {
-        _logger.LogDebug($"Where: AccountDb.VerifyAccountAsync, Status: Try, Email: {email}");
-        //email의 salt값, hashedPW 가져오기
         try
         {
             var accountInfo = await _queryFactory.Query("Account").Where("Email", email).FirstOrDefaultAsync<Account>();
             if (accountInfo == null)
             {
-                _logger.LogDebug($"Where: AccountDb.VerifyAccountAsync, Status: {ErrorCode.LoginFailPlayerNotExist}, Email: {email}");
                 return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailPlayerNotExist, 0);
             }
 
-            //hashing한 pw랑 일치하는지 비교하기
             String HashedPassword = Security.MakeHashingPassWord(accountInfo.SaltValue, pw);
             if (accountInfo.HashedPassword != HashedPassword)
             {
-                _logger.LogDebug($"Where: AccountDb.VerifyAccountAsync, Status: {ErrorCode.LoginFailPwNotMatch}, Email: {email}");
                 return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailPwNotMatch, 0);
             }
 
-            // 정상이면 ErrorNode.None 리턴받아서 다음 동작 진행할 수 있게 하\
             return new Tuple<ErrorCode, Int32>(ErrorCode.None, accountInfo.AccountId);
         }
         catch (Exception e)
         {
-            _logger.LogError(e,
-                $"Where: AccountDb.VerifyAccount, Status: Error, ErrorCode: {ErrorCode.LoginFailException}, Email: {email}");
+            _logger.ZLogWarning(e.Message);
             return new Tuple<ErrorCode, Int32>(ErrorCode.LoginFailException, 0);
         }
     }
@@ -122,7 +107,7 @@ public class AccountDb : IAccountDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeleteAccountFailException;
         }
     }
@@ -142,7 +127,7 @@ public class AccountDb : IAccountDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return new Tuple<ErrorCode, Int32>(ErrorCode.LoadAccountFailException, -1);
         }
     }

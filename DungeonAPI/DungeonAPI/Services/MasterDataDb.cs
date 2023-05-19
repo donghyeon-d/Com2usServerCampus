@@ -5,6 +5,7 @@ using SqlKata.Execution;
 using DungeonAPI.ModelDB;
 using static DungeonAPI.ModelDB.MasterData;
 using DungeonAPI.Configs;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -40,8 +41,6 @@ public class MasterDataDb : IMasterDataDb
 
     private async void LoadFromDb()
     {
-        Open();
-
         _compiler = new SqlKata.Compilers.MySqlCompiler();
         _queryFactory = new QueryFactory(_dbConn, _compiler);
 
@@ -66,12 +65,7 @@ public class MasterDataDb : IMasterDataDb
         }
         catch (Exception e)
         {
-            _logger.LogError(e,
-                $"Where: MasterDataDb.LoadFromDb, Status: Error, ErrorCode: { ErrorCode.MasterDataFailException}");
-        }
-        finally
-        {
-            Close();
+            _logger.ZLogWarning(e.Message);
         }
     }
 

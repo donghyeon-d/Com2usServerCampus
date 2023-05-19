@@ -4,6 +4,7 @@ using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 using CloudStructures.Structures;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -22,19 +23,15 @@ public class NoticeMemeoryDb : INoticeMemoryDb
         var redisAddress = _dbConfig.Value.Redis;
         var redisConfig = new RedisConfig("default", redisAddress);
         _redisConn = new RedisConnection(redisConfig);
-
-        // TODO: log
     }
 
     public async Task<ErrorCode> CreateNotification(string title, string content, DateTime? dateTime = null)
     {
-        // TODO: log
         try
         {
             var redis = new RedisList<Notification>(_redisConn, s_notificationKey, defaultExpiry);
             try
             {
-                // Create Noti instance
                 Notification noti = new ()
                 {
                     Title = title,
@@ -47,15 +44,13 @@ public class NoticeMemeoryDb : INoticeMemoryDb
             }
             catch (Exception e)
             {
-                // TODO: log
-                _logger.LogError(e.Message);
+                _logger.ZLogWarning(e.Message);
                 return ErrorCode.RedisFailException;
             }
         }
         catch (Exception e)
         {
-            // TODO: log
-            _logger.LogError(e.Message);
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.RedisFailException;
         }
     }
@@ -73,15 +68,13 @@ public class NoticeMemeoryDb : INoticeMemoryDb
             }
             catch (Exception e)
             {
-                // TODO: log
-                _logger.LogError(e.Message);
+                _logger.ZLogWarning(e.Message);
                 return new (ErrorCode.RedisFailException, null);
             }
         }
         catch (Exception e)
         {
-            // TODO: log
-            _logger.LogError(e.Message);
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.RedisFailException, null);
         }
     }

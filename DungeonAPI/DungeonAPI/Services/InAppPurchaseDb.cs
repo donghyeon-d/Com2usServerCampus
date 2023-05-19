@@ -4,6 +4,7 @@ using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
 using MySqlConnector;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -42,6 +43,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
             {
                 return ErrorCode.DuplicatedReceipt;
             }
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.InsertInAppPurchaseFailException;
         }
     }
@@ -62,6 +64,7 @@ public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeletePurchaseInfoFailException;
         }
     }

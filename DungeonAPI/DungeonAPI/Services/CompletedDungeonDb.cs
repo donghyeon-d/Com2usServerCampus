@@ -3,6 +3,7 @@ using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 using SqlKata;
 using SqlKata.Execution;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -38,6 +39,7 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
             {
                 return ErrorCode.None;
             }
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.AddCompletedDungeonFailException;
         }
     }
@@ -58,6 +60,7 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeleteCompletedDungeonFailException;
         }
     }
@@ -77,6 +80,7 @@ public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new(ErrorCode.ReadCompleteListFailException, null);
         }
     }

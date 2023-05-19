@@ -4,6 +4,7 @@ using DungeonAPI.ModelDB;
 using DungeonAPI.ModelsDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -35,6 +36,7 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.LoadPlayerAttendanceBookFailException, null);
         }
     }
@@ -58,11 +60,11 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.UpdateAttendanceBookTupleFailException;
         }
     }
 
-    //계정 생성하고 기본 데이터 생성할 때 생성하기
     public async Task<ErrorCode> CreatePlayerAttendanceBook(Int32 playerId)
     {
         Open();
@@ -84,6 +86,7 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.CreatePlayerAttendanceBookFailException;
         }
     }
@@ -104,7 +107,7 @@ public class AttendanceBookDb : GameDb, IAttendanceBookDb
         }
         catch (Exception e)
         {
-            // TODO : log
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeletePlayerAttendanceBookFailException;
         }
     }

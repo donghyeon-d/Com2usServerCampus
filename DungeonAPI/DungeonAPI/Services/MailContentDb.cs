@@ -3,6 +3,7 @@ using DungeonAPI.Configs;
 using DungeonAPI.ModelDB;
 using Microsoft.Extensions.Options;
 using SqlKata.Execution;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -18,7 +19,6 @@ public class MailContentDb : GameDb, IMailContentDb
 
     public async Task<ErrorCode> CreateMailContent(Int32 mailId, String content)
     {
-        // TODO : log
         try
         {
             var count = await _queryFactory.Query("MailContent").InsertAsync(new { mailId, content });
@@ -30,11 +30,8 @@ public class MailContentDb : GameDb, IMailContentDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.MailContentCreateFailException;
-        }
-        finally
-        {
-            Dispose();
         }
     }
 
@@ -53,12 +50,8 @@ public class MailContentDb : GameDb, IMailContentDb
         }
         catch (Exception e)
         {
-            // TODO: log
+            _logger.ZLogWarning(e.Message);
             return new Tuple<ErrorCode, MailContent>(ErrorCode.MailContentLoadFailException, null);
-        }
-        finally
-        {
-            Dispose();
         }
     }
 
@@ -77,12 +70,8 @@ public class MailContentDb : GameDb, IMailContentDb
         }
         catch (Exception e)
         {
-            // TODO: log
+            _logger.ZLogWarning(e.Message);// TODO: log
             return ErrorCode.MailContentDeleteFailException;
-        }
-        finally
-        {
-            Dispose();
         }
     }
 }

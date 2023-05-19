@@ -5,6 +5,7 @@ using DungeonAPI.Enum;
 using DungeonAPI.ModelDB;
 using DungeonAPI.Util;
 using Microsoft.Extensions.Options;
+using ZLogger;
 
 namespace DungeonAPI.Services;
 
@@ -23,8 +24,6 @@ public class MemoryDb : IMemoryDb
         var redisAddress = _dbConfig.Value.Redis;
         var redisConfig = new RedisConfig("default", redisAddress);
         _redisConn = new RedisConnection(redisConfig);
-
-        // TODO: log
     }
 
     public async Task<ErrorCode> CreatePlayerInfo(string email, string authToken, Int32 playerId)
@@ -48,6 +47,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.AuthTockenCreateFailException;
         }
     }
@@ -77,6 +77,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.ChangUserStatusFailException;
         }
     }
@@ -96,6 +97,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.ChangUserStatusFailException;
         }
     }
@@ -116,6 +118,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.AuthTokenFailException;
         }
     }
@@ -137,7 +140,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message); //TODO:
+            _logger.ZLogWarning(e.Message);
             return new(ErrorCode.AuthTokenFailException, null);
         }
     }
@@ -157,6 +160,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.DeleteDungeonInfoFailException;
         }
     }
@@ -176,6 +180,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new(ErrorCode.GetDungeonInfoFailException, null);
         }
     }
@@ -195,6 +200,7 @@ public class MemoryDb : IMemoryDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.SetDungeonInfoFailException;
         }
     }
