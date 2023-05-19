@@ -72,7 +72,7 @@ public class KillNPCController : ControllerBase
             
         }
 
-        if (IsVaildStageNPC(player.currentStage, request.KilledNPCCode) == false)
+        if (IsVaildStageNPC(player.CurrentStage, request.KilledNPCCode) == false)
         {
             return ErrorCode.InvalidStageNPC;
         }

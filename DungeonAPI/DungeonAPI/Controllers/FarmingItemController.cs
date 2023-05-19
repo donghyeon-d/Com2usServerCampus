@@ -107,7 +107,7 @@ namespace DungeonAPI.Controllers
                 return ErrorCode.InvalidPlayerStatusNotPlayDungeon;
             }
 
-            if (IsVaildFarmingItem(player.currentStage, request.ItemCode) == false)
+            if (IsVaildFarmingItem(player.CurrentStage, request.ItemCode) == false)
             {
                 return ErrorCode.InvalidFarmingItem;
             }

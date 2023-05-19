@@ -154,7 +154,7 @@ public class SelectStageController : ControllerBase
     async Task<ErrorCode> ChangeUserStatus(string email, PlayerInfo player, Int32 stageCode)
     {
         player.Status = PlayerStatus.DungeonPlay.ToString();
-        player.currentStage = stageCode;
+        player.CurrentStage = stageCode;
 
         var changeUserStatusErrorCode
             = await _memoryDb.UpdateUserStatus(email, player);

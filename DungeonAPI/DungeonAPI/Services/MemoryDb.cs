@@ -67,7 +67,7 @@ public class MemoryDb : IMemoryDb
 
             PlayerInfo value = redisValue.Value;
             value.Status = status.ToString();
-            value.currentStage = stageCode;
+            value.CurrentStage = stageCode;
 
             if (await redis.SetAsync(value) == false)
             {

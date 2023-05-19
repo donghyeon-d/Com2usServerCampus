@@ -32,19 +32,19 @@ public class StageCompleteController : ControllerBase
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        if (IsValidRequest(player.Status, player.currentStage, request.Stage) == false)
+        if (IsValidRequest(player.Status, player.CurrentStage, request.Stage) == false)
         {
             await SetExitDungeon(request.Email);
             return new StageCompleteRes() { Result = ErrorCode.StageCompleteInvalidPlayerStatus };
         }
 
-        var saveCompletedDungeonErrorCode = await SaveCompletedDungeon(player.Id, player.currentStage);
+        var saveCompletedDungeonErrorCode = await SaveCompletedDungeon(player.Id, player.CurrentStage);
         if (saveCompletedDungeonErrorCode != ErrorCode.None)
         {
             return new StageCompleteRes() { Result = saveCompletedDungeonErrorCode };
         }
 
-        var (saveRewardErrorCode, farmingItemList) = await SaveReward(request.Email, player.Id, player.currentStage);
+        var (saveRewardErrorCode, farmingItemList) = await SaveReward(request.Email, player.Id, player.CurrentStage);
         if (saveRewardErrorCode != ErrorCode.None)
         {
             return new StageCompleteRes() { Result = saveRewardErrorCode };
