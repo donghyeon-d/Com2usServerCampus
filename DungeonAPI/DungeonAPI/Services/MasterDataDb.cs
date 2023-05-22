@@ -39,13 +39,20 @@ public class MasterDataDb : IMasterDataDb
         }
     }
 
-    private async void LoadFromDb()
+    public async Task Init()
     {
+        await LoadFromDb();
+    }
+
+    private async Task LoadFromDb()
+    {
+        Open();
         _compiler = new SqlKata.Compilers.MySqlCompiler();
         _queryFactory = new QueryFactory(_dbConn, _compiler);
 
         try
         {
+            
             var meta = await _queryFactory.Query("Meta").GetAsync<MasterData.Meta>();
             s_meta = meta.ToList();
             var item = await _queryFactory.Query("BaseItem").GetAsync<MasterData.BaseItem>();
@@ -66,6 +73,10 @@ public class MasterDataDb : IMasterDataDb
         catch (Exception e)
         {
             _logger.ZLogWarning(e.Message);
+        }
+        finally
+        {
+            Close();
         }
     }
 

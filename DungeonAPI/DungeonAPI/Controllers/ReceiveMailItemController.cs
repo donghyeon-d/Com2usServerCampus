@@ -79,7 +79,7 @@ public class ReceiveMailItemController : ControllerBase
 
     async Task<ErrorCode> PushMailItemToList(Int32 playerId, Mail mail)
     {
-        Item? item = Item.InitItem(playerId, mail.ItemCode, mail.ItemCount);
+        Item? item = Item.InitItem(playerId, mail.ItemCode1, mail.ItemCount1);
         if (item is null)
         {
             return ErrorCode.InvalidItemCode;

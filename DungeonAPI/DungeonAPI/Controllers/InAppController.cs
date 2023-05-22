@@ -137,8 +137,8 @@ public class InAppController : ControllerBase
                 ExpiredDate = DateTime.MaxValue,
                 CanDelete = true,
                 Sender = "InApp",
-                ItemCode = item.ItemCode,
-                ItemCount = item.ItemCount
+                ItemCode1 = item.ItemCode,
+                ItemCount1 = item.ItemCount
             };
             mailList.Add(mail);
         }

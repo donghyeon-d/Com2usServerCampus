@@ -8,6 +8,8 @@ namespace DungeonAPI.Services;
 
 public partial class GameDb : IGameDb
 {
+    int _listCount = 20;
+
     public async Task<Tuple<ErrorCode, Int32>> SendMail(Mail mail)
     {
         try
