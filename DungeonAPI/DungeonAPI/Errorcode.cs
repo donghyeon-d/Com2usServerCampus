@@ -216,4 +216,9 @@ public enum ErrorCode : UInt16
     PlayerDontKillAllNPC = 8301,
     SaveStageRewardItemListFail = 8302,
     SaveStageRewardMoneyFail = 8302,
+    UpdateCompletedDungeonFail = 8304,
+    UpdateCompletedDungeonFailException = 8305,
+    CreatePlayerCompletedDungeonFail = 8306,
+    CreatePlayerCompletedDungeonFailException = 8307
+
 }

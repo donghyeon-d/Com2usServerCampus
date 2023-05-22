@@ -45,8 +45,12 @@ public interface IGameDb
     public Task<ErrorCode> DeleteReceipt(String receiptId);
 
     // CompleteDungeon Table
+    public Task<ErrorCode> UpdateCompleteDungeon(Int32 playerId, Int32 stageCode);
     public Task<ErrorCode> AddCompletedDungeon(Int32 playerId, Int32 stageCode);
     public Task<ErrorCode> DeleteWhenFail(Int32 playerId, Int32 stageCode);
-    public Task<Tuple<ErrorCode, List<CompletedDungeon>?>> ReadCompleteList(Int32 playerId);
+    public Task<Tuple<ErrorCode, CompletedDungeon>> ReadCompleteList(Int32 playerId);
+    public Task<ErrorCode> CreatePlayerCompletedDungeon(Int32 playerId);
+    public Task<ErrorCode> CheckCanEnterStage(Int32 playerId, Int32 stageCode);
+
 }
 

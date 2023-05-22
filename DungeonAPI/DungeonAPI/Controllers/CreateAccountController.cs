@@ -74,6 +74,14 @@ public class CreateAccountController : ControllerBase
             return new (createPlayerAttendanceBookErrorCode, 0);
         }
 
+        var createPlayerCompletedDungeon = await _gameDb.CreatePlayerCompletedDungeon(playerId);
+        if (createPlayerCompletedDungeon != ErrorCode.None)
+        {
+            await Rollback(email, accountId, playerId, playerId);
+            _logger.ZLogInformationWithPayload(new { Email = email, PlayerID = playerId }, createPlayerCompletedDungeon.ToString());
+            return new(createPlayerCompletedDungeon, 0);
+        }
+
         return new(ErrorCode.None, playerId);
     }
 

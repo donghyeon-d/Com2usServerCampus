@@ -39,7 +39,7 @@ public class SelectStageController : ControllerBase
     {
         SelectStageRes response = new();
 
-        var checkCanEnterStage = await CheckCanEnterStage(player.Id, request.StageCode);
+        var checkCanEnterStage = await _gameDb.CheckCanEnterStage(player.Id, request.StageCode);
         if (checkCanEnterStage != ErrorCode.None)
         {
             response.Result = checkCanEnterStage;
@@ -53,8 +53,7 @@ public class SelectStageController : ControllerBase
             return response;
         }
 
-        var changeUserStatusErrorCode
-            = await ChangeUserStatus(player, request.StageCode);
+        var changeUserStatusErrorCode = await ChangeUserStatus(player, request.StageCode);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
             await RollbackDungeonInfo(player.Id);
@@ -83,61 +82,61 @@ public class SelectStageController : ControllerBase
         response.NPCList = InitNPCList(stageCode);
     }
 
-    async Task<ErrorCode> CheckCanEnterStage(Int32 playerId, Int32 stageCode)
-    {
-        var requestStageInfo = MasterDataDb.s_stage.Find(stage => stage.StageCode == stageCode);
-        if (requestStageInfo is null)
-        {
-            return ErrorCode.InvalidStageCode;
-        }
+    //async Task<ErrorCode> CheckCanEnterStage(Int32 playerId, Int32 stageCode)
+    //{
+    //    var requestStageInfo = MasterDataDb.s_stage.Find(stage => stage.StageCode == stageCode);
+    //    if (requestStageInfo is null)
+    //    {
+    //        return ErrorCode.InvalidStageCode;
+    //    }
 
-        var (readCompleteThemaListErrorCode, competeStageList)
-              = await _gameDb.ReadCompleteList(playerId);
-        if (readCompleteThemaListErrorCode != ErrorCode.None || competeStageList is null)
-        {
-            return readCompleteThemaListErrorCode;
-        }
+    //    var (readCompleteThemaListErrorCode, competeStageList)
+    //          = await _gameDb.ReadCompleteList(playerId);
+    //    if (readCompleteThemaListErrorCode != ErrorCode.None || competeStageList is null)
+    //    {
+    //        return readCompleteThemaListErrorCode;
+    //    }
 
-        if (competeStageList.Count == 0)
-        {
-            if (IsFirstStage(requestStageInfo))
-            {
-                return ErrorCode.None;
-            }
-            return ErrorCode.NeedToCompleteBeforeStage;
-        }
+    //    if (competeStageList.Count == 0)
+    //    {
+    //        if (IsFirstStage(requestStageInfo))
+    //        {
+    //            return ErrorCode.None;
+    //        }
+    //        return ErrorCode.NeedToCompleteBeforeStage;
+    //    }
 
-        if (IsCompeteBeforeStage(requestStageInfo, competeStageList))
-        {
-            return ErrorCode.None;
-        }
-        return ErrorCode.NotCompleteBeforeStage;
-    }
+    //    if (IsCompeteBeforeStage(requestStageInfo, competeStageList))
+    //    {
+    //        return ErrorCode.None;
+    //    }
+    //    return ErrorCode.NotCompleteBeforeStage;
+    //}
 
-    bool IsFirstStage(MasterData.DungeonStage stageInfo)
-    {
-        if (stageInfo.Stage == 1)
-        {
-            return true;
-        }
-        return false;
-    }
+    //bool IsFirstStage(MasterData.DungeonStage stageInfo)
+    //{
+    //    if (stageInfo.Stage == 1)
+    //    {
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
-    bool IsCompeteBeforeStage(MasterData.DungeonStage stageInfo, List<CompletedDungeon> themaCompleteStageList)
-    {
-        if (stageInfo.Stage == 1)
-        {
-            return true;
-        }
+    //bool IsCompeteBeforeStage(MasterData.DungeonStage stageInfo, List<CompletedDungeon> themaCompleteStageList)
+    //{
+    //    if (stageInfo.Stage == 1)
+    //    {
+    //        return true;
+    //    }
 
-        var beforeStage = themaCompleteStageList.Find(Stage => Stage.StageCode == stageInfo.StageCode - 1);
-        if (beforeStage is null)
-        {
-            return false;
-        }
+    //    var beforeStage = themaCompleteStageList.Find(Stage => Stage.StageCode == stageInfo.StageCode - 1);
+    //    if (beforeStage is null)
+    //    {
+    //        return false;
+    //    }
 
-        return true;
-    }
+    //    return true;
+    //}`
 
     async Task<ErrorCode> MemorizeDungeonInfo(Int32 playerId, Int32 stageCode)
     {
@@ -168,8 +167,7 @@ public class SelectStageController : ControllerBase
         player.Status = PlayerStatus.DungeonPlay.ToString();
         player.CurrentStage = stageCode;
 
-        var changeUserStatusErrorCode
-            = await _memoryDb.UpdateUserStatus(player.Id, player);
+        var changeUserStatusErrorCode = await _memoryDb.UpdateUserStatus(player.Id, player);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
             return changeUserStatusErrorCode;

@@ -36,27 +36,15 @@ public class StageListController : ControllerBase
     {
         StageListRes response = new();
 
-        var (readCompleteListErrorCode, completedStageList)
+        var (readCompleteListErrorCode, completedStage)
                 = await _gameDb.ReadCompleteList(player.Id);
-        if (readCompleteListErrorCode != ErrorCode.None ||
-            completedStageList is null || completedStageList.Count() == 0)
+        if (readCompleteListErrorCode != ErrorCode.None || completedStage is null)
         {
             response.Result = readCompleteListErrorCode;
             return response;
         }
 
-        response.StageCodeList = InitStageList(completedStageList);
+        response.CompleteStage = completedStage;
         return response;
-    }
-
-    List<Int32> InitStageList(List<CompletedDungeon> completedStageList)
-    {
-        List<Int32> stageCodeList = new();
-        foreach (var completedDungeon in completedStageList)
-        {
-            stageCodeList.Add(completedDungeon.StageCode);
-        }
-
-        return stageCodeList;
     }
 }

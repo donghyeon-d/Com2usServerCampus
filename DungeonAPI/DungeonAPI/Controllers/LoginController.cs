@@ -68,6 +68,7 @@ public class LoginController : ControllerBase
             return response;
         }
 
+        response.playerId = player.PlayerId;
         response.Player = player;
         response.Item = items;
         response.AuthToken = authToken;

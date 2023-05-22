@@ -1,6 +1,8 @@
-﻿namespace DungeonAPI.RequestResponse;
+﻿using DungeonAPI.ModelDB;
+
+namespace DungeonAPI.RequestResponse;
 
 public class StageListRes : AuthPlayerResponse
 {
-    public List<Int32>? StageCodeList { get; set; } = null;
+    public CompletedDungeon? CompleteStage { get; set; } = null;
 }

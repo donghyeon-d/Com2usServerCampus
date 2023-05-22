@@ -75,7 +75,7 @@ public class StageCompleteController : ControllerBase
 
      async Task<ErrorCode> SaveCompletedDungeon(Int32 playerId, Int32 playerStage)
     {
-        var addCompletedDungeonErrorCoed =  await _gameDb.AddCompletedDungeon(playerId, playerStage);
+        var addCompletedDungeonErrorCoed =  await _gameDb.UpdateCompleteDungeon(playerId, playerStage);
         if (addCompletedDungeonErrorCoed != ErrorCode.None)
         {
             return addCompletedDungeonErrorCoed;
