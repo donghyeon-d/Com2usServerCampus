@@ -43,7 +43,7 @@ public class EnhanceItemController : ControllerBase
     async Task<Tuple<ErrorCode, Item?>> EnhancePlayerItem(Int32 itemId, Int32 playerId)
     {
         var (LoadItemErrorCode, item) = await _gameDb.LoadItemByItemId(itemId);
-        if (LoadItemErrorCode != ErrorCode.None)
+        if (LoadItemErrorCode != ErrorCode.None || item is null)
         {
             return new(LoadItemErrorCode, null);
         }
@@ -54,7 +54,8 @@ public class EnhanceItemController : ControllerBase
             return new(CheckEnhanceResult, null);
         }
 
-        Item resultItem = TryEnhanceItem(3, 10, item);
+        Item resultItem = TryEnhanceItem((int)EnhancePercent.EquiptNumerator, 
+                                (int)EnhancePercent.EquiptDenominator, item);
 
         var updateItemErrorCode = await _gameDb.UpdateItemAsync(resultItem);
         if (updateItemErrorCode != ErrorCode.None)

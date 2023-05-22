@@ -111,7 +111,6 @@ public class InAppController : ControllerBase
                 var deleteMailErrorCode = await _gameDb.DeleteMail(mailId);
                 if (deleteMailErrorCode != ErrorCode.None)
                 {
-                    // TODO : log rollback error
                     _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + deleteMailErrorCode.ToString());
                     return deleteMailErrorCode;
                 }

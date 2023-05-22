@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text;
 using DungeonAPI.ModelDB;
+using ZLogger;
 
 namespace DungeonAPI.Middleware;
 
@@ -67,6 +68,7 @@ public class CheckAuthAndVersion
             }
             catch (Exception e)
             {
+                _logger.ZLogInformation(e.Message);
                 await SetResponseAuthFail(context, ErrorCode.AuthTokenFailException);
                 return false;
             }
@@ -95,7 +97,8 @@ public class CheckAuthAndVersion
         }
         catch (Exception e)
         {
-            // TODO : log
+
+            _logger.ZLogInformation(e.Message);
             await SetResponseAuthFail(context, ErrorCode.AuthTockenFailException);
             return new (false, null);
         }
@@ -128,7 +131,6 @@ public class CheckAuthAndVersion
                 var bodyStr = await reader.ReadToEndAsync();
                 if (string.IsNullOrEmpty(bodyStr) == true)
                 {
-                    // TODO: check - empty body 이면 아무것도 안함. 나중에 확인하기?
                     return false;
                 }
 
@@ -143,7 +145,7 @@ public class CheckAuthAndVersion
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.ZLogInformation(e.Message);
                 await SetResponseEmptyRequestBody(context);
                 return false;
             }
@@ -168,7 +170,7 @@ public class CheckAuthAndVersion
         }
         catch (Exception e)
         {
-            //TODO : log
+            _logger.ZLogInformation(e.Message);
             await SetResponseInvalidAppVersion(context);
             return false;
         }
@@ -190,7 +192,8 @@ public class CheckAuthAndVersion
         {
             var a = MasterDataDb.s_meta;
             var version = document.RootElement.GetProperty("MasterDataVersion").GetString();
-            if (version != MasterDataDb.s_meta.Last().Version.ToString()) // TODO : check
+            // Program.cs에서 MasterDataDb.Init() 으로 s_meta를 로드해오기 때문에 null일 수 없음
+            if (version != MasterDataDb.s_meta.Last().Version.ToString())
             {
                 await SetResponseInvalidMasterDataVersion(context);
                 return false;
@@ -199,7 +202,7 @@ public class CheckAuthAndVersion
         }
         catch (Exception e)
         {
-            //TODO : log
+            _logger.ZLogInformation(e.Message);
             await SetResponseInvalidMasterDataVersion(context);
             return false;
         }

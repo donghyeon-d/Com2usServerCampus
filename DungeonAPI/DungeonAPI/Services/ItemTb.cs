@@ -1,8 +1,4 @@
-﻿using DungeonAPI.Configs;
-using DungeonAPI.ModelDB;
-using DungeonAPI.ModelsDB;
-using DungeonAPI.Services;
-using Microsoft.Extensions.Options;
+﻿using DungeonAPI.ModelDB;
 using SqlKata.Execution;
 using ZLogger;
 using static DungeonAPI.ModelDB.MasterData;
@@ -21,8 +17,11 @@ public partial class GameDb : IGameDb
             var count = await _queryFactory.Query("Item").InsertAsync(cols, defaltItems);
             if (defaltItems.Count != count)
             {
-                // TODO: rollback error log
-                await DeletePlayerAllItemsAsync(playerId);
+                var rollbackErrorCode = await DeletePlayerAllItemsAsync(playerId);
+                if (rollbackErrorCode != ErrorCode.None)
+                {
+                    _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + rollbackErrorCode.ToString());
+                }
                 return ErrorCode.DefaultItemCreateFail;
             }
             return ErrorCode.None;
@@ -30,8 +29,11 @@ public partial class GameDb : IGameDb
         catch (Exception e)
         {
             _logger.ZLogWarning(e.Message);
-            await DeletePlayerAllItemsAsync(playerId);
-            // TODO: rollback error log
+            var rollbackErrorCode = await DeletePlayerAllItemsAsync(playerId);
+            if (rollbackErrorCode != ErrorCode.None)
+            {
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + rollbackErrorCode.ToString());
+            }
             return ErrorCode.DefaultItemCreateFailException;
         }
     }
@@ -155,6 +157,7 @@ public partial class GameDb : IGameDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return new (ErrorCode.AddStackItemFailException, -1);
         }
     }
@@ -191,11 +194,11 @@ public partial class GameDb : IGameDb
                 return new (UpdateErrorCode, -1);
             }
             
-            return new (ErrorCode.None, DbItem.ItemId); // TODO: WRONG RETURN
+            return new (ErrorCode.None, DbItem.ItemId);
         }
     }
 
-    public async Task<Tuple<ErrorCode, List<Item>>> LoadPlayerItemListAsync(Int32 playerId)
+    public async Task<Tuple<ErrorCode, List<Item>?>> LoadPlayerItemListAsync(Int32 playerId)
     {
         try
         {
@@ -251,7 +254,7 @@ public partial class GameDb : IGameDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, Item>> LoadItemByItemId(Int32 itemId)
+    public async Task<Tuple<ErrorCode, Item?>> LoadItemByItemId(Int32 itemId)
     {
         try
         {

@@ -18,25 +18,23 @@ public class MasterDataDb : IMasterDataDb
     SqlKata.Compilers.MySqlCompiler _compiler;
     QueryFactory _queryFactory;
 
-    //public static MasterData? s_Data = null;
     public static List<Meta>? s_meta { get; set; } = null;
-    public static List<MasterData.BaseItem> s_baseItem { get; set; }
-    public static List<MasterData.ItemAttribute> s_itemAttribute { get; set; }
-    public static List<AttendanceReward> s_attendanceReward { get; set; }
-    public static List<InAppProduct> s_inAppProduct { get; set; }
-    public static List<DungeonStage> s_stage { get; set; }
-    public static List<StageItem> s_stageItem { get; set; }
-    public static List<StageAttackNPC> s_stageAttackNPC { get; set; }
+    public static List<MasterData.BaseItem>? s_baseItem { get; set; } = null;
+    public static List<MasterData.ItemAttribute>? s_itemAttribute { get; set; } = null;
+    public static List<AttendanceReward>? s_attendanceReward { get; set; } = null;
+    public static List<InAppProduct>? s_inAppProduct { get; set; } = null;
+    public static List<DungeonStage>? s_stage { get; set; } = null;
+    public static List<StageItem>? s_stageItem { get; set; } = null;
+    public static List<StageAttackNPC>? s_stageAttackNPC { get; set; } = null;
 
     public MasterDataDb(ILogger<MasterDataDb> logger, IOptions<DbConfig> dbConfig)
     {
         _dbConfig = dbConfig;
         _logger = logger;
-
-        if (s_meta == null)
-        {
-            LoadFromDb();
-        }
+        _dbConn = new MySqlConnection(_dbConfig.Value.MasterDataDb);
+        Open();
+        _compiler = new SqlKata.Compilers.MySqlCompiler();
+        _queryFactory = new QueryFactory(_dbConn, _compiler);
     }
 
     public async Task Init()
@@ -46,10 +44,6 @@ public class MasterDataDb : IMasterDataDb
 
     private async Task LoadFromDb()
     {
-        Open();
-        _compiler = new SqlKata.Compilers.MySqlCompiler();
-        _queryFactory = new QueryFactory(_dbConn, _compiler);
-
         try
         {
             
@@ -82,8 +76,6 @@ public class MasterDataDb : IMasterDataDb
 
     private void Open()
     {
-        _dbConn = new MySqlConnection(_dbConfig.Value.MasterDataDb);
-     
         _dbConn.Open();
     }
 

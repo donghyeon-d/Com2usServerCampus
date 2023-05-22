@@ -33,11 +33,14 @@ void SetConfigure(WebApplicationBuilder? builder)
 
 void AddService(WebApplicationBuilder? builder)
 {
-    builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
-    builder.Services.AddSingleton<IMemoryDb, MemoryDb>();
-    builder.Services.AddTransient<IAccountDb, AccountDb>();
-    builder.Services.AddTransient<IGameDb, GameDb>();
-    builder.Services.AddControllers();
+    if (builder != null)
+    {
+        builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
+        builder.Services.AddSingleton<IMemoryDb, MemoryDb>();
+        builder.Services.AddTransient<IAccountDb, AccountDb>();
+        builder.Services.AddTransient<IGameDb, GameDb>();
+        builder.Services.AddControllers();
+    }
 }
 
 void SettingLogger()

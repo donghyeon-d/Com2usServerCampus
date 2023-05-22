@@ -151,6 +151,7 @@ public partial class GameDb : IGameDb
         }
         catch (Exception e)
         {
+            _logger.ZLogWarning(e.Message);
             return ErrorCode.MailMarkAsOpenFailException;
         }
     }

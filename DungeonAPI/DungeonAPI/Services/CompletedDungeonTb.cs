@@ -29,8 +29,6 @@ public partial class GameDb : IGameDb
             _logger.ZLogWarning(e.Message);
             return ErrorCode.CreatePlayerCompletedDungeonFailException;
         }
-
-        return ErrorCode.None;
     }
 
     public async Task<ErrorCode> UpdateCompleteDungeon(Int32 playerId, Int32 stageCode)

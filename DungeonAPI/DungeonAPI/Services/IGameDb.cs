@@ -16,11 +16,11 @@ public interface IGameDb
 
     // Item Talbe
     public Task<ErrorCode> CreateDefaltItemsAsync(Int32 playerId);
-    public Task<Tuple<ErrorCode, List<Item>>> LoadPlayerItemListAsync(Int32 playerId);
+    public Task<Tuple<ErrorCode, List<Item>?>> LoadPlayerItemListAsync(Int32 playerId);
     public Task<ErrorCode> UpdateItemAsync(Item item);
     public Task<ErrorCode> DeleteItem(Int32 itemId);
     public Task<ErrorCode> DeletePlayerAllItemsAsync(Int32 playerId);
-    public Task<Tuple<ErrorCode, Item>> LoadItemByItemId(Int32 itemId);
+    public Task<Tuple<ErrorCode, Item?>> LoadItemByItemId(Int32 itemId);
     public Task<Tuple<ErrorCode, Int32>> AddItemToPlayerItemList(Int32 playerId, Item item);
 
     // Mail Table
@@ -48,7 +48,7 @@ public interface IGameDb
     public Task<ErrorCode> UpdateCompleteDungeon(Int32 playerId, Int32 stageCode);
     public Task<ErrorCode> AddCompletedDungeon(Int32 playerId, Int32 stageCode);
     public Task<ErrorCode> DeleteWhenFail(Int32 playerId, Int32 stageCode);
-    public Task<Tuple<ErrorCode, CompletedDungeon>> ReadCompleteList(Int32 playerId);
+    public Task<Tuple<ErrorCode, CompletedDungeon?>> ReadCompleteList(Int32 playerId);
     public Task<ErrorCode> CreatePlayerCompletedDungeon(Int32 playerId);
     public Task<ErrorCode> CheckCanEnterStage(Int32 playerId, Int32 stageCode);
 

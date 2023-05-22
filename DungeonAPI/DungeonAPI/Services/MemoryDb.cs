@@ -30,7 +30,6 @@ public partial class MemoryDb : IMemoryDb
     {
 
         var key = KeyMaker.MakePlayerInfoKey(playerId);
-        // TODO: Expiry setting
         try
         {
             var redis = new RedisString<PlayerInfo>(_redisConn, key, _defaultExpiry);
