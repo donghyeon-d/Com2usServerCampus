@@ -214,18 +214,23 @@ CREATE TABLE IF NOT EXISTS GameDB.CompletedDungeon
 ```
 
 ### Redis
-```
-Player : RedisString
-"playerInfo" + playerId = {string AuthToken, int Id, string Status, int CurrentStage, int ChatRoomNum}
+- Player Info
+    - Data Type : String
+    - Key : "P" +playerId + "Info"
+    - Value : { string AuthToken, int Id, string Status, int CurrentStage }
 
-Notice : RedisList
-"notice" = [{string Title, string Content, dateTime Date}, {...}]
+- Notice
+    - Data Type : List
+    - Key : 
+    - Value : [{string Title, string Content, dateTime Date}, {...} ]
 
-InDungeon : RedisString
-"dungeonInfo" + playerId = { [{KillNPC}, {KillNPC}, ...], [{ItemList}, {ItemList}, ...]}
+- InDungeon
+    - Data Type : String
+    - Key : "P" +playerId + "Dungeon";
+    - Value : { [{int NPCCode, int Count, int Max }, { int NPCCode, int Count, int Max }, ...], 
+                [{ int ItemCode, int Count, int Max }, { int ItemCode, int Count, int Max }, ...] }
 
 LobbyCount : RedisList (방번호 = index + 1, 그 값이 인원수}
 "LobbyCount" = [{int count}, {int count}, {int count}, ...] 
 
 "Lobby<number>" = [ {string Message, int Timestemp}, {string Message, int Timestemp}, ... }
-```
