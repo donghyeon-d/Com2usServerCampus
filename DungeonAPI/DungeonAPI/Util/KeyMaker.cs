@@ -2,23 +2,23 @@
 
 public class KeyMaker
 {
-    public static string MakeKillNPCKey(string email)
+    public static string MakeKillNPCKey(Int32 playerId)
     {
-        return email + "Kill";
+        return "P" +playerId + "Kill";
     }
 
-    public static string MakeFarmingItemKey(string email)
+    public static string MakeFarmingItemKey(Int32 playerId)
     {
-        return email + "Farming";
+        return "P" +playerId + "Farming";
     }
 
-    public static string MakePlayerInfoKey(string email)
+    public static string MakePlayerInfoKey(Int32 playerId)
     {
-        return email;
+        return "P" +playerId + "Info";
     }
 
-    public static string MakeInDungeonKey(string email)
+    public static string MakeInDungeonKey(Int32 playerId)
     {
-        return email + "Dungeon";
+        return "P" +playerId + "Dungeon";
     }
 }

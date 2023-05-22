@@ -4,13 +4,13 @@ namespace DungeonAPI.Services;
 
 public interface IMemoryDb
 {
-    public Task<ErrorCode> CreatePlayerInfo(string email, string authToken, Int32 playerId);
-    public Task<ErrorCode> ChangeUserStatus(string email, PlayerStatus status, Int32 stageCode = 0);
-    public Task<ErrorCode> UpdateUserStatus(string email, PlayerInfo value);
-    public Task<ErrorCode> DeletePlayer(string email);
-    public Task<Tuple<ErrorCode, PlayerInfo?>> LoadPlayer(string email);
-    public Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(string email);
-    public Task<ErrorCode> SetDungeonInfo(string email, InDungeon dungeonInfo);
-    public Task<ErrorCode> DeleteDungeonInfo(string email);
+    public Task<ErrorCode> CreatePlayerInfo(Int32 playerId, string authToken);
+    public Task<ErrorCode> ChangeUserStatus(Int32 playerId, PlayerStatus status, Int32 stageCode = 0);
+    public Task<ErrorCode> UpdateUserStatus(Int32 playerId, PlayerInfo value);
+    public Task<ErrorCode> DeletePlayer(Int32 playerId);
+    public Task<Tuple<ErrorCode, PlayerInfo?>> LoadPlayer(Int32 playerId);
+    public Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(Int32 playerId);
+    public Task<ErrorCode> SetDungeonInfo(Int32 playerId, InDungeon dungeonInfo);
+    public Task<ErrorCode> DeleteDungeonInfo(Int32 playerId);
 }
 

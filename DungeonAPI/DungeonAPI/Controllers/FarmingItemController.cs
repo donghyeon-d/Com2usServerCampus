@@ -43,17 +43,17 @@ namespace DungeonAPI.Controllers
             var checkValidRequestErrorCode = CheckVaildRequest(player, request);
             if (checkValidRequestErrorCode != ErrorCode.None)
             {
-                await SetExitDungeon(request.Email);
+                await SetExitDungeon(player.Id);
                 return checkValidRequestErrorCode;
             }
 
-            var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(request.Email);
+            var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(player.Id);
             if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
             {
                 return getDungeonInfoErrorCode;
             }
 
-            var addFarmingItemErrorCode = await AddFarmingItem(request.Email, dungeonInfo, request.ItemCode);
+            var addFarmingItemErrorCode = await AddFarmingItem(player.Id, dungeonInfo, request.ItemCode);
             if (addFarmingItemErrorCode == ErrorCode.None)
             {
                 return addFarmingItemErrorCode;
@@ -62,7 +62,7 @@ namespace DungeonAPI.Controllers
             return ErrorCode.None;
         }
 
-        async Task<ErrorCode> AddFarmingItem(string email, InDungeon dungeonInfo, Int32 itemCode)
+        async Task<ErrorCode> AddFarmingItem(Int32 playerId, InDungeon dungeonInfo, Int32 itemCode)
         {
             var addFarmingItemCountErrorCode = AddFarmingItemCount(dungeonInfo, itemCode);
             if (addFarmingItemCountErrorCode != ErrorCode.None)
@@ -70,7 +70,7 @@ namespace DungeonAPI.Controllers
                 return addFarmingItemCountErrorCode;
             }
 
-            var setFarmingItemErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
+            var setFarmingItemErrorCode = await _memoryDb.SetDungeonInfo(playerId, dungeonInfo);
             if (setFarmingItemErrorCode == ErrorCode.None)
             {
                 RollbackAddedItemCount(dungeonInfo, itemCode);
@@ -157,9 +157,9 @@ namespace DungeonAPI.Controllers
             return false;
         }
 
-        async Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(string email)
+        async Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(Int32 playerId)
         {
-            var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(email);
+            var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(playerId);
             if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
             {
                 return new(getDungeonInfoErrorCode, null);
@@ -168,19 +168,19 @@ namespace DungeonAPI.Controllers
             return new(ErrorCode.None, dungeonInfo);
         }
 
-        async Task SetExitDungeon(string email)
+        async Task SetExitDungeon(Int32 playerId)
         {
             var changeUserStatusErrorCode
-                = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+                = await _memoryDb.ChangeUserStatus(playerId, PlayerStatus.LogIn);
             if (changeUserStatusErrorCode != ErrorCode.None)
             {
-                _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + changeUserStatusErrorCode.ToString());
             }
 
-            var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+            var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(playerId);
             if (deleteDungeonInfoErrorCode != ErrorCode.None)
             {
-                _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + changeUserStatusErrorCode.ToString());
             }
         }
     }

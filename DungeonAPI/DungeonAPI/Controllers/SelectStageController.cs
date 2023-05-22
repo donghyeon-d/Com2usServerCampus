@@ -46,7 +46,7 @@ public class SelectStageController : ControllerBase
             return response;
         }
 
-        var initDungeonInfoErrorCode = await MemorizeDungeonInfo(request.Email, request.StageCode);
+        var initDungeonInfoErrorCode = await MemorizeDungeonInfo(player.Id, request.StageCode);
         if (initDungeonInfoErrorCode != ErrorCode.None)
         {
             response.Result = initDungeonInfoErrorCode;
@@ -54,10 +54,10 @@ public class SelectStageController : ControllerBase
         }
 
         var changeUserStatusErrorCode
-            = await ChangeUserStatus(request.Email, player, request.StageCode);
+            = await ChangeUserStatus(player, request.StageCode);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            await RollbackDungeonInfo(request.Email);
+            await RollbackDungeonInfo(player.Id);
             response.Result = changeUserStatusErrorCode;
             return response;
         }
@@ -68,12 +68,12 @@ public class SelectStageController : ControllerBase
     }
 
 
-    async Task RollbackDungeonInfo(string email)
+    async Task RollbackDungeonInfo(Int32 playerId)
     {
-        var deleteDungeonInfo = await _memoryDb.DeleteDungeonInfo(email);
+        var deleteDungeonInfo = await _memoryDb.DeleteDungeonInfo(playerId);
         if (deleteDungeonInfo != ErrorCode.None)
         {
-            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + deleteDungeonInfo.ToString());
+            _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + deleteDungeonInfo.ToString());
         }
     }
 
@@ -139,11 +139,11 @@ public class SelectStageController : ControllerBase
         return true;
     }
 
-    async Task<ErrorCode> MemorizeDungeonInfo(string email, Int32 stageCode)
+    async Task<ErrorCode> MemorizeDungeonInfo(Int32 playerId, Int32 stageCode)
     {
         InDungeon dungeonInfo = InitDungeonInfo(stageCode);
 
-        var setDungeonInfoErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
+        var setDungeonInfoErrorCode = await _memoryDb.SetDungeonInfo(playerId, dungeonInfo);
         if (setDungeonInfoErrorCode != ErrorCode.None)
         {
             return setDungeonInfoErrorCode;
@@ -163,13 +163,13 @@ public class SelectStageController : ControllerBase
         return dungeonInfo;
     }
 
-    async Task<ErrorCode> ChangeUserStatus(string email, PlayerInfo player, Int32 stageCode)
+    async Task<ErrorCode> ChangeUserStatus(PlayerInfo player, Int32 stageCode)
     {
         player.Status = PlayerStatus.DungeonPlay.ToString();
         player.CurrentStage = stageCode;
 
         var changeUserStatusErrorCode
-            = await _memoryDb.UpdateUserStatus(email, player);
+            = await _memoryDb.UpdateUserStatus(player.Id, player);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
             return changeUserStatusErrorCode;

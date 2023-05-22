@@ -13,15 +13,15 @@ public class CheckAuthAndVersion
     readonly RequestDelegate _next;
     readonly ILogger<CheckAuthAndVersion> _logger;
     readonly IOptions<AppConfig> _appConfig;
-    readonly IMemoryDb _authUserDb;
+    readonly IMemoryDb _memoryDb;
 
     public CheckAuthAndVersion(RequestDelegate next, 
-        ILogger<CheckAuthAndVersion> logger, IOptions<AppConfig> appConfig, IMemoryDb authUserDb)
+        ILogger<CheckAuthAndVersion> logger, IOptions<AppConfig> appConfig, IMemoryDb memoryDb)
     {
         _next = next;
         _logger = logger;
         _appConfig = appConfig;
-        _authUserDb = authUserDb;
+        _memoryDb = memoryDb;
     }
 
     public async Task Invoke(HttpContext context)
@@ -81,9 +81,10 @@ public class CheckAuthAndVersion
     {
         try
         {
-            var email = document.RootElement.GetProperty("Email").GetString();
+            var playerId = document.RootElement.GetProperty("PlayerId").GetString();
             var authToken = document.RootElement.GetProperty("AuthToken").GetString();
-            var (LoadAuthUserErrorCode, authUser) = await _authUserDb.LoadPlayer(email);
+            // playerId는 request에서 required로 정의되어 있기에 null일 수 없음
+            var (LoadAuthUserErrorCode, authUser) = await _memoryDb.LoadPlayer(playerId);
 
             if (LoadAuthUserErrorCode != ErrorCode.None)
             {

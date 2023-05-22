@@ -62,7 +62,7 @@ public class LoginController : ControllerBase
 
         var authToken = Security.CreateAuthToken();
 
-        var authCheckErrorCode = await _memoryDb.CreatePlayerInfo(request.Email, authToken, player.PlayerId);
+        var authCheckErrorCode = await _memoryDb.CreatePlayerInfo(player.PlayerId, authToken);
         if (authCheckErrorCode != ErrorCode.None)
         {
             response.Result = authCheckErrorCode;

@@ -42,7 +42,7 @@ public class StageCompleteController : ControllerBase
 
         if (IsValidRequest(player.Status, player.CurrentStage, request.Stage) == false)
         {
-            await SetExitDungeon(request.Email);
+            await SetExitDungeon(player.Id);
             response.Result = ErrorCode.StageCompleteInvalidPlayerStatus;
             return response;
         }
@@ -54,17 +54,17 @@ public class StageCompleteController : ControllerBase
             return response;
         }
 
-        var (saveRewardErrorCode, farmingItemList) = await SaveReward(request.Email, player.Id, player.CurrentStage);
+        var (saveRewardErrorCode, farmingItemList) = await SaveReward(player.Id, player.CurrentStage);
         if (saveRewardErrorCode != ErrorCode.None)
         {
             response.Result = saveRewardErrorCode;
             return response;
         }
 
-        var changePlayerStatusErrorCode = await ChangePlayerStatusToLogin(request.Email);
+        var changePlayerStatusErrorCode = await ChangePlayerStatusToLogin(player.Id);
         if (changePlayerStatusErrorCode != ErrorCode.None)
         {
-            await SetLogOff(request.Email);
+            await SetLogOff(player.Id);
             response.Result = changePlayerStatusErrorCode;
             return response;
         }
@@ -84,15 +84,15 @@ public class StageCompleteController : ControllerBase
         return ErrorCode.None;
     }
 
-    async Task<ErrorCode> ChangePlayerStatusToLogin(string email)
+    async Task<ErrorCode> ChangePlayerStatusToLogin(Int32 playerId)
     {
-        var changeUserStatusErrorCode = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+        var changeUserStatusErrorCode = await _memoryDb.ChangeUserStatus(playerId, PlayerStatus.LogIn);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
             return changeUserStatusErrorCode;
         }
 
-        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(playerId);
         if (deleteDungeonInfoErrorCode != ErrorCode.None
             && deleteDungeonInfoErrorCode != ErrorCode.DeleteFarmingItemListNotExist)
         {
@@ -102,21 +102,21 @@ public class StageCompleteController : ControllerBase
         return ErrorCode.None;
     }
 
-    async Task<ErrorCode> SetLogOff(string email)
+    async Task<ErrorCode> SetLogOff(Int32 playerId)
     {
-        var changeUserStatusErrorCode = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogOff);
+        var changeUserStatusErrorCode = await _memoryDb.ChangeUserStatus(playerId, PlayerStatus.LogOff);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
+            _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + changeUserStatusErrorCode.ToString());
             return changeUserStatusErrorCode;
         }
 
         return ErrorCode.None;
     }
 
-    async Task<Tuple<ErrorCode, List<FarmingItem>?>> SaveReward(string email, Int32 playerId, Int32 stage)
+    async Task<Tuple<ErrorCode, List<FarmingItem>?>> SaveReward(Int32 playerId, Int32 stage)
     {
-        var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(email);
+        var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(playerId);
         if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
             return new(getDungeonInfoErrorCode, null);
@@ -307,19 +307,19 @@ public class StageCompleteController : ControllerBase
         return true;
     }
 
-    async Task SetExitDungeon(string email)
+    async Task SetExitDungeon(Int32 playerId)
     {
         var changeUserStatusErrorCode
-            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+            = await _memoryDb.ChangeUserStatus(playerId, PlayerStatus.LogIn);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
+            _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + changeUserStatusErrorCode.ToString());
         }
 
-        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(playerId);
         if (deleteDungeonInfoErrorCode != ErrorCode.None)
         {
-            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + deleteDungeonInfoErrorCode.ToString());
+            _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + deleteDungeonInfoErrorCode.ToString());
         }
     }
 

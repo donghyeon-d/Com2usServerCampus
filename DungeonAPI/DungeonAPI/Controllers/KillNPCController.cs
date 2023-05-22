@@ -39,29 +39,29 @@ public class KillNPCController : ControllerBase
         var checkValidRequestErrorCode = CheckValidRequest(player, request);
         if (checkValidRequestErrorCode != ErrorCode.None)
         {
-            await SetExitDungeon(request.Email);
+            await SetExitDungeon(player.Id);
             return checkValidRequestErrorCode;
         }
 
-        var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(request.Email);
+        var (getDungeonInfoErrorCode, dungeonInfo) = await GetDungeonInfo(player.Id);
         if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
             return getDungeonInfoErrorCode;
         }
 
-        var addKillNPCToListErrorCode = await AddKilledNPC(request.Email, dungeonInfo, request.KilledNPCCode);
+        var addKillNPCToListErrorCode = await AddKilledNPC(player.Id, dungeonInfo, request.KilledNPCCode);
         if (addKillNPCToListErrorCode != ErrorCode.None)
         {
-            await SetExitDungeon(request.Email);
+            await SetExitDungeon(player.Id);
             return addKillNPCToListErrorCode;
         }
 
         return ErrorCode.None;
     }
 
-    async Task<Tuple<ErrorCode, InDungeon?>>GetDungeonInfo(string email)
+    async Task<Tuple<ErrorCode, InDungeon?>>GetDungeonInfo(Int32 playerId)
     {
-        var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(email);
+        var (getDungeonInfoErrorCode, dungeonInfo) = await _memoryDb.GetDungeonInfo(playerId);
         if (getDungeonInfoErrorCode != ErrorCode.None || dungeonInfo is null)
         {
             return new(getDungeonInfoErrorCode, null);
@@ -113,15 +113,16 @@ public class KillNPCController : ControllerBase
         return false;
     }
 
-    async Task<ErrorCode> AddKilledNPC(string email, InDungeon dungeonInfo, Int32 NPCCode)
+    async Task<ErrorCode> AddKilledNPC(Int32 playerId, InDungeon dungeonInfo, Int32 NPCCode)
     {
         var AddNPCCountErrorCode = AddNPCCount(dungeonInfo, NPCCode);
+
         if (AddNPCCountErrorCode != ErrorCode.None)
         {
             return AddNPCCountErrorCode;
         }
 
-        var setKillNPCErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
+        var setKillNPCErrorCode = await _memoryDb.SetDungeonInfo(playerId, dungeonInfo);
         if (setKillNPCErrorCode != ErrorCode.None)
         {
             return setKillNPCErrorCode;
@@ -159,21 +160,19 @@ public class KillNPCController : ControllerBase
         killNPC.Count++;
     }
 
-    async Task SetExitDungeon(string email)
+    async Task SetExitDungeon(Int32 playterId)
     {
         var changeUserStatusErrorCode
-            = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
+            = await _memoryDb.ChangeUserStatus(playterId, PlayerStatus.LogIn);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            // TODO: Rollback Error
-            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
+            _logger.ZLogErrorWithPayload(new { PlayerId = playterId }, "RollBackError " + changeUserStatusErrorCode.ToString());
         }
 
-        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
+        var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(playterId);
         if (deleteDungeonInfoErrorCode != ErrorCode.None)
         {
-            // TODO : Rollback Error
-            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + deleteDungeonInfoErrorCode.ToString());
+            _logger.ZLogErrorWithPayload(new { PlayerId = playterId }, "RollBackError " + deleteDungeonInfoErrorCode.ToString());
 
         }
     }

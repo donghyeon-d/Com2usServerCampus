@@ -26,10 +26,10 @@ public class MemoryDb : IMemoryDb
         _redisConn = new RedisConnection(redisConfig);
     }
 
-    public async Task<ErrorCode> CreatePlayerInfo(string email, string authToken, Int32 playerId)
+    public async Task<ErrorCode> CreatePlayerInfo(Int32 playerId, string authToken)
     {
 
-        var key = KeyMaker.MakePlayerInfoKey(email);
+        var key = KeyMaker.MakePlayerInfoKey(playerId);
         // TODO: Expiry setting
         try
         {
@@ -43,6 +43,7 @@ public class MemoryDb : IMemoryDb
             {
                 return ErrorCode.AuthTockenCreateFail;
             }
+
             return ErrorCode.None;
         }
         catch (Exception e)
@@ -52,9 +53,9 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<ErrorCode> ChangeUserStatus(string email, PlayerStatus status, Int32 stageCode = 0)
+    public async Task<ErrorCode> ChangeUserStatus(Int32 playerId, PlayerStatus status, Int32 stageCode = 0)
     {
-        var key = KeyMaker.MakePlayerInfoKey(email);
+        var key = KeyMaker.MakePlayerInfoKey(playerId);
 
         try
         {
@@ -82,9 +83,9 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<ErrorCode> UpdateUserStatus(string email, PlayerInfo value)
+    public async Task<ErrorCode> UpdateUserStatus(Int32 playerId, PlayerInfo value)
     {
-        var key = KeyMaker.MakePlayerInfoKey(email);
+        var key = KeyMaker.MakePlayerInfoKey(playerId);
 
         try
         {
@@ -102,9 +103,9 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<ErrorCode> DeletePlayer(string email)
+    public async Task<ErrorCode> DeletePlayer(Int32 playerId)
     {
-        var key = KeyMaker.MakePlayerInfoKey(email);
+        var key = KeyMaker.MakePlayerInfoKey(playerId);
 
         try
         {
@@ -123,9 +124,9 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadPlayer(string email)
+    public async Task<Tuple<ErrorCode, PlayerInfo?>> LoadPlayer(Int32 playerId)
     {
-        var key = KeyMaker.MakePlayerInfoKey(email);
+        var key = KeyMaker.MakePlayerInfoKey(playerId);
 
         try
         {
@@ -145,9 +146,9 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<ErrorCode> DeleteDungeonInfo(string email)
+    public async Task<ErrorCode> DeleteDungeonInfo(Int32 playerId)
     {
-        var key = KeyMaker.MakeInDungeonKey(email);
+        var key = KeyMaker.MakeInDungeonKey(playerId);
 
         try
         {
@@ -164,9 +165,10 @@ public class MemoryDb : IMemoryDb
             return ErrorCode.DeleteDungeonInfoFailException;
         }
     }
-    public async Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(string email)
+
+    public async Task<Tuple<ErrorCode, InDungeon?>> GetDungeonInfo(Int32 playerId)
     {
-        var key = KeyMaker.MakeInDungeonKey(email);
+        var key = KeyMaker.MakeInDungeonKey(playerId);
 
         try
         {
@@ -185,9 +187,9 @@ public class MemoryDb : IMemoryDb
         }
     }
 
-    public async Task<ErrorCode> SetDungeonInfo(string email, InDungeon dungeonInfo)
+    public async Task<ErrorCode> SetDungeonInfo(Int32 playerId, InDungeon dungeonInfo)
     {
-        var key = KeyMaker.MakeInDungeonKey(email);
+        var key = KeyMaker.MakeInDungeonKey(playerId);
 
         try
         {
