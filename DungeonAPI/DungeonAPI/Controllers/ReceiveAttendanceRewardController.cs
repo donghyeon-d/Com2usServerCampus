@@ -26,12 +26,12 @@ public class ReceiveAttendanceRewardController : ControllerBase
 	{
 		ReceiveAttendanceRewardRes response = new ReceiveAttendanceRewardRes();
 
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        var (receiveItemErrorCode, mailId) = await ReceiveItemToMail(playerId);
+        var (receiveItemErrorCode, mailId) = await ReceiveItemToMail(player.Id);
         response.Result = receiveItemErrorCode;
 
-        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, MailId = mailId }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, MailId = mailId }, response.Result.ToString());
 
         return response;
     }

@@ -23,7 +23,6 @@ public class LoginController : ControllerBase
         _accountDb = accountDb;
         _gameDb = gameDb;
         _memoryDb = memoryDb;
-
     }
 
     [HttpPost]

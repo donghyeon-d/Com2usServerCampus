@@ -6,6 +6,6 @@ namespace DungeonAPI.RequestResponse;
 
 public class ReadMailContentRes : AuthPlayerResponse
 {
-    public ErrorCode Result { get; set; } = ErrorCode.None;
+    public MailContent? MailContent { get; set; } = null;
 }
 

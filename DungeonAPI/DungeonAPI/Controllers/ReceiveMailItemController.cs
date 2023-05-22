@@ -23,11 +23,11 @@ public class ReceiveMailItemController : ControllerBase
     [HttpPost]
     public async Task<ReceiveMailItemRes> ProcessRequest(ReceiveMailItemReq request)
     {
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        ReceiveMailItemRes response = await ReceiveMailItem(request, playerId);
+        ReceiveMailItemRes response = await ReceiveMailItem(request, player.Id);
 
-        _logger.ZLogInformationWithPayload(new { Player = playerId }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { Player = player.Id }, response.Result.ToString());
 
         return response;
     }

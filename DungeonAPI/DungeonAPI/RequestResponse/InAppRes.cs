@@ -1,5 +1,4 @@
-﻿using System;
-namespace DungeonAPI.RequestResponse;
+﻿namespace DungeonAPI.RequestResponse;
 
 public class InAppRes : AuthPlayerResponse
 {

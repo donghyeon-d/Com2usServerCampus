@@ -27,14 +27,14 @@ public class EnhanceItemController : ControllerBase
     {
         EnhanceItemRes response = new EnhanceItemRes();
 
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
         var (EnhancePlayerItemErrorCode, resultItem) =
-            await EnhancePlayerItem(request.ItemId, playerId);
+            await EnhancePlayerItem(request.ItemId, player.Id);
 
         response.Result = EnhancePlayerItemErrorCode;
         response.ResultItem = resultItem;
-        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, RequestItemId = request.ItemId, 
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, RequestItemId = request.ItemId, 
                                     ResultItem = response.ResultItem }, response.Result.ToString());
 
         return response;

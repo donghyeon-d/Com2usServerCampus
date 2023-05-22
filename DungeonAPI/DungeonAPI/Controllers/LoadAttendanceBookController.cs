@@ -23,21 +23,21 @@ public class LoadAttendanceBookController : ControllerBase
     [HttpPost]
     public async Task<LoadAttendanceBookRes> LoadAttendanceBook(LoadAttendanceBookReq request)
 	{
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        var player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
         LoadAttendanceBookRes response = new();
 
-        var (loadAttandanceBookErrorCode, attendanceBook) = await _gameDb.LoadAttandanceBookInfo(playerId);
+        var (loadAttandanceBookErrorCode, attendanceBook) = await _gameDb.LoadAttandanceBookInfo(player.Id);
 		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
 		{
 			response.Result = loadAttandanceBookErrorCode;
-            _logger.ZLogInformationWithPayload(new { Player = playerId }, response.Result.ToString());
+            _logger.ZLogInformationWithPayload(new { Player = player.Id }, response.Result.ToString());
             return response;
 		}
 
         response.CanReceive = CanReceiveAttendanceReward(attendanceBook);
         response.DayCount = GetDayCount(attendanceBook);
-        _logger.ZLogInformationWithPayload(new { Player = playerId, DayCount = response.DayCount, CanReceive = response.CanReceive }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { Player = player.Id, DayCount = response.DayCount, CanReceive = response.CanReceive }, response.Result.ToString());
         return response;
     }
 

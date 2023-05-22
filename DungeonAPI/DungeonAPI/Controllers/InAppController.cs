@@ -26,10 +26,10 @@ public class InAppController : ControllerBase
     {
         InAppRes response = new InAppRes();
 
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        response.Result = await ProvidePurchasedProductToMail(playerId, request.ReceiptId);
-        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, ReceiptId = request.ReceiptId }, response.Result.ToString());
+        response.Result = await ProvidePurchasedProductToMail(player.Id, request.ReceiptId);
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, ReceiptId = request.ReceiptId }, response.Result.ToString());
         
         return response;
     }

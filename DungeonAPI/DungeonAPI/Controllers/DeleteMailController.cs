@@ -1,4 +1,5 @@
-﻿using DungeonAPI.RequestResponse;
+﻿using DungeonAPI.ModelDB;
+using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using ZLogger;
@@ -24,17 +25,17 @@ public class DeleteMailController : ControllerBase
     {
         DeleteMailRes response = new DeleteMailRes();
 
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        var player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        var MarkAsDeleteMailErrorCode = await _gameDb.MarkAsDeleteMail(request.MailId, playerId);
+        var MarkAsDeleteMailErrorCode = await _gameDb.MarkAsDeleteMail(request.MailId, player.Id);
         if (MarkAsDeleteMailErrorCode != ErrorCode.None)
         {
             response.Result = MarkAsDeleteMailErrorCode;
-            _logger.ZLogInformationWithPayload(new { PlayerId = playerId, MailId = request.MailId }, response.Result.ToString());
+            _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, MailId = request.MailId }, response.Result.ToString());
             return response;
         }
 
-        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, MailId = request.MailId }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, MailId = request.MailId }, response.Result.ToString());
         return response;
     }
 }

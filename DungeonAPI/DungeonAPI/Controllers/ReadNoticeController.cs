@@ -1,4 +1,5 @@
 ﻿using System;
+using DungeonAPI.ModelDB;
 using DungeonAPI.RequestResponse;
 using DungeonAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +24,10 @@ public class ReadNoticeController : ControllerBase
     public async Task<ReadNoticeRes> ProcessRequest()
     {
         ReadNoticeRes respones = await LoadNotice();
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        _logger.ZLogInformationWithPayload(new { PlayerId = playerId }, respones.Result.ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
+
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id }, respones.Result.ToString());
 
         return respones;
 

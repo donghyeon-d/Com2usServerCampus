@@ -24,11 +24,11 @@ public class ReadMailContentController : ControllerBase
     [HttpPost]
     public async Task<ReadMailContentRes> ProcessRequest(ReadMailContentReq request)
     {
-        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
+        PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        ReadMailContentRes response = await LoadMailContent(request, playerId);
+        ReadMailContentRes response = await LoadMailContent(request, player.Id);
 
-        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, RequestMailId = request.MailId }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, RequestMailId = request.MailId }, response.Result.ToString());
 
         return response;
     }

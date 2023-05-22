@@ -14,4 +14,3 @@ public class Player
     public Int32 Magic { get; set; }
     public Int32 Money { get; set;}
 }
-
