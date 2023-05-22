@@ -1,35 +1,19 @@
-﻿using System;
-using CloudStructures;
-using DungeonAPI.Configs;
-using DungeonAPI.ModelDB;
-using Microsoft.Extensions.Options;
+﻿using DungeonAPI.ModelDB;
 using CloudStructures.Structures;
 using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class NoticeMemeoryDb : INoticeMemoryDb
+public partial class MemoryDb : IMemoryDb
 {
-    static string s_notificationKey { get; set; } = "noticekey";
-    readonly RedisConnection _redisConn;
-    readonly ILogger<NoticeMemeoryDb> _logger;
-    readonly IOptions<DbConfig> _dbConfig;
-    readonly TimeSpan defaultExpiry = TimeSpan.FromDays(1); // TODO: Expiry setting
-
-    public NoticeMemeoryDb(ILogger<NoticeMemeoryDb> logger, IOptions<DbConfig> dbConfig)
-	{
-        _logger = logger;
-        _dbConfig = dbConfig;
-        var redisAddress = _dbConfig.Value.Redis;
-        var redisConfig = new RedisConfig("default", redisAddress);
-        _redisConn = new RedisConnection(redisConfig);
-    }
+    static string s_notificationKey { get; set; } = Util.KeyMaker.MakeNoticeKey();
+    readonly TimeSpan noticeDefaultExpiry = TimeSpan.FromDays(1);
 
     public async Task<ErrorCode> CreateNotification(string title, string content, DateTime? dateTime = null)
     {
         try
         {
-            var redis = new RedisList<Notification>(_redisConn, s_notificationKey, defaultExpiry);
+            var redis = new RedisList<Notification>(_redisConn, s_notificationKey, noticeDefaultExpiry);
             try
             {
                 Notification noti = new ()
@@ -59,7 +43,7 @@ public class NoticeMemeoryDb : INoticeMemoryDb
     {
         try
         {
-            var redis = new RedisList<Notification>(_redisConn, s_notificationKey, defaultExpiry);
+            var redis = new RedisList<Notification>(_redisConn, s_notificationKey, noticeDefaultExpiry);
             try
             {
                 var result = await redis.RangeAsync();

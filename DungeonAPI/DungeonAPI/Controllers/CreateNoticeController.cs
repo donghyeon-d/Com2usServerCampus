@@ -16,12 +16,12 @@ namespace DungeonAPI.Controllers;
 [Route("[controller]")]
 public class CreateNoticeController : ControllerBase
 {
-    readonly INoticeMemoryDb _notice;
+    readonly IMemoryDb _memoryDb;
     readonly IOptions<AdminConfig> _admin;
 
-    public CreateNoticeController(INoticeMemoryDb notice, IOptions<AdminConfig> admin)
+    public CreateNoticeController(IMemoryDb memoryDb, IOptions<AdminConfig> admin)
 	{
-        _notice = notice;
+        _memoryDb = memoryDb;
         _admin = admin;
 	}
 
@@ -42,7 +42,7 @@ public class CreateNoticeController : ControllerBase
             return response;
         }
 
-        ErrorCode createNoticeErrorCode = await _notice.CreateNotification(request.Title, request.Content, request.Date);
+        ErrorCode createNoticeErrorCode = await _memoryDb.CreateNotification(request.Title, request.Content, request.Date);
         if (createNoticeErrorCode != ErrorCode.None)
         {
             response.Result = createNoticeErrorCode;
@@ -54,7 +54,7 @@ public class CreateNoticeController : ControllerBase
 
     async Task<ErrorCode> CheckDuplicateTitle(String title)
     {
-        var (LoadNoticeErrorCode, notices) = await _notice.ReadNotificationList();
+        var (LoadNoticeErrorCode, notices) = await _memoryDb.ReadNotificationList();
         if (LoadNoticeErrorCode != ErrorCode.None || notices is null)
         {
             return LoadNoticeErrorCode;

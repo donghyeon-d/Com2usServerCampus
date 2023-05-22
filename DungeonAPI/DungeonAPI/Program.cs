@@ -34,7 +34,6 @@ void SetConfigure(WebApplicationBuilder? builder)
 void AddService(WebApplicationBuilder? builder)
 {
     builder.Services.AddSingleton<IMasterDataDb, MasterDataDb>();
-    builder.Services.AddSingleton<INoticeMemoryDb, NoticeMemeoryDb>();
     builder.Services.AddSingleton<IMemoryDb, MemoryDb>();
     builder.Services.AddTransient<IAccountDb, AccountDb>();
     builder.Services.AddTransient<IGameDb, GameDb>();
@@ -96,7 +95,6 @@ void AddZLogger()
 void DBInit()
 {
     var masterDataDb = app.Services.GetRequiredService<IMasterDataDb>();
-    var noticeMemoryDb = app.Services.GetRequiredService<INoticeMemoryDb>();
     var memoryDb = app.Services.GetRequiredService<IMemoryDb>();
 
     masterDataDb.Init();

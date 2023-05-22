@@ -21,4 +21,9 @@ public class KeyMaker
     {
         return "P" +playerId + "Dungeon";
     }
+
+    public static string MakeNoticeKey()
+    {
+        return "NoticeKey";
+    }
 }

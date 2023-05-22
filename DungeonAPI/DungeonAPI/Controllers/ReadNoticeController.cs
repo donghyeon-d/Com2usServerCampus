@@ -12,12 +12,12 @@ namespace DungeonAPI.Controllers;
 public class ReadNoticeController : ControllerBase
 {
     readonly ILogger<ReadNoticeController> _logger;
-    readonly INoticeMemoryDb _notice;
+    readonly IMemoryDb _memoryDb;
 
-    public ReadNoticeController(ILogger<ReadNoticeController> logger, INoticeMemoryDb notice)
+    public ReadNoticeController(ILogger<ReadNoticeController> logger, IMemoryDb memoryDb)
     {
         _logger = logger;
-        _notice = notice;
+        _memoryDb = memoryDb;
     }
 
     [HttpPost]
@@ -37,7 +37,7 @@ public class ReadNoticeController : ControllerBase
     {
         ReadNoticeRes respones = new();
 
-        var (LoadNoticeErrorCode, notices) = await _notice.ReadNotificationList();
+        var (LoadNoticeErrorCode, notices) = await _memoryDb.ReadNotificationList();
         if (LoadNoticeErrorCode != ErrorCode.None || notices is null)
         {
             respones.Result = LoadNoticeErrorCode;

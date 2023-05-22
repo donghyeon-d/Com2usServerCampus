@@ -9,7 +9,7 @@ using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class MemoryDb : IMemoryDb
+public partial class MemoryDb : IMemoryDb
 {
     readonly RedisConnection _redisConn;
     readonly ILogger<MemoryDb> _logger;
