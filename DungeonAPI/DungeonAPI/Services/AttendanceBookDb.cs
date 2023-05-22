@@ -8,17 +8,8 @@ using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class AttendanceBookDb : GameDb, IAttendanceBookDb
+public partial class GameDb : IGameDb
 {
-    readonly ILogger<AttendanceBookDb> _logger;
-
-    public AttendanceBookDb(ILogger<AttendanceBookDb> logger, IOptions<DbConfig> dbConfig,
-        IMasterDataDb masterDataDb)
-        : base(logger, dbConfig)
-    {
-        _logger = logger;
-    }
-
     public async Task<Tuple<ErrorCode, AttendanceBook?>> LoadAttandanceBookInfo(Int32 playerId)
     {
         Open();

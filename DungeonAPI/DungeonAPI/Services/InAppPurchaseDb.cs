@@ -8,16 +8,8 @@ using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class InAppPurchaseDb : GameDb, IInAppPurchaseDb
+public partial class GameDb : IGameDb
 {
-    readonly ILogger<InAppPurchaseDb> _logger;
-
-    public InAppPurchaseDb(ILogger<InAppPurchaseDb> logger, IOptions<DbConfig> dbConfig)
-        : base(logger, dbConfig)
-    {
-        _logger = logger;
-    }
-
     public async Task<ErrorCode> RegistReceipt(Int32 playerId, String receiptId, Int32 productCode)
     {
         try

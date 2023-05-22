@@ -9,16 +9,8 @@ using static DungeonAPI.ModelDB.MasterData;
 
 namespace DungeonAPI.Services;
 
-public class ItemDb : GameDb, IItemDb
+public partial class GameDb : IGameDb
 {
-    readonly ILogger<ItemDb> _logger;
-
-    public ItemDb(ILogger<ItemDb> logger, IOptions<DbConfig> dbConfig)
-        : base(logger, dbConfig)
-    {
-        _logger = logger;
-    }
-
     public async Task<ErrorCode> CreateDefaltItemsAsync(Int32 playerId)
     {
         var cols = new[] { "PlayerId", "ItemCode", "ItemCount", "Attack", "Defence", "Magic",

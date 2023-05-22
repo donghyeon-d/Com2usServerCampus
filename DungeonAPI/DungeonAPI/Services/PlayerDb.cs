@@ -9,16 +9,8 @@ using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class PlayerDb : GameDb, IPlayerDb
+public partial class GameDb : IGameDb
 {
-    readonly ILogger<PlayerDb> _logger;
-
-    public PlayerDb(ILogger<PlayerDb> logger, IOptions<DbConfig> dbConfig)
-        : base(logger, dbConfig)
-    {
-        _logger = logger;
-    }
-
     public async Task<Tuple<ErrorCode, Int32>> CreatePlayerAsync(Int32 accountId)
     {
         try

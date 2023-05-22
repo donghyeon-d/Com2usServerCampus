@@ -6,18 +6,8 @@ using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class MailDb : GameDb, IMailDb
+public partial class GameDb : IGameDb
 {
-    // mail 유효기간, 리스트(페이지)당 메일 개수 정해야 
-    readonly ILogger<MailDb> _logger;
-    int _listCount = 2;
-
-    public MailDb(ILogger<MailDb> logger, IOptions<DbConfig> dbConfig)
-        : base(logger, dbConfig)
-    {
-        _logger = logger;
-    }
-
     public async Task<Tuple<ErrorCode, Int32>> SendMail(Mail mail)
     {
         try

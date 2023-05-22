@@ -7,7 +7,7 @@ using DungeonAPI.Configs;
 
 namespace DungeonAPI.Services;
 
-public class GameDb
+public partial class GameDb : IGameDb
 {
     readonly ILogger<GameDb> _logger;
     readonly IOptions<DbConfig> _dbConfig;

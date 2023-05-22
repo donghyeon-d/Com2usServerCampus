@@ -7,16 +7,8 @@ using ZLogger;
 
 namespace DungeonAPI.Services;
 
-public class CompletedDungeonDb : GameDb, ICompletedDungeonDb
+public partial class GameDb : IGameDb
 {
-    readonly ILogger<CompletedDungeonDb> _logger;
-
-    public CompletedDungeonDb(ILogger<CompletedDungeonDb> logger, IOptions<DbConfig> dbConfig)
-        : base(logger, dbConfig)
-    {
-        _logger = logger;
-    }
-
     public async Task<ErrorCode> AddCompletedDungeon(Int32 playerId, Int32 stageCode)
     {
         try
