@@ -1,5 +1,4 @@
-﻿
-# DB 스키마
+﻿# DB 스키마
 
 ## MasterData
 > MasterData를 업데이트 할 때는 모든 내용을 다 덮어씀. 그렇기 때문에 database 전체를 지웠다가 다시 생성함
@@ -176,8 +175,12 @@ CREATE TABLE IF NOT EXISTS GameDB.Mail
     IsDeleted BOOL NOT NULL COMMENT '삭제 여부',
     CanDelete BOOL NOT NULL COMMENT '삭제 가능 여부',
     Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람',
-    ItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount INT NOT NULL COMMENT '아이템 개수'
+    ItemCode1 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount1 INT NOT NULL COMMENT '아이템 개수'
+    ItemCode2 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount2 INT NOT NULL COMMENT '아이템 개수'
+    ItemCode3 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount3 INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '메일 데이터';
 ```
 
