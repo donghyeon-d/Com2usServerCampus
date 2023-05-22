@@ -11,13 +11,13 @@ namespace DungeonAPI.Controllers;
 public class ReadMailListController : ControllerBase
 {
     readonly ILogger<ReadMailListController> _logger;
-    readonly IMailDb _mailDb;
+    readonly IGameDb _gameDb;
 
     public ReadMailListController(ILogger<ReadMailListController> logger,
-    IMailDb mail)
+    IGameDb gameDb)
 	{
         _logger = logger;
-        _mailDb = mail;
+        _gameDb = gameDb;
     }
 
     [HttpPost] 
@@ -38,7 +38,7 @@ public class ReadMailListController : ControllerBase
         ReadMailListRes response = new();
 
 
-        var (readMailErrorCode, mails) = await _mailDb.ReadMailListAtPage(playerId, request.ListNumber);
+        var (readMailErrorCode, mails) = await _gameDb.ReadMailListAtPage(playerId, request.ListNumber);
         if (readMailErrorCode != ErrorCode.None)
         {
             response.Result = readMailErrorCode;

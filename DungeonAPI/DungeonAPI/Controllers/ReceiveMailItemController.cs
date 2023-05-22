@@ -11,15 +11,13 @@ namespace DungeonAPI.Controllers;
 public class ReceiveMailItemController : ControllerBase
 {
     readonly ILogger<ReceiveMailItemController> _logger;
-    readonly IMailDb _mailDb;
-    readonly IItemDb _itemDb;
+    readonly IGameDb _gameDb;
 
     public ReceiveMailItemController(ILogger<ReceiveMailItemController> logger,
-        IMailDb mailDb, IItemDb itemDb)
+        IGameDb mailDb)
 	{
         _logger = logger;
-        _mailDb = mailDb;
-        _itemDb = itemDb;
+        _gameDb = mailDb;
 	}
 
     [HttpPost]
@@ -46,7 +44,7 @@ public class ReceiveMailItemController : ControllerBase
             return response;
         }
 
-        var markAsReceivedErrorCode = await _mailDb.MarkAsReceivedItem(request.MailId, playerId);
+        var markAsReceivedErrorCode = await _gameDb.MarkAsReceivedItem(request.MailId, playerId);
         if (markAsReceivedErrorCode != ErrorCode.None)
         {
             response.Result = markAsReceivedErrorCode;
@@ -65,7 +63,7 @@ public class ReceiveMailItemController : ControllerBase
 
     async Task<Tuple<ErrorCode, Mail?>> LoadMail(Int32 playerId, Int32 mailId)
     {
-        var (loadMailErrorCode, mail) = await _mailDb.LoadMail(mailId);
+        var (loadMailErrorCode, mail) = await _gameDb.LoadMail(mailId);
         if (loadMailErrorCode != ErrorCode.None || mail is null)
         {
             return new (loadMailErrorCode, null);
@@ -87,7 +85,7 @@ public class ReceiveMailItemController : ControllerBase
             return ErrorCode.InvalidItemCode;
         }
 
-        var (pushItemToListErrorCode, itemId) = await _itemDb.AddItemToPlayerItemList(playerId, item);
+        var (pushItemToListErrorCode, itemId) = await _gameDb.AddItemToPlayerItemList(playerId, item);
         if (pushItemToListErrorCode != ErrorCode.None || itemId < 1)
         {
             return pushItemToListErrorCode;

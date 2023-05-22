@@ -13,13 +13,13 @@ namespace DungeonAPI.Controllers;
 public class EnhanceItemController : ControllerBase
 {
     readonly ILogger<EnhanceItemController> _logger;
-    readonly IItemDb _itemDb;
+    readonly IGameDb _gameDb;
 
     public EnhanceItemController(ILogger<EnhanceItemController> logger,
-        IItemDb itemDb)
+        IGameDb gameDb)
 	{
         _logger = logger;
-        _itemDb = itemDb;
+        _gameDb = gameDb;
     }
 
     [HttpPost]
@@ -42,7 +42,7 @@ public class EnhanceItemController : ControllerBase
 
     async Task<Tuple<ErrorCode, Item?>> EnhancePlayerItem(Int32 itemId, Int32 playerId)
     {
-        var (LoadItemErrorCode, item) = await _itemDb.LoadItemByItemId(itemId);
+        var (LoadItemErrorCode, item) = await _gameDb.LoadItemByItemId(itemId);
         if (LoadItemErrorCode != ErrorCode.None)
         {
             return new(LoadItemErrorCode, null);
@@ -57,7 +57,7 @@ public class EnhanceItemController : ControllerBase
 
         Item resultItem = TryEnhanceItem(3, 10, item);
 
-        var updateItemErrorCode = await _itemDb.UpdateItemAsync(resultItem);
+        var updateItemErrorCode = await _gameDb.UpdateItemAsync(resultItem);
         if (updateItemErrorCode != ErrorCode.None)
         {
             return new(updateItemErrorCode, null);

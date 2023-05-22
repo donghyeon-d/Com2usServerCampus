@@ -12,14 +12,14 @@ namespace DungeonAPI.Controllers;
 public class SelectStageController : ControllerBase
 {
     readonly ILogger<SelectStageController> _logger;
-    readonly ICompletedDungeonDb _dungeonStageDb;
+    readonly IGameDb _gameDb;
     readonly IMemoryDb _memoryDb;
 
     public SelectStageController(ILogger<SelectStageController> logger,
-        ICompletedDungeonDb dungeonStageDb, IMemoryDb memoryDb)
+        IGameDb gameDb, IMemoryDb memoryDb)
     {
         _logger = logger;
-        _dungeonStageDb = dungeonStageDb;
+        _gameDb = gameDb;
         _memoryDb = memoryDb;
     }
 
@@ -92,7 +92,7 @@ public class SelectStageController : ControllerBase
         }
 
         var (readCompleteThemaListErrorCode, competeStageList)
-              = await _dungeonStageDb.ReadCompleteList(playerId);
+              = await _gameDb.ReadCompleteList(playerId);
         if (readCompleteThemaListErrorCode != ErrorCode.None || competeStageList is null)
         {
             return readCompleteThemaListErrorCode;

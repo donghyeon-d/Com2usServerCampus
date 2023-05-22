@@ -13,15 +13,12 @@ namespace DungeonAPI.Controllers;
 public class InAppController : ControllerBase
 {
     readonly ILogger<InAppController> _logger;
-    readonly IInAppPurchaseDb _inAppPurchaseDb;
-    readonly IMailDb _mailDb;
+    readonly IGameDb _gameDb;
 
-    public InAppController(ILogger<InAppController> logger, IInAppPurchaseDb inAppPurchaseDb,
-        IMailDb mailDb)
+    public InAppController(ILogger<InAppController> logger, IGameDb gameDb)
 	{
         _logger = logger;
-        _inAppPurchaseDb = inAppPurchaseDb;
-        _mailDb = mailDb;
+        _gameDb = gameDb;
     }
 
     [HttpPost]
@@ -45,7 +42,7 @@ public class InAppController : ControllerBase
             return checkReceiptErrorCode;
         }
 
-        var registReceiptError = await _inAppPurchaseDb.RegistReceipt(playerId, receiptId, productId);
+        var registReceiptError = await _gameDb.RegistReceipt(playerId, receiptId, productId);
         if (registReceiptError != ErrorCode.None)
         {
             return registReceiptError;
@@ -54,7 +51,7 @@ public class InAppController : ControllerBase
         ErrorCode sendItemsToMailErrorCode = await SendItemsToMail(playerId, productId);
         if (sendItemsToMailErrorCode != ErrorCode.None)
         {
-            var deleteErrorCode = await _inAppPurchaseDb.DeleteReceipt(receiptId);
+            var deleteErrorCode = await _gameDb.DeleteReceipt(receiptId);
             if (deleteErrorCode != ErrorCode.None)
             {
                 // TODO : Rollback error
@@ -97,7 +94,7 @@ public class InAppController : ControllerBase
         List<int> mailIdList = new();
         foreach (Mail mail in mailList)
         {
-            var (sendMailErrorCode, mailId) = await _mailDb.SendMail(mail);
+            var (sendMailErrorCode, mailId) = await _gameDb.SendMail(mail);
             if (sendMailErrorCode != ErrorCode.None)
             {
                 mailIdList.Add(mailId);
@@ -109,7 +106,7 @@ public class InAppController : ControllerBase
         {
             foreach (var mailId in mailIdList)
             {
-                var deleteMailErrorCode = await _mailDb.DeleteMail(mailId);
+                var deleteMailErrorCode = await _gameDb.DeleteMail(mailId);
                 if (deleteMailErrorCode != ErrorCode.None)
                 {
                     // TODO : log rollback error

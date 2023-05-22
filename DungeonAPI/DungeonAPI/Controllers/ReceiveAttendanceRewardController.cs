@@ -12,15 +12,15 @@ namespace DungeonAPI.Controllers;
 public class ReceiveAttendanceRewardController : ControllerBase
 {
 	readonly ILogger<ReceiveAttendanceRewardController> _logger;
-	readonly IAttendanceBookDb _attendanceBookDb;
-    readonly IMailDb _mailDb;
+	readonly IGameDb _gameDb;
+    readonly IMailDb _gameDb;
 
     public ReceiveAttendanceRewardController(ILogger<ReceiveAttendanceRewardController> logger,
-        IAttendanceBookDb attendanceBookDb, IMailDb mailDb)
+        IGameDb attendanceBookDb, IMailDb mailDb)
 	{
 		_logger = logger;
-		_attendanceBookDb = attendanceBookDb;
-        _mailDb = mailDb;
+		_gameDb = attendanceBookDb;
+        _gameDb = mailDb;
     }
 
     [HttpPost]
@@ -40,7 +40,7 @@ public class ReceiveAttendanceRewardController : ControllerBase
     async Task<ErrorCode> ReceiveRewardToMail(Int32 playerId)
     {
         var (loadAttandanceBookErrorCode, attendanceBook) 
-                = await _attendanceBookDb.LoadAttandanceBookInfo(playerId);
+                = await _gameDb.LoadAttandanceBookInfo(playerId);
         if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
         {
             return loadAttandanceBookErrorCode;
@@ -53,7 +53,7 @@ public class ReceiveAttendanceRewardController : ControllerBase
 
         AttendanceBook todayAttendanceBook = CalcTodayAttendanceBook(attendanceBook);
         
-        var updateAttendanceErrorCode = await _attendanceBookDb.UpdateAttendanceBook(todayAttendanceBook);
+        var updateAttendanceErrorCode = await _gameDb.UpdateAttendanceBook(todayAttendanceBook);
         if (updateAttendanceErrorCode != ErrorCode.None)
         {
             return updateAttendanceErrorCode;
@@ -62,7 +62,7 @@ public class ReceiveAttendanceRewardController : ControllerBase
         var (sendMailErrorCode, mailId) = await SendToMailDailyReward(playerId, todayAttendanceBook.DayCount);
         if (sendMailErrorCode != ErrorCode.None)
         {
-            var rollbackErrorCode = await _attendanceBookDb.UpdateAttendanceBook(attendanceBook);
+            var rollbackErrorCode = await _gameDb.UpdateAttendanceBook(attendanceBook);
             if (rollbackErrorCode != ErrorCode.None)
             {
                 // TODO : RollbackError
@@ -111,7 +111,7 @@ public class ReceiveAttendanceRewardController : ControllerBase
             ItemCount = reward.Count
         };
 
-        return await _mailDb.SendMail(mail);
+        return await _gameDb.SendMail(mail);
     }
 }
 

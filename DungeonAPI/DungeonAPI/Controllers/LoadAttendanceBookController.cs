@@ -11,13 +11,13 @@ namespace DungeonAPI.Controllers;
 public class LoadAttendanceBookController : ControllerBase
 {
 	readonly ILogger<LoadAttendanceBookController> _logger;
-	readonly IAttendanceBookDb _attendanceBookDb;
+	readonly IGameDb _gameDb;
 
 	public LoadAttendanceBookController(ILogger<LoadAttendanceBookController> logger,
-        IAttendanceBookDb attendanceBookDb)
+        IGameDb gameDb)
 	{
 		_logger = logger;
-		_attendanceBookDb = attendanceBookDb;
+		_gameDb = gameDb;
     }
 
     [HttpPost]
@@ -27,7 +27,7 @@ public class LoadAttendanceBookController : ControllerBase
 
         LoadAttendanceBookRes response = new();
 
-        var (loadAttandanceBookErrorCode, attendanceBook) = await _attendanceBookDb.LoadAttandanceBookInfo(playerId);
+        var (loadAttandanceBookErrorCode, attendanceBook) = await _gameDb.LoadAttandanceBookInfo(playerId);
 		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
 		{
 			response.Result = loadAttandanceBookErrorCode;

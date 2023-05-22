@@ -14,18 +14,17 @@ public class LoginController : ControllerBase
     readonly ILogger<LoginController> _logger;
     readonly IAccountDb _accountDb;
     readonly IMemoryDb _memoryDb;
-    readonly IPlayerDb _playerDb;
-    readonly IItemDb _itemDb;
+    readonly IGameDb _gameDb;
 
     public LoginController(ILogger<LoginController> logger, IAccountDb accountDb,
-        IPlayerDb player, IItemDb item, IMemoryDb authUser) 
+        IGameDb gameDb, IMemoryDb memoryDb) 
 	{
         _logger = logger;
         _accountDb = accountDb;
-        _playerDb = player;
-        _itemDb = item;
-        _memoryDb = authUser;
-	}
+        _gameDb = gameDb;
+        _memoryDb = memoryDb;
+
+    }
 
     [HttpPost]
     public async Task<LoginRes> ProcessRequest(LoginReq request)
@@ -47,14 +46,14 @@ public class LoginController : ControllerBase
             return response;
         }
 
-        var (loadPlayerErrorCode, player) = await _playerDb.LoadPlayerByAccountAsync(accountId);
+        var (loadPlayerErrorCode, player) = await _gameDb.LoadPlayerByAccountAsync(accountId);
         if (loadPlayerErrorCode != ErrorCode.None || player is null)
         {
             response.Result = loadPlayerErrorCode;
             return response;
         }
 
-        var (loadItemErrorcode, items) = await _itemDb.LoadPlayerItemListAsync(player.PlayerId);
+        var (loadItemErrorcode, items) = await _gameDb.LoadPlayerItemListAsync(player.PlayerId);
         if (loadItemErrorcode != ErrorCode.None)
         {
             response.Result = loadItemErrorcode;

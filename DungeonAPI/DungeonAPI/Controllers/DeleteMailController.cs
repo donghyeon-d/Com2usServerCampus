@@ -12,13 +12,13 @@ namespace DungeonAPI.Controllers;
 public class DeleteMailController : ControllerBase
 {
     readonly ILogger<DeleteMailController> _logger;
-    readonly IMailDb _mailDb;
+    readonly IGameDb _gameDb;
 
     public DeleteMailController(ILogger<DeleteMailController> logger,
-        IMailDb mailDb)
+        IGameDb gameDb)
 	{
         _logger = logger;
-        _mailDb = mailDb;
+        _gameDb = gameDb;
 	}
 
     [HttpPost]
@@ -28,7 +28,7 @@ public class DeleteMailController : ControllerBase
 
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        var MarkAsDeleteMailErrorCode = await _mailDb.MarkAsDeleteMail(request.MailId, playerId);
+        var MarkAsDeleteMailErrorCode = await _gameDb.MarkAsDeleteMail(request.MailId, playerId);
         if (MarkAsDeleteMailErrorCode != ErrorCode.None)
         {
             response.Result = MarkAsDeleteMailErrorCode;

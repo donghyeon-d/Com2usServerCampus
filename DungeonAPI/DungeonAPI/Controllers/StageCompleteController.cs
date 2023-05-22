@@ -14,18 +14,14 @@ public class StageCompleteController : ControllerBase
 {
     readonly ILogger<StageCompleteController> _logger;
     readonly IMemoryDb _memoryDb;
-    readonly IItemDb _itemDb;
-    readonly IPlayerDb _playerDb;
-    readonly ICompletedDungeonDb _completedDungeonDb;
+    readonly IGameDb _gameDb;
 
     public StageCompleteController(ILogger<StageCompleteController> logger,
-    IMemoryDb memoryDb, IItemDb itemDb, IPlayerDb playerDb, ICompletedDungeonDb completedDungeonDb)
+    IMemoryDb memoryDb, IGameDb gameDb)
     {
         _logger = logger;
         _memoryDb = memoryDb;
-        _itemDb = itemDb;
-        _playerDb = playerDb;
-        _completedDungeonDb = completedDungeonDb;
+        _gameDb = gameDb;
     }
 
     [HttpPost]
@@ -79,7 +75,7 @@ public class StageCompleteController : ControllerBase
 
      async Task<ErrorCode> SaveCompletedDungeon(Int32 playerId, Int32 playerStage)
     {
-        var addCompletedDungeonErrorCoed =  await _completedDungeonDb.AddCompletedDungeon(playerId, playerStage);
+        var addCompletedDungeonErrorCoed =  await _gameDb.AddCompletedDungeon(playerId, playerStage);
         if (addCompletedDungeonErrorCoed != ErrorCode.None)
         {
             return addCompletedDungeonErrorCoed;
@@ -157,7 +153,7 @@ public class StageCompleteController : ControllerBase
         foreach(var item in ItemList)
         {
             var (addItemErrorCode, itemId) =
-                await _itemDb.AddItemToPlayerItemList(playerId, item);
+                await _gameDb.AddItemToPlayerItemList(playerId, item);
             if (addItemErrorCode != ErrorCode.None)
             {
                 await RollbackAddedItem(itemIdList);
@@ -188,7 +184,7 @@ public class StageCompleteController : ControllerBase
     {
         foreach (var itemId in itemIdList)
         {
-            if (await _itemDb.DeleteItem(itemId) != ErrorCode.None)
+            if (await _gameDb.DeleteItem(itemId) != ErrorCode.None)
             {
                 // TODO : Rollback Error Log
             }
@@ -218,7 +214,7 @@ public class StageCompleteController : ControllerBase
             return saveMoneyErrorCode;
         }
 
-        var addExpErrorCode = await _playerDb.AddExp(playerId, totalExp);
+        var addExpErrorCode = await _gameDb.AddExp(playerId, totalExp);
         if(addExpErrorCode != ErrorCode.None)
         {
             await RollbackAddMoney(playerId, moneyCount);
@@ -259,7 +255,7 @@ public class StageCompleteController : ControllerBase
             return new(ErrorCode.None, 0);
         }
 
-        var addMoneyErrorCode = await _playerDb.AddMoney(playerId, money.Count);
+        var addMoneyErrorCode = await _gameDb.AddMoney(playerId, money.Count);
         if (addMoneyErrorCode != ErrorCode.None)
         {
             return new(addMoneyErrorCode, 0);
@@ -275,7 +271,7 @@ public class StageCompleteController : ControllerBase
             return;
         }
 
-        var addMoneyErrorCode =  await _playerDb.AddMoney(playerId, amount * -1);
+        var addMoneyErrorCode =  await _gameDb.AddMoney(playerId, amount * -1);
         if (addMoneyErrorCode != ErrorCode.None)
         {
             //  Rollback error log
@@ -322,7 +318,7 @@ public class StageCompleteController : ControllerBase
     {
         foreach (var itemId in itemIdList) 
         {
-            var deleteItemErrorCode = await _itemDb.DeleteItem(itemId);
+            var deleteItemErrorCode = await _gameDb.DeleteItem(itemId);
             if (deleteItemErrorCode != ErrorCode.None )
             {
                 // TODO: rollback error log

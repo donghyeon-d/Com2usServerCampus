@@ -11,13 +11,13 @@ namespace DungeonAPI.Controllers;
 public class StageListController : ControllerBase
 {
     readonly ILogger<StageListController> _logger;
-    readonly ICompletedDungeonDb _completedDungeonDb;
+    readonly IGameDb _gameDb;
 
     public StageListController(ILogger<StageListController> logger,
-        ICompletedDungeonDb completedDungeonDb)
+        IGameDb gameDb)
     {
         _logger = logger;
-        _completedDungeonDb = completedDungeonDb;
+        _gameDb = gameDb;
     }
 
     [HttpPost]
@@ -37,8 +37,9 @@ public class StageListController : ControllerBase
         StageListRes response = new();
 
         var (readCompleteListErrorCode, completedStageList)
-                = await _completedDungeonDb.ReadCompleteList(player.Id);
-        if (readCompleteListErrorCode != ErrorCode.None || completedStageList.Count() == 0)
+                = await _gameDb.ReadCompleteList(player.Id);
+        if (readCompleteListErrorCode != ErrorCode.None ||
+            completedStageList is null || completedStageList.Count() == 0)
         {
             response.Result = readCompleteListErrorCode;
             return response;

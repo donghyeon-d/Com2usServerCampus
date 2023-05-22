@@ -12,18 +12,14 @@ public class CreateAccountController : ControllerBase
 {
     readonly ILogger<CreateAccountController> _logger;
     readonly IAccountDb _accountDb;
-    readonly IPlayerDb _player;
-    readonly IItemDb _item;
-    readonly IAttendanceBookDb _attendanceBook;
+    readonly IGameDb _gameDb;
 
-    public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDb accountDb,
-        IMasterDataDb masterData, IPlayerDb player, IItemDb item, IAttendanceBookDb attendanceBook)
+    public CreateAccountController(ILogger<CreateAccountController> logger, 
+                IAccountDb accountDb, IMasterDataDb masterData, IGameDb game)
     {
         _logger = logger;
         _accountDb = accountDb;
-        _player = player;
-        _item = item;
-        _attendanceBook = attendanceBook;
+        _gameDb = game;
     }
 
     [HttpPost]
@@ -39,7 +35,7 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
-        var (playerErrorCode, playerId) = await _player.CreatePlayerAsync(accountId);
+        var (playerErrorCode, playerId) = await _gameDb.CreatePlayerAsync(accountId);
         if (playerErrorCode != ErrorCode.None)
         {
             await Rollback(request.Email, accountId);
@@ -48,7 +44,7 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
-        var itemErrorCode = await _item.CreateDefaltItemsAsync(playerId);
+        var itemErrorCode = await _gameDb.CreateDefaltItemsAsync(playerId);
         if (itemErrorCode != ErrorCode.None)
         {
             await Rollback(request.Email, accountId, playerId);
@@ -57,7 +53,7 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
-        var createPlayerAttendanceBookErrorCode = await _attendanceBook.CreatePlayerAttendanceBook(playerId);
+        var createPlayerAttendanceBookErrorCode = await _gameDb.CreatePlayerAttendanceBook(playerId);
         if (createPlayerAttendanceBookErrorCode != ErrorCode.None)
         {
             await Rollback(request.Email, accountId, playerId, playerId);
@@ -79,17 +75,17 @@ public class CreateAccountController : ControllerBase
 
         if (accountId != 0) 
         { 
-            await _player.DeletePlayerAsync(accountId);
+            await _gameDb.DeletePlayerAsync(accountId);
         }
 
         if (playerId != 0)
         {
-            await _item.DeletePlayerAllItemsAsync(playerId);
+            await _gameDb.DeletePlayerAllItemsAsync(playerId);
         }
 
         if (attendancePlayerId != 0)
         {
-            await _attendanceBook.DeletePlayerAttendanceBook(playerId);
+            await _gameDb.DeletePlayerAttendanceBook(playerId);
         }
     }
 }
