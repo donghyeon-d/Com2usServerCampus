@@ -1,12 +1,6 @@
-﻿using System;
-using DungeonAPI.ModelDB;
-using System.ComponentModel.DataAnnotations;
+﻿namespace DungeonAPI.RequestResponse;
 
-namespace DungeonAPI.RequestResponse;
-
-public class ReceiveMailItemRes
+public class ReceiveMailItemRes : AuthPlayerResponse
 {
-    [Required]
-    public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 

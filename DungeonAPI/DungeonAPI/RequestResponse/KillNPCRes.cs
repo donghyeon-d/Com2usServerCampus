@@ -1,6 +1,5 @@
 ﻿namespace DungeonAPI.RequestResponse;
 
-public class KillNPCRes
+public class KillNPCRes : AuthPlayerResponse
 {
-    public ErrorCode Result { get; set; }
 }

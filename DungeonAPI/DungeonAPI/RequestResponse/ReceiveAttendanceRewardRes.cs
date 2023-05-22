@@ -1,9 +1,6 @@
-﻿using System;
-namespace DungeonAPI.RequestResponse
+﻿namespace DungeonAPI.RequestResponse;
+
+public class ReceiveAttendanceRewardRes : AuthPlayerResponse
 {
-	public class ReceiveAttendanceRewardRes
-	{
-		public ErrorCode Result { get; set; } = ErrorCode.None;
-	}
 }
 

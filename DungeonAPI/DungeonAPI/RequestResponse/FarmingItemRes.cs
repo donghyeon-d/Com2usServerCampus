@@ -1,6 +1,5 @@
 ﻿namespace DungeonAPI.RequestResponse;
 
-public class FarmingItemRes
+public class FarmingItemRes : AuthPlayerResponse
 {
-    public ErrorCode Result { get; set; }
 }

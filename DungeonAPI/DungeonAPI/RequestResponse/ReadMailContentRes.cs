@@ -4,9 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class ReadMailContentRes
+public class ReadMailContentRes : AuthPlayerResponse
 {
-    public MailContent? MailContent { get; set; } = null;
     public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 

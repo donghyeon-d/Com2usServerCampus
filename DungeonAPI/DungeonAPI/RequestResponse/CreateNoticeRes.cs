@@ -3,9 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class CreateNoticeRes
+public class CreateNoticeRes : AuthPlayerResponse
 {
-    [Required]
-    public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 

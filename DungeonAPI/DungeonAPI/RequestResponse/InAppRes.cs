@@ -1,8 +1,7 @@
 ﻿using System;
 namespace DungeonAPI.RequestResponse;
 
-public class InAppRes
+public class InAppRes : AuthPlayerResponse
 {
-	public ErrorCode Result { get; set; }
 }
 

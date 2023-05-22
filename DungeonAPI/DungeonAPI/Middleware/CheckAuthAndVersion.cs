@@ -84,7 +84,7 @@ public class CheckAuthAndVersion
             var playerId = document.RootElement.GetProperty("PlayerId").GetString();
             var authToken = document.RootElement.GetProperty("AuthToken").GetString();
             // playerId는 request에서 required로 정의되어 있기에 null일 수 없음
-            var (LoadAuthUserErrorCode, authUser) = await _memoryDb.LoadPlayer(playerId);
+            var (LoadAuthUserErrorCode, authUser) = await _memoryDb.LoadPlayer(int.Parse(playerId));
 
             if (LoadAuthUserErrorCode != ErrorCode.None)
             {

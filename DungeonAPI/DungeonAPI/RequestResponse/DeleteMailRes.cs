@@ -3,9 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DungeonAPI.RequestResponse;
 
-public class DeleteMailRes
+public class DeleteMailRes : AuthPlayerResponse
 {
-    [Required]
-    public ErrorCode Result { get; set; } = ErrorCode.None;
 }
 
