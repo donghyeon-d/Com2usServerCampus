@@ -1,5 +1,5 @@
 service mysql start
 
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'com2us'@'%' WITH GRANT OPTION;
 
-alter user 'com2us'@'%' identified with mysql_native_password by 'new password';
+alter user 'com2us'@'%' identified by '123123';

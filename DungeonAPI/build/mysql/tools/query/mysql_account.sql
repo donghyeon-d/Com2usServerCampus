@@ -5,7 +5,7 @@ USE AccountDB;
 CREATE TABLE IF NOT EXISTS AccountDB.Account
 (
     AccountID INT AUTO_INCREMENT PRIMARY KEY COMMENT '계정 고유번호',
-    Email VARCHAR(50) UNIQUE COMMENT '계정 이름',
+    Email VARCHAR(50) UNIQUE NOT NULL COMMENT '계정 이름',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
     SaltValue VARCHAR(100) NOT NULL COMMENT '솔트값',
     IsDeleted TINYINT DEFAULT 0 NOT NULL COMMENT '삭제 요청 유무'

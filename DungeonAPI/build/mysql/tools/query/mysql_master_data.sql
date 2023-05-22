@@ -1,3 +1,4 @@
+
 USE MasterDataDB;
 
 INSERT into Meta (Version)

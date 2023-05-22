@@ -1,8 +1,10 @@
 CREATE DATABASE IF NOT EXISTS GameDB;
 
+USE GameDB;
+
 CREATE TABLE IF NOT EXISTS GameDB.Player
 (
-    AccountId INT NOT NULL COMMENT '계정DB 번호',
+    AccountId INT NOT NULL UNIQUE COMMENT '계정DB 번호',
     PlayerId INT AUTO_INCREMENT PRIMARY KEY COMMENT '유저 고유번호',
     Exp INT NOT NULL COMMENT  '경험치',
     Level INT NOT NULL COMMENT  '레벨',
@@ -20,9 +22,9 @@ CREATE TABLE IF NOT EXISTS GameDB.Item
     ItemId INT AUTO_INCREMENT PRIMARY KEY COMMENT '아이템 고유번호',
     ItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
     ItemCount INT NOT NULL COMMENT '아이템 개수',
-    Attack BIGINT NOT NULL COMMENT '공격력',
-    Defence BIGINT NOT NULL COMMENT '방어력',
-    Magic BIGINT NOT NULL COMMENT '마법력',
+    Attack INT NOT NULL COMMENT '공격력',
+    Defence INT NOT NULL COMMENT '방어력',
+    Magic INT NOT NULL COMMENT '마법력',
     EnhanceLevel INT NOT NULL COMMENT '강화 레벨',
     EnhanceTryCount TINYINT NOT NULL COMMENT '남은 강화 횟수',
     IsDestructed BOOL NOT NULL COMMENT '파괴 유무',
@@ -42,8 +44,14 @@ CREATE TABLE IF NOT EXISTS GameDB.Mail
     IsDeleted BOOL NOT NULL COMMENT '삭제 여부',
     CanDelete BOOL NOT NULL COMMENT '삭제 가능 여부',
     Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람',
-    ItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount INT NOT NULL COMMENT '아이템 개수'
+    ItemCode1 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount1 INT NOT NULL COMMENT '아이템 개수',
+    ItemCode2 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount2 INT NOT NULL COMMENT '아이템 개수',
+    ItemCode3 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount3 INT NOT NULL COMMENT '아이템 개수',
+    ItemCode4 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount4 INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '메일 데이터';
 
 CREATE TABLE IF NOT EXISTS GameDB.AttendanceBook

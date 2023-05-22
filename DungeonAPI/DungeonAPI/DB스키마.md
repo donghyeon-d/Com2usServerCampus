@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS AccountDB.Account
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
     SaltValue VARCHAR(100) NOT NULL COMMENT '솔트값',
     IsDeleted TINYINT DEFAULT 0 NOT NULL COMMENT '삭제 요청 유무'
-);
+) COMMENT '계정 정보';
 ```
 
 ## GameDB
@@ -129,7 +129,7 @@ CREATE DATABASE IF NOT EXISTS GameDB;
 ```
 CREATE TABLE IF NOT EXISTS GameDB.Player
 (
-    AccountId INT PRIMARY KEY COMMENT '계정DB 번호',
+    AccountId INT NOT NULL UNIQUE COMMENT '계정DB 번호',
     PlayerId INT AUTO_INCREMENT PRIMARY KEY COMMENT '유저 고유번호',
     Exp INT NOT NULL COMMENT  '경험치',
     Level INT NOT NULL COMMENT  '레벨',
@@ -176,11 +176,13 @@ CREATE TABLE IF NOT EXISTS GameDB.Mail
     CanDelete BOOL NOT NULL COMMENT '삭제 가능 여부',
     Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람',
     ItemCode1 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount1 INT NOT NULL COMMENT '아이템 개수'
+    ItemCount1 INT NOT NULL COMMENT '아이템 개수',
     ItemCode2 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount2 INT NOT NULL COMMENT '아이템 개수'
+    ItemCount2 INT NOT NULL COMMENT '아이템 개수',
     ItemCode3 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount3 INT NOT NULL COMMENT '아이템 개수'
+    ItemCount3 INT NOT NULL COMMENT '아이템 개수',
+    ItemCode4 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount4 INT NOT NULL COMMENT '아이템 개수'
 ) COMMENT '메일 데이터';
 ```
 
