@@ -5,6 +5,7 @@ namespace DungeonAPI.RequestResponse;
 
 public class InAppReq : AuthPlayerRequest
 {
-   public String ReceiptId { get; set; } = "";
+    [Required]
+    public String ReceiptId { get; set; } = "";
 }
 

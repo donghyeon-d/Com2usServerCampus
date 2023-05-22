@@ -175,14 +175,8 @@ CREATE TABLE IF NOT EXISTS GameDB.Mail
     IsDeleted BOOL NOT NULL COMMENT '삭제 여부',
     CanDelete BOOL NOT NULL COMMENT '삭제 가능 여부',
     Sender VARCHAR(50) NOT NULL COMMENT '보낸 사람',
-    ItemCode1 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount1 INT NOT NULL COMMENT '아이템 개수',
-    ItemCode2 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount2 INT NOT NULL COMMENT '아이템 개수',
-    ItemCode3 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount3 INT NOT NULL COMMENT '아이템 개수',
-    ItemCode4 INT NOT NULL COMMENT '아이템 마스터데이터 번호',
-    ItemCount4 INT NOT NULL COMMENT '아이템 개수'
+    ItemCode INT NOT NULL COMMENT '아이템 마스터데이터 번호',
+    ItemCount INT NOT NULL COMMENT '아이템 개수',
 ) COMMENT '메일 데이터';
 ```
 

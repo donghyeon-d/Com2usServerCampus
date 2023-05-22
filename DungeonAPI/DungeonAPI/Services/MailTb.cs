@@ -57,7 +57,7 @@ public partial class GameDb : IGameDb
             pageNumber--; // client는 1페이지부터 시작인데, db에는 0부터 저장 
             Int32 start = (pageNumber * _listCount);
             var result = await _queryFactory.Query("Mail")
-                        .Select("MailId", "Title", "PostDate", "ExpiredDate", "IsOpend", 
+                        .Select("MailId", "Title", "PostDate", "ExpiredDate", "IsOpened", 
                         "IsReceivedItem", "CanDelete", "Sender", "ItemCode", "ItemCount")
                         .Where("PlayerId", playerId)
                         .WhereDate("ExpiredDate", ">", DateTime.Now)

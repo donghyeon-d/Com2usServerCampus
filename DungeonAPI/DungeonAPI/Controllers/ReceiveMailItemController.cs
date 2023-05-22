@@ -3,6 +3,7 @@ using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
 using ZLogger;
+using static Humanizer.In;
 
 namespace DungeonAPI.Controllers;
 
@@ -41,6 +42,12 @@ public class ReceiveMailItemController : ControllerBase
         if (loadMailErrorCode != ErrorCode.None || mail is null)
         {
             response.Result = loadMailErrorCode;
+            return response;
+        }
+
+        if (mail.IsReceivedItem)
+        {
+            response.Result = ErrorCode.MailRewardAlreadyReceived;
             return response;
         }
 
@@ -84,16 +91,28 @@ public class ReceiveMailItemController : ControllerBase
 
     async Task<ErrorCode> PushMailItemToList(Int32 playerId, Mail mail)
     {
-        Item? item = Item.InitItem(playerId, mail.ItemCode1, mail.ItemCount1);
+        Item? item = Item.InitItem(playerId, mail.ItemCode, mail.ItemCount);
         if (item is null)
         {
             return ErrorCode.InvalidItemCode;
         }
 
-        var (pushItemToListErrorCode, itemId) = await _gameDb.AddItemToPlayerItemList(playerId, item);
-        if (pushItemToListErrorCode != ErrorCode.None || itemId < 1)
+        if (Util.ItemAttribute.IsGold(item.ItemCode))
         {
-            return pushItemToListErrorCode;
+            var addMoneyErrorCode = await _gameDb.AddMoney(playerId, item.ItemCount);
+            if (addMoneyErrorCode != ErrorCode.None)
+            {
+                return addMoneyErrorCode;
+            }
+        }
+        else
+        {
+            var (pushItemToListErrorCode, itemId) = await _gameDb.AddItemToPlayerItemList(playerId, item);
+            if (pushItemToListErrorCode != ErrorCode.None || itemId < 1)
+            {
+                return pushItemToListErrorCode;
+            }
+
         }
 
         return ErrorCode.None;

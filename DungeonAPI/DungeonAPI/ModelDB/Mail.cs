@@ -14,15 +14,8 @@ public class Mail
 	public Boolean IsDeleted { get; set; } = false;
     public Boolean CanDelete { get; set; } = true;
     public String Sender { get; set; } = "";
-	public Int32 ItemCode1 { get; set; }
-	public Int32 ItemCount1 { get; set; }
-    public Int32 ItemCode2 { get; set; }
-    public Int32 ItemCount2 { get; set; }
-    public Int32 ItemCode3 { get; set; }
-    public Int32 ItemCount3 { get; set; }
-    public Int32 ItemCode4 { get; set; }
-    public Int32 ItemCount4 { get; set; }
-
+	public Int32 ItemCode { get; set; }
+	public Int32 ItemCount { get; set; }
 }
 
 public class MailInfo
@@ -35,14 +28,8 @@ public class MailInfo
     public Boolean IsReceivedItem { get; set; }
     public Boolean CanDelete { get; set; }
     public String Sender { get; set; } = "";
-    public Int32 ItemCode1 { get; set; }
-    public Int32 ItemCount1 { get; set; }
-    public Int32 ItemCode2 { get; set; }
-    public Int32 ItemCount2 { get; set; }
-    public Int32 ItemCode3 { get; set; }
-    public Int32 ItemCount3 { get; set; }
-    public Int32 ItemCode4 { get; set; }
-    public Int32 ItemCount4 { get; set; }
+    public Int32 ItemCode { get; set; }
+    public Int32 ItemCount { get; set; }
 }
 
 public class MailContent

@@ -106,8 +106,8 @@ public class ReceiveAttendanceRewardController : ControllerBase
             Content = "This is AttendanceBook Reward! Enjoy you Game Life!",
             ExpiredDate = DateTime.Today.AddDays(14),
             Sender = "AttendanceBook",
-            ItemCode1 = reward.Code,
-            ItemCount1 = reward.Count
+            ItemCode = reward.Code,
+            ItemCount = reward.Count
         };
 
         return await _gameDb.SendMail(mail);
