@@ -29,8 +29,8 @@ public class InAppController : ControllerBase
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
         response.Result = await ProvidePurchasedProductToMail(playerId, request.ReceiptId);
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, ReceiptId = request.ReceiptId }, response.Result.ToString());
-
+        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, ReceiptId = request.ReceiptId }, response.Result.ToString());
+        
         return response;
     }
 
@@ -54,7 +54,9 @@ public class InAppController : ControllerBase
             var deleteErrorCode = await _gameDb.DeleteReceipt(receiptId);
             if (deleteErrorCode != ErrorCode.None)
             {
-                // TODO : Rollback error
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + deleteErrorCode.ToString());
+                return deleteErrorCode;
+
             }
             return sendItemsToMailErrorCode;
         }
@@ -110,6 +112,8 @@ public class InAppController : ControllerBase
                 if (deleteMailErrorCode != ErrorCode.None)
                 {
                     // TODO : log rollback error
+                    _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + deleteMailErrorCode.ToString());
+                    return deleteMailErrorCode;
                 }
             }
             return ErrorCode.InAppSendMailFail;

@@ -25,14 +25,14 @@ public class StageListController : ControllerBase
     {
         PlayerInfo player = (PlayerInfo)HttpContext.Items["PlayerInfo"];
 
-        StageListRes response = await ReadCompletedDungeonList(request, player);
+        StageListRes response = await ReadCompletedDungeonList(player);
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id }, response.Result.ToString());
 
         return response;
     }
 
-    async Task<StageListRes> ReadCompletedDungeonList(StageListReq request, PlayerInfo player)
+    async Task<StageListRes> ReadCompletedDungeonList(PlayerInfo player)
     {
         StageListRes response = new();
 

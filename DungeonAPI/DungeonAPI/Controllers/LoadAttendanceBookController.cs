@@ -31,13 +31,13 @@ public class LoadAttendanceBookController : ControllerBase
 		if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
 		{
 			response.Result = loadAttandanceBookErrorCode;
-            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+            _logger.ZLogInformationWithPayload(new { Player = playerId }, response.Result.ToString());
             return response;
 		}
 
         response.CanReceive = CanReceiveAttendanceReward(attendanceBook);
         response.DayCount = GetDayCount(attendanceBook);
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, DayCount = response.DayCount, CanReceive = response.CanReceive }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { Player = playerId, DayCount = response.DayCount, CanReceive = response.CanReceive }, response.Result.ToString());
         return response;
     }
 

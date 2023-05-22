@@ -29,7 +29,7 @@ public class KillNPCController : ControllerBase
         KillNPCRes response = new();
 
         response.Result = await AddKillNPCToList(player, request);
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, KilledNPCCode = request.KilledNPCCode }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { Player = player.Id, KilledNPCCode = request.KilledNPCCode }, response.Result.ToString());
 
         return response;
     }
@@ -166,12 +166,15 @@ public class KillNPCController : ControllerBase
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
             // TODO: Rollback Error
+            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
         }
 
         var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
         if (deleteDungeonInfoErrorCode != ErrorCode.None)
         {
             // TODO : Rollback Error
+            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + deleteDungeonInfoErrorCode.ToString());
+
         }
     }
 }

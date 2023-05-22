@@ -34,7 +34,7 @@ public class EnhanceItemController : ControllerBase
 
         response.Result = EnhancePlayerItemErrorCode;
         response.ResultItem = resultItem;
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, RequestItemId = request.ItemId, 
+        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, RequestItemId = request.ItemId, 
                                     ResultItem = response.ResultItem }, response.Result.ToString());
 
         return response;
@@ -47,7 +47,6 @@ public class EnhanceItemController : ControllerBase
         {
             return new(LoadItemErrorCode, null);
         }
-
 
         var CheckEnhanceResult = CheckCanEnhanceItem(playerId, item);
         if (CheckEnhanceResult != ErrorCode.None)

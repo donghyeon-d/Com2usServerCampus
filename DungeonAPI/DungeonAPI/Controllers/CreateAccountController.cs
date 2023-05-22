@@ -15,7 +15,7 @@ public class CreateAccountController : ControllerBase
     readonly IGameDb _gameDb;
 
     public CreateAccountController(ILogger<CreateAccountController> logger, 
-                IAccountDb accountDb, IMasterDataDb masterData, IGameDb game)
+                IAccountDb accountDb, IGameDb game)
     {
         _logger = logger;
         _accountDb = accountDb;
@@ -35,57 +35,84 @@ public class CreateAccountController : ControllerBase
             return response;
         }
 
+        var (createPlayerErrorCode, playerId) = await CreatePlayerAsync(request.Email, accountId);
+        if (createPlayerErrorCode != ErrorCode.None)
+        {
+            response.Result = createPlayerErrorCode;
+            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+            return response;
+        }
+
+        _logger.ZLogInformationWithPayload(new { PlayerId = playerId }, response.Result.ToString());
+        return response;
+    }
+
+    async Task<Tuple<ErrorCode, Int32>> CreatePlayerAsync(string email, int accountId)
+    {
+
         var (playerErrorCode, playerId) = await _gameDb.CreatePlayerAsync(accountId);
         if (playerErrorCode != ErrorCode.None)
         {
-            await Rollback(request.Email, accountId);
-            response.Result = playerErrorCode;
-            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
-            return response;
+            await Rollback(email, accountId);
+            _logger.ZLogInformationWithPayload(new { Email = email }, playerErrorCode.ToString());
+            return new (playerErrorCode, 0);
         }
 
         var itemErrorCode = await _gameDb.CreateDefaltItemsAsync(playerId);
         if (itemErrorCode != ErrorCode.None)
         {
-            await Rollback(request.Email, accountId, playerId);
-            response.Result = itemErrorCode;
-            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
-            return response;
+            await Rollback(email, accountId, playerId);
+            _logger.ZLogInformationWithPayload(new { Email = email, PlayerID = playerId }, itemErrorCode.ToString());
+            return new (itemErrorCode, playerId);
         }
 
         var createPlayerAttendanceBookErrorCode = await _gameDb.CreatePlayerAttendanceBook(playerId);
         if (createPlayerAttendanceBookErrorCode != ErrorCode.None)
         {
-            await Rollback(request.Email, accountId, playerId, playerId);
-            response.Result = createPlayerAttendanceBookErrorCode;
-            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
-            return response;
+            await Rollback(email, accountId, playerId, playerId);
+            _logger.ZLogInformationWithPayload(new { Email = email, PlayerID = playerId }, createPlayerAttendanceBookErrorCode.ToString());
+            return new (createPlayerAttendanceBookErrorCode, 0);
         }
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
-        return response;
+        return new(ErrorCode.None, playerId);
     }
 
     async Task Rollback(String email = "", Int32 accountId = 0, Int32 playerId = 0, Int32 attendancePlayerId = 0)
     {
         if (string.IsNullOrEmpty(email) == false)
         {
-            await _accountDb.DeleteAccountAsync(email);
+            var deleteAccountErrorCode = await _accountDb.DeleteAccountAsync(email);
+            if (deleteAccountErrorCode != ErrorCode.None)
+            {
+                _logger.ZLogErrorWithPayload(new { Email = email }, deleteAccountErrorCode.ToString());
+            }
         }
 
         if (accountId != 0) 
-        { 
-            await _gameDb.DeletePlayerAsync(accountId);
+        {
+            var deletePlayerErrorCode = await _gameDb.DeletePlayerAsync(accountId);
+            if (deletePlayerErrorCode != ErrorCode.None)
+            {
+                _logger.ZLogErrorWithPayload(new { Email = email }, deletePlayerErrorCode.ToString());
+            }
         }
 
         if (playerId != 0)
         {
-            await _gameDb.DeletePlayerAllItemsAsync(playerId);
+            var deletedPlayerItemErrorCode = await _gameDb.DeletePlayerAllItemsAsync(playerId);
+            if (deletedPlayerItemErrorCode != ErrorCode.None)
+            {
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, deletedPlayerItemErrorCode.ToString());
+            }
         }
 
         if (attendancePlayerId != 0)
         {
-            await _gameDb.DeletePlayerAttendanceBook(playerId);
+            var deletePlayerAttendanceBookErrorCode = await _gameDb.DeletePlayerAttendanceBook(playerId);
+            if (deletePlayerAttendanceBookErrorCode != ErrorCode.None)
+            {
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, deletePlayerAttendanceBookErrorCode.ToString());
+            }
         }
     }
 }

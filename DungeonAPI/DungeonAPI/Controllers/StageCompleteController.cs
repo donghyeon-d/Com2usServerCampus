@@ -31,7 +31,7 @@ public class StageCompleteController : ControllerBase
 
         StageCompleteRes response = await StageCompleteThenApplyResult(request, player);
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, Stage = request.Stage }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, Stage = request.Stage }, response.Result.ToString());
 
         return new StageCompleteRes() {  };
     }
@@ -107,7 +107,7 @@ public class StageCompleteController : ControllerBase
         var changeUserStatusErrorCode = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogOff);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            // TODO : rollback error log
+            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
             return changeUserStatusErrorCode;
         }
 
@@ -156,7 +156,11 @@ public class StageCompleteController : ControllerBase
                 await _gameDb.AddItemToPlayerItemList(playerId, item);
             if (addItemErrorCode != ErrorCode.None)
             {
-                await RollbackAddedItem(itemIdList);
+                var rollbackErrorCode = await RollbackAddedItem(itemIdList);
+                if (rollbackErrorCode != ErrorCode.None)
+                {
+                    _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + rollbackErrorCode.ToString());
+                }
                 return new(addItemErrorCode, null);
             }
         }
@@ -171,7 +175,8 @@ public class StageCompleteController : ControllerBase
         foreach(var farmingItem in farmingItemList)
         {
             var item = Item.InitItem(playerId, farmingItem.ItemCode, farmingItem.Count);
-            if(Util.ItemAttribute.IsGold(item.ItemCode) == false)
+            // IsValidRequest() 에서 이미 확인하기에 item이 null일 수 없음
+            if (Util.ItemAttribute.IsGold(item.ItemCode) == false)
             {
                 itemList.Add(item);
             }
@@ -180,15 +185,18 @@ public class StageCompleteController : ControllerBase
         return itemList;
     }
 
-    async Task RollbackAddedItem(List<int> itemIdList)
+    async Task<ErrorCode> RollbackAddedItem(List<int> itemIdList)
     {
         foreach (var itemId in itemIdList)
         {
-            if (await _gameDb.DeleteItem(itemId) != ErrorCode.None)
+            var rollbackErrorCode = await _gameDb.DeleteItem(itemId);
+            if (rollbackErrorCode != ErrorCode.None)
             {
-                // TODO : Rollback Error Log
+                return rollbackErrorCode;
             }
         }
+
+        return ErrorCode.None;
     }
 
     int SumKillNPCListExp(List<KillNPC> NPCList, Int32 stage)
@@ -197,7 +205,7 @@ public class StageCompleteController : ControllerBase
 
         foreach(var killNPC in NPCList)
         {
-            // 앞에서 NPC유효성 검사 이미 했기 때문에 findNPC가 null일 수 없음
+            // IsValidRequest()에서 NPC유효성 검사 이미 했기 때문에 findNPC가 null일 수 없음
             var findNPC = MasterDataDb.s_stageAttackNPC.Find(NPC => 
                     NPC.NPCCode == killNPC.NPCCode && NPC.StageCode == stage);
             totalExp += findNPC.Exp * killNPC.Count;
@@ -249,6 +257,7 @@ public class StageCompleteController : ControllerBase
             return new(ErrorCode.None, 0);
         }
 
+        //IsEmptyItemList()에서 확인했기 때문에 farmingList가 null일 수 없음
         FarmingItem? money = farmingList.Find(item => Util.ItemAttribute.IsGold(item.ItemCode));
         if (money is null || money.Count == 0)
         {
@@ -274,7 +283,7 @@ public class StageCompleteController : ControllerBase
         var addMoneyErrorCode =  await _gameDb.AddMoney(playerId, amount * -1);
         if (addMoneyErrorCode != ErrorCode.None)
         {
-            //  Rollback error log
+            _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + addMoneyErrorCode.ToString());
         }
     }
 
@@ -304,13 +313,13 @@ public class StageCompleteController : ControllerBase
             = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
         if (changeUserStatusErrorCode != ErrorCode.None)
         {
-            // TODO: Rollback Error
+            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
         }
 
         var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
         if (deleteDungeonInfoErrorCode != ErrorCode.None)
         {
-            // TODO : Rollback Error
+            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + deleteDungeonInfoErrorCode.ToString());
         }
     }
 
@@ -321,7 +330,7 @@ public class StageCompleteController : ControllerBase
             var deleteItemErrorCode = await _gameDb.DeleteItem(itemId);
             if (deleteItemErrorCode != ErrorCode.None )
             {
-                // TODO: rollback error log
+                _logger.ZLogErrorWithPayload(new { iItemId = itemId }, "RollBackError " + deleteItemErrorCode.ToString());
             }
         }
     }

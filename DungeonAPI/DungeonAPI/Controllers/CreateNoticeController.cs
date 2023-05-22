@@ -1,4 +1,5 @@
-﻿// 실제 서버 구현할때는 관리 툴에서 작업해줘야 함
+﻿// Notice DB에 정보를 넣기 위한 임시 API
+// 실제 서버 구현할때는 관리 툴에서 작업해줘야 함
 // 클라이언트가 접근할 수 있는 서버이기 때문에 보안상 매우 좋지 않음
 
 using System;
@@ -8,7 +9,6 @@ using DungeonAPI.Services;
 using DungeonAPI.ModelDB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ZLogger;
 
 namespace DungeonAPI.Controllers;
 
@@ -16,13 +16,11 @@ namespace DungeonAPI.Controllers;
 [Route("[controller]")]
 public class CreateNoticeController : ControllerBase
 {
-    readonly ILogger<CreateNoticeController> _logger;
     readonly INoticeMemoryDb _notice;
     readonly IOptions<AdminConfig> _admin;
 
-    public CreateNoticeController(ILogger<CreateNoticeController> logger, INoticeMemoryDb notice, IOptions<AdminConfig> admin)
+    public CreateNoticeController(INoticeMemoryDb notice, IOptions<AdminConfig> admin)
 	{
-        _logger = logger;
         _notice = notice;
         _admin = admin;
 	}
@@ -57,7 +55,7 @@ public class CreateNoticeController : ControllerBase
     async Task<ErrorCode> CheckDuplicateTitle(String title)
     {
         var (LoadNoticeErrorCode, notices) = await _notice.ReadNotificationList();
-        if (LoadNoticeErrorCode != ErrorCode.None)
+        if (LoadNoticeErrorCode != ErrorCode.None || notices is null)
         {
             return LoadNoticeErrorCode;
         }

@@ -27,7 +27,7 @@ public class ReceiveMailItemController : ControllerBase
 
         ReceiveMailItemRes response = await ReceiveMailItem(request, playerId);
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { Player = playerId }, response.Result.ToString());
 
         return response;
     }
@@ -54,6 +54,11 @@ public class ReceiveMailItemController : ControllerBase
         var pushItemToListErrorCode = await PushMailItemToList(playerId, mail);
         if (pushItemToListErrorCode != ErrorCode.None)
         {
+            var rollbackErrorCode = await _gameDb.MarkAsNotReceivedItem(request.MailId, playerId);
+            if (rollbackErrorCode != ErrorCode.None)
+            {
+                _logger.ZLogErrorWithPayload(new { Player = playerId }, "RollBackError " + rollbackErrorCode.ToString());
+            }
             response.Result = pushItemToListErrorCode;
             return response;
         }

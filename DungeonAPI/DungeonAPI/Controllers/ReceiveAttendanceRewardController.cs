@@ -28,25 +28,26 @@ public class ReceiveAttendanceRewardController : ControllerBase
 
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        response.Result = await ReceiveRewardToMail(playerId);
-        
-        _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+        var (receiveItemErrorCode, mailId) = await ReceiveItemToMail(playerId);
+        response.Result = receiveItemErrorCode;
+
+        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, MailId = mailId }, response.Result.ToString());
 
         return response;
     }
 
-    async Task<ErrorCode> ReceiveRewardToMail(Int32 playerId)
+    async Task<Tuple<ErrorCode, Int32>> ReceiveItemToMail(Int32 playerId)
     {
         var (loadAttandanceBookErrorCode, attendanceBook) 
                 = await _gameDb.LoadAttandanceBookInfo(playerId);
         if (loadAttandanceBookErrorCode != ErrorCode.None || attendanceBook is null)
         {
-            return loadAttandanceBookErrorCode;
+            return new (loadAttandanceBookErrorCode, 0);
         }
 
         if (attendanceBook.LastReceiveDate.Date == DateTime.Today.Date)
         {
-            return ErrorCode.AlreadyReceiveAttendanceReward;
+            return new (ErrorCode.AlreadyReceiveAttendanceReward, 0);
         }
 
         AttendanceBook todayAttendanceBook = CalcTodayAttendanceBook(attendanceBook);
@@ -54,7 +55,7 @@ public class ReceiveAttendanceRewardController : ControllerBase
         var updateAttendanceErrorCode = await _gameDb.UpdateAttendanceBook(todayAttendanceBook);
         if (updateAttendanceErrorCode != ErrorCode.None)
         {
-            return updateAttendanceErrorCode;
+            return new (updateAttendanceErrorCode, 0);
         }
 
         var (sendMailErrorCode, mailId) = await SendToMailDailyReward(playerId, todayAttendanceBook.DayCount);
@@ -63,12 +64,12 @@ public class ReceiveAttendanceRewardController : ControllerBase
             var rollbackErrorCode = await _gameDb.UpdateAttendanceBook(attendanceBook);
             if (rollbackErrorCode != ErrorCode.None)
             {
-                // TODO : RollbackError
+                _logger.ZLogErrorWithPayload(new { PlayerId = playerId }, "RollBackError " + rollbackErrorCode.ToString());
             }
-            return sendMailErrorCode;
+            return new(sendMailErrorCode, 0);
         }
 
-        return ErrorCode.None;
+        return new(ErrorCode.None, mailId) ;
     }
 
     AttendanceBook CalcTodayAttendanceBook(AttendanceBook attendanceBook)

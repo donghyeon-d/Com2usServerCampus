@@ -27,7 +27,7 @@ public class ReadMailListController : ControllerBase
 
         ReadMailListRes response = await LoadMails(request, playerId);
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, RequestListNumber = request.ListNumber },
+        _logger.ZLogInformationWithPayload(new { PlayerId = playerId, RequestListNumber = request.ListNumber },
             response.Result.ToString());
 
         return response;

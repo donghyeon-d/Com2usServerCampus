@@ -20,17 +20,18 @@ public class ReadNoticeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ReadNoticeRes> ProcessRequest(ReadNoticeReq request)
+    public async Task<ReadNoticeRes> ProcessRequest()
     {
-        ReadNoticeRes respones = await LoadNotice(request);
+        ReadNoticeRes respones = await LoadNotice();
+        Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email }, respones.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = playerId }, respones.Result.ToString());
 
         return respones;
 
     }
 
-    async Task<ReadNoticeRes> LoadNotice(ReadNoticeReq request)
+    async Task<ReadNoticeRes> LoadNotice()
     {
         ReadNoticeRes respones = new();
 

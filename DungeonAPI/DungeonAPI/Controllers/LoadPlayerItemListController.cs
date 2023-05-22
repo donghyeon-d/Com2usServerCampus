@@ -22,7 +22,7 @@ public class LoadPlayerItemListController : ControllerBase
     [HttpPost]
     public async Task<PlayerItemListRes> LoadPlayerItemList(PlayerItemListReq request)
     {
-        PlayerItemListRes response = new PlayerItemListRes();
+        PlayerItemListRes response = new ();
 
         Int32 playerId = int.Parse(HttpContext.Items["PlayerId"].ToString());
 
@@ -30,12 +30,12 @@ public class LoadPlayerItemListController : ControllerBase
         if (loadAllItemsErrorCode != ErrorCode.None)
         {
             response.Result = loadAllItemsErrorCode;
-            _logger.ZLogInformationWithPayload(new { Email = request.Email }, response.Result.ToString());
+            _logger.ZLogInformationWithPayload(new { Player = playerId }, response.Result.ToString());
             return response;
         }
 
         response.ItemList = itemList;
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, ItemCount = response.ItemList.Count() }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { Player = playerId, ItemCount = response.ItemList.Count() }, response.Result.ToString());
         return response;
     }
 }

@@ -30,7 +30,7 @@ public class SelectStageController : ControllerBase
 
         SelectStageRes response = await SelectStage(request, player);
 
-        _logger.ZLogInformationWithPayload(new { Email = request.Email, StageCode = request.StageCode }, response.Result.ToString());
+        _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, StageCode = request.StageCode }, response.Result.ToString());
 
         return response;
     }
@@ -73,7 +73,7 @@ public class SelectStageController : ControllerBase
         var deleteDungeonInfo = await _memoryDb.DeleteDungeonInfo(email);
         if (deleteDungeonInfo != ErrorCode.None)
         {
-            // log Rollback ErrorCode
+            _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + deleteDungeonInfo.ToString());
         }
     }
 

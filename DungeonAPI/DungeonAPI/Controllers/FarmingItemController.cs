@@ -33,7 +33,7 @@ namespace DungeonAPI.Controllers
             var LogicErrorCode = await FarmingItemLogic(player, request);
 
             response.Result = LogicErrorCode;
-            _logger.ZLogInformationWithPayload(new { Email = request.Email, ItemCode = request.ItemCode }, response.Result.ToString());
+            _logger.ZLogInformationWithPayload(new { PlayerId = player.Id, ItemCode = request.ItemCode }, response.Result.ToString());
 
             return response;
         }
@@ -73,10 +73,17 @@ namespace DungeonAPI.Controllers
             var setFarmingItemErrorCode = await _memoryDb.SetDungeonInfo(email, dungeonInfo);
             if (setFarmingItemErrorCode == ErrorCode.None)
             {
+                RollbackAddedItemCount(dungeonInfo, itemCode);
                 return setFarmingItemErrorCode;
             }
 
             return ErrorCode.None;
+        }
+
+        void RollbackAddedItemCount(InDungeon dungeonInfo, Int32 itemCode)
+        {
+            var index = dungeonInfo.ItemList.FindIndex(item => item.ItemCode == itemCode);
+            dungeonInfo.ItemList[index].Count--;
         }
 
         ErrorCode AddFarmingItemCount(InDungeon dungeonInfo, Int32 itemCode)
@@ -167,13 +174,13 @@ namespace DungeonAPI.Controllers
                 = await _memoryDb.ChangeUserStatus(email, PlayerStatus.LogIn);
             if (changeUserStatusErrorCode != ErrorCode.None)
             {
-                // TODO: Rollback Error
+                _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
             }
 
             var deleteDungeonInfoErrorCode = await _memoryDb.DeleteDungeonInfo(email);
             if (deleteDungeonInfoErrorCode != ErrorCode.None)
             {
-                // TODO : Rollback Error
+                _logger.ZLogErrorWithPayload(new { Email = email }, "RollBackError " + changeUserStatusErrorCode.ToString());
             }
         }
     }
