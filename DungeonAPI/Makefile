@@ -9,7 +9,7 @@ down :
 	sudo docker compose -f ./build/docker-compose.yml down
 
 rm :
-	rm -rf $(APISERVER_OUTPUT_PATH)/*
+	rm -rf ./build/apiserver/tools
 
 re :
 	@$(MAKE) down
