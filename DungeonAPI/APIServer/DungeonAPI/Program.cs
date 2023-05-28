@@ -48,31 +48,31 @@ void SettingLogger()
     var logging = builder.Logging;
     logging.ClearProviders();
 
-    var fileDir = configuration["logdir"];
+    // var fileDir = configuration["logdir"];
 
-    var exists = Directory.Exists(fileDir);
+    // var exists = Directory.Exists(fileDir);
 
-    if (!exists)
-    {
-        Directory.CreateDirectory(fileDir);
-    }
+    // if (!exists)
+    // {
+    //     Directory.CreateDirectory(fileDir);
+    // }
 
-    logging.AddZLoggerRollingFile(
-        (dt, x) => $"{fileDir}{dt.ToLocalTime():yyyy-MM-dd}_{x:000}.log",
-        x => x.ToLocalTime().Date, 1024,
-        options =>
-        {
-            options.EnableStructuredLogging = true;
-            var time = JsonEncodedText.Encode("Timestamp");
-            //DateTime.Now는 UTC+0 이고 한국은 UTC+9이므로 9시간을 더한 값을 출력한다.
-            var timeValue = JsonEncodedText.Encode(DateTime.Now.AddHours(9).ToString("yyyy/MM/dd HH:mm:ss"));
+    // logging.AddZLoggerRollingFile(
+    //     (dt, x) => $"{fileDir}{dt.ToLocalTime():yyyy-MM-dd}_{x:000}.log",
+    //     x => x.ToLocalTime().Date, 1024,
+    //     options =>
+    //     {
+    //         options.EnableStructuredLogging = true;
+    //         var time = JsonEncodedText.Encode("Timestamp");
+    //         //DateTime.Now는 UTC+0 이고 한국은 UTC+9이므로 9시간을 더한 값을 출력한다.
+    //         var timeValue = JsonEncodedText.Encode(DateTime.Now.AddHours(9).ToString("yyyy/MM/dd HH:mm:ss"));
 
-            options.StructuredLoggingFormatter = (writer, info) =>
-            {
-                writer.WriteString(time, timeValue);
-                info.WriteToJsonWriter(writer);
-            };
-        }); // 1024KB
+    //         options.StructuredLoggingFormatter = (writer, info) =>
+    //         {
+    //             writer.WriteString(time, timeValue);
+    //             info.WriteToJsonWriter(writer);
+    //         };
+    //     }); // 1024KB
 
     logging.AddZLoggerConsole(options =>
     {

@@ -34,6 +34,8 @@ services:
         depends_on:
             - mariadb
             - redis
+        ports:
+            - "5182:5182"
         expose:
             - "5182"
         networks:
