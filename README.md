@@ -18,7 +18,7 @@
     ```
 * api서버, redis, mariadb 서버가 각각의 컨테이너로 생성되고 실행됩니다.
 * api서버는 5182 포트로 열리게 됩니다.
-* docker 설치가 필요하면 `./Com2usServerCampus.docker_install.sh` 를 사용하거나 [docker docs](https://docs.docker.com/engine/install/)를 통해 설치할 수 있습니다.
+* docker 설치가 필요하면 `./Com2usServerCampus/docker_install.sh` 를 사용하거나 [docker docs](https://docs.docker.com/engine/install/)를 통해 설치할 수 있습니다.
 
 ### 포트설정
 * 아래 파일에서 설정 변경
